@@ -15,7 +15,8 @@ var copyrightFile: string = "COPYRIGHT";
 
 // The actual sources
 var tsidlSources: string[] = [
-    "src/tsidl.ts"
+    "src/tsidl.ts",
+    "src/options.ts"
 ];
 
 // Adds a preface to an existing file
@@ -42,7 +43,7 @@ function compileFile(outFile: string, sources: string[], prereqs: string[], pref
 {
     file(outFile, prereqs, () =>
     {
-        var cmd = "tsc --removeComments --declaration --noImplicitAny --module commonjs " + sources.join(" ") + " --out " + outFile;
+        var cmd = "tsc --removeComments --noImplicitAny --module commonjs " + sources.join(" ") + " --out " + outFile;
         if (emitSourceMaps)
         {
             cmd = cmd + " --sourcemap --mapRoot file:///" + path.resolve(path.dirname(outFile));

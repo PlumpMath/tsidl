@@ -2,63 +2,64 @@
 ///<reference path='../external/typescript/src/compiler/io.ts'/>
 ///<reference path='options.ts'/>
 
-//enum ErrorCode
-//{
-//    MultipleFiles = 1000,
-//    CouldNotReadFile = 1001,
-//    CantOpenOutputFile = 1002,
-//    NotADeclareFile = 1003,
-//    UnexpectedDeclaration = 1004,
-//    UnsupportedType = 1005,
-//    OverloadingNotAllowed = 1006,
-//    // UNUSED 1007,
-//    // UNUSED 1008,
-//    ClassExtensionNotAllowed = 1009,
-//    // UNUSED 1010,
-//    PrivateMembersNotAllowed = 1011,
-//    StaticMembersNotAllowed = 1012,
-//    NonFunctionAnonymousTypesNotAllowed = 1013,
-//    IndexersNotAllowed = 1014,
-//    CallAndConstructNotAllowed = 1015,
-//    //CallInNonAnonymousTypeNotAllowed = 1016,
-//    ConstructInNonAnonymousTypeNonClassNotAllowed = 1017,
+enum ErrorCode
+{
+    MultipleFiles = 1000,
+    CouldNotReadFile = 1001,
+    CantOpenOutputFile = 1002,
+    NotADeclareFile = 1003,
+    UnexpectedDeclaration = 1004,
+    UnsupportedType = 1005,
+    OverloadingNotAllowed = 1006,
+    NoFiles = 1007,
+    // UNUSED 1008,
+    ClassExtensionNotAllowed = 1009,
+    // UNUSED 1010,
+    PrivateMembersNotAllowed = 1011,
+    StaticMembersNotAllowed = 1012,
+    NonFunctionAnonymousTypesNotAllowed = 1013,
+    IndexersNotAllowed = 1014,
+    CallAndConstructNotAllowed = 1015,
+    //CallInNonAnonymousTypeNotAllowed = 1016,
+    ConstructInNonAnonymousTypeNonClassNotAllowed = 1017,
 
-//    // Temporary errors
-//    TEMPExternalModulesNotAllowed = 2000,
-//};
+    // Temporary errors
+    TEMPExternalModulesNotAllowed = 2000,
+};
 
-//var ErrorMessages: any =
-//{
-//    /* MultipleFiles */ 1000: "Only one input file may be specified.",
-//    /* CouldNotReadFile */ 1001: "Could not read file '{0}'.",
-//    /* CantOpenOutputFile */ 1002: "Could not open output file '{0}'.",
-//    /* NotADeclareFile */ 1003: "Script is not a declare file.",
-//    /* UnexpectedDeclaration */ 1004: "Unexpected declaration type.",
-//    /* UnsupportedType */ 1005: "Unsupported type.",
-//    /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
-//    /* ClassExtensionNotAllowed */ 1009: "Class inheritance is not allowed.",
-//    /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
-//    /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
-//    /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
-//    /* IndexersNotAllowed */ 1014: "Indexers are not allowed.",
-//    /* CallAndConstructNotAllowed */ 1015: "Types that declare call signatures and constructor signatures are not allowed.",
-//    ///* CallInNonAnonymousTypeNotAllowed */ 1016: "Non-anonymous types cannot declare a call signature.",
-//    /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
+var ErrorMessages: any =
+{
+    /* MultipleFiles */ 1000: "Only one input file may be specified.",
+    /* CouldNotReadFile */ 1001: "Could not read file '{0}'.",
+    /* CantOpenOutputFile */ 1002: "Could not open output file '{0}'.",
+    /* NotADeclareFile */ 1003: "Script is not a declare file.",
+    /* UnexpectedDeclaration */ 1004: "Unexpected declaration type.",
+    /* UnsupportedType */ 1005: "Unsupported type.",
+    /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
+    /* NoFiles */ 1007: "An input file must be specified.",
+    /* ClassExtensionNotAllowed */ 1009: "Class inheritance is not allowed.",
+    /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
+    /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
+    /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
+    /* IndexersNotAllowed */ 1014: "Indexers are not allowed.",
+    /* CallAndConstructNotAllowed */ 1015: "Types that declare call signatures and constructor signatures are not allowed.",
+    ///* CallInNonAnonymousTypeNotAllowed */ 1016: "Non-anonymous types cannot declare a call signature.",
+    /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
 
-//    // Temporary errors
-//    /* TEMPExternalModulesNotAllowed */ 2000: "Script cannot be an external module.",
-//};
+    // Temporary errors
+    /* TEMPExternalModulesNotAllowed */ 2000: "Script cannot be an external module.",
+};
 
-//function formatString(value: string, substitutions: string[]): string
-//{
-//    return value.replace(/{(\d+)}/g, 
-//        (match: string, ...args: any[])=> typeof substitutions[args[0]] != 'undefined' ? substitutions[args[0]] : match);
-//}
+function formatString(value: string, substitutions: string[]): string
+{
+    return value.replace(/{(\d+)}/g, 
+        (match: string, ...args: any[])=> typeof substitutions[args[0]] != 'undefined' ? substitutions[args[0]] : match);
+}
 
-//function reportError(origin: string, error: number, ... substitutions: string[]): void
-//{
-//    console.error(origin + ": error TS" + error.toString() + ": " + formatString(ErrorMessages[error], substitutions));
-//}
+function reportError(origin: string, error: number, ... substitutions: string[]): void
+{
+    console.error(origin + ": error TS" + error.toString() + ": " + formatString(ErrorMessages[error], substitutions));
+}
 
 //function compile(source: string, path: string): TypeScript.ASTList
 //{
@@ -647,68 +648,74 @@
 //    return true;
 //}
 
-//function printLogo(): void
-//{
-//    console.log("TsIdl Version 1.0");
-//    console.log("Copyright (C) Paul Vick. All rights reserved.");
-//    console.log();
-//}
+function printLogo(): void
+{
+    console.log("TsIdl Version 1.0");
+    console.log("Copyright (C) Paul Vick. All rights reserved.");
+    console.log();
+}
 
-//var ioHost: TypeScript.IIO = TypeScript.IO;
-//var optionProcessor: Options.OptionProcessor = new Options.OptionProcessor();
-//var noLogo: boolean;
-//var help: boolean;
+var ioHost: TypeScript.IIO = TypeScript.IO;
+var optionProcessor: Options.OptionProcessor = new Options.OptionProcessor();
+var noLogo: boolean;
+var help: boolean;
 
-//optionProcessor.option("nologo",
-//    {
-//        flag: true,
-//        usage: "Suppress logo display",
-//        set: () =>
-//        {
-//            noLogo = true;
-//        }
-//    });
+optionProcessor.option("nologo",
+    {
+        flag: true,
+        usage: "Suppress logo display",
+        set: () =>
+        {
+            noLogo = true;
+        }
+    });
 
-//optionProcessor.option('help',
-//    {
-//        usage: 'Print this message',
-//        set: () =>
-//        {
-//            printLogo();
-//            optionProcessor.printUsage();
-//            help = true;
-//        }
-//    }, 'h');
+optionProcessor.option('help',
+    {
+        usage: 'Print this message',
+        set: () =>
+        {
+            printLogo();
+            optionProcessor.printUsage();
+            help = true;
+        }
+    }, 'h');
 
-//var files: string[] = optionProcessor.parse(ioHost.arguments);
+var files: string[] = optionProcessor.parse(ioHost.arguments);
 
-//if (help)
-//{
-//    return 0;
-//}
+if (help)
+{
+    return 0;
+}
 
-//if (!noLogo)
-//{
-//    printLogo();
-//}
+if (!noLogo)
+{
+    printLogo();
+}
 
-//if (files.length != 1)
-//{
-//    reportError("tsidl", ErrorCode.MultipleFiles);
-//    return 1;
-//}
+if (!files || files.length == 0)
+{
+    reportError("tsidl", ErrorCode.NoFiles);
+    return 1;
+}
 
-//var script: string;
+if (files.length > 1)
+{
+    reportError("tsidl", ErrorCode.MultipleFiles);
+    return 1;
+}
 
-//try
-//{
-//    var scriptFile: TypeScript.FileInformation = ioHost.readFile(files[0], null);
-//    script = scriptFile.contents;
-//}
-//catch (err)
-//{
-//    reportError("tsidl", ErrorCode.CouldNotReadFile, files[0]);
-//}
+var script: string;
+
+try
+{
+    var scriptFile: TypeScript.FileInformation = ioHost.readFile(files[0], null);
+    script = scriptFile.contents;
+}
+catch (err)
+{
+    reportError("tsidl", ErrorCode.CouldNotReadFile, files[0]);
+}
 
 //var asts: TypeScript.ASTList = compile(script, files[0]);
 //var scriptAST: TypeScript.Script = <TypeScript.Script>asts.members[0];
@@ -744,4 +751,4 @@
 //    reportError("tsidl", ErrorCode.CantOpenOutputFile, headerFileName);
 //}
 
-//return 0;
+return 0;

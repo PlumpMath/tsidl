@@ -6,22 +6,19 @@ module Options
         flag?: boolean;
         shortFlag?: string;
         usage?: string;
-        set?: (s: string)=> void;
-        type?: string;
-        experimental?: boolean;
+        set?: (s: string) => void;
     }
 
     export class OptionProcessor
     {
-        private DEFAULT_SHORT_FLAG = "-";
-        private DEFAULT_LONG_FLAG = "--";
+        private DEFAULT_SHORT_FLAG: string = "-";
+        private DEFAULT_LONG_FLAG: string = "--";
 
         private options: IOptions[] = [];
 
-        // Find the option record for the given string. Returns null if not found.
-        private findOption(arg: string)
+        private findOption(arg: string): IOptions
         {
-            for (var index = 0; index < this.options.length; index++)
+            for (var index: number = 0; index < this.options.length; index++)
             {
                 if (arg === this.options[index].shortFlag || arg === this.options[index].name)
                 {
@@ -36,10 +33,10 @@ module Options
         {
             console.log("Options:");
 
-            var output: string[] = [];
+            var output: string[][] = [];
             var maxLength = 0;
 
-            this.options = this.options.sort((a, b)=>
+            this.options = this.options.sort((a: IOptions, b: IOptions): number =>
             {
                 var aName = a.name.toLowerCase();
                 var bName = b.name.toLowerCase();
@@ -47,10 +44,12 @@ module Options
                 if (aName > bName)
                 {
                     return 1;
-                } else if (aName < bName)
+                }
+                else if (aName < bName)
                 {
                     return -1;
-                } else
+                }
+                else
                 {
                     return 0;
                 }
@@ -58,15 +57,9 @@ module Options
 
             var index: number;
 
-            // Build up output array
             for (index = 0; index < this.options.length; index++)
             {
-                var option = this.options[index];
-
-                if (option.experimental)
-                {
-                    continue;
-                }
+                var option: IOptions = this.options[index];
 
                 if (!option.usage)
                 {
@@ -74,16 +67,15 @@ module Options
                 }
 
                 var usageString = "  ";
-                var type = option.type ? " " + option.type.toUpperCase() : "";
 
                 if (option.shortFlag)
                 {
-                    usageString += this.DEFAULT_SHORT_FLAG + option.shortFlag + type + ", ";
+                    usageString += this.DEFAULT_SHORT_FLAG + option.shortFlag + ", ";
                 }
 
-                usageString += this.DEFAULT_LONG_FLAG + option.name + type;
+                usageString += this.DEFAULT_LONG_FLAG + option.name;
 
-                output.push(usageString, option.usage);
+                output.push([usageString, option.usage]);
 
                 if (usageString.length > maxLength)
                 {
@@ -91,14 +83,13 @@ module Options
                 }
             }
 
-            // Print padded output
             for (index = 0; index < output.length; index++)
             {
                 console.log(output[index][0] + (new Array(maxLength - output[index][0].length + 3)).join(" ") + output[index][1]);
             }
         }
 
-        public option(name: string, config: IOptions, shortFlag: string = null)
+        public option(name: string, config: IOptions, shortFlag: string = null): void
         {
             if (!config)
             {
@@ -138,7 +129,8 @@ module Options
                         console.log("Unknown option " + arg);
                         console.log("");
                         this.printUsage();
-                    } else
+                    }
+                    else
                     {
                         if (!option.flag)
                         {
@@ -147,7 +139,8 @@ module Options
 
                         option.set(value);
                     }
-                } else
+                }
+                else
                 {
                     unnamed.push(current);
                 }
