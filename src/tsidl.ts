@@ -487,17 +487,20 @@ function getFileName(path: string): string
 //    headerFile.write("\n};");
 //}
 
-//function writeDeclarationsPrologue(baseName: string, file: IO.FileWriter): void
-//{
-//    file.write("\
-//// This file contains automatically generated proxies for JavaScript.\n\
-//\n\
-//#include \"jsrt.wrappers.h\"");
-//}
+function writeDeclarationsPrologue(baseName: string, file: string): string
+{
+    file += "\
+// This file contains automatically generated proxies for JavaScript.\n\
+\n\
+#include \"jsrt.wrappers.h\"";
 
-//function writeDeclarationsEpilogue(file: IO.FileWriter): void
-//{
-//}
+    return file;
+}
+
+function writeDeclarationsEpilogue(file: string): string
+{
+    return file;
+}
 
 //function checkSignatureGroup(fileName: string, type: TypeScript.Type, group: TypeScript.SignatureGroup, types: TypeScript.Type[]): boolean
 //{
@@ -647,7 +650,7 @@ function getFileName(path: string): string
 //    return checkMembers(fileName, type.members, types) && checkMembers(fileName, type.ambientMembers, types);
 //}
 
-function checkDocument(fileName: string, document: TypeScript.Document, types: TypeScript.PullTypeSymbol[], ioHost: TypeScript.IIO): boolean
+function checkDocument(fileName: string, document: TypeScript.Document, types: TypeScript.PullTypeSymbol[]): boolean
 {
     if (!document.isDeclareFile())
     {
@@ -776,27 +779,28 @@ function main()
     var fileName: string = getFileName(files[0]);
     var types: TypeScript.PullTypeSymbol[] = [];
 
-    if (!checkDocument(fileName, document, types, ioHost))
+    if (!checkDocument(fileName, document, types))
     {
         return 1;
     }
 
-//var headerFile: IO.FileWriter;
+    var headerFile: string = "";
     var baseName: string = getFileNameWithoutExtension(files[0]);
     var headerFileName: string = baseName + ".proxy.h";
 
     try
     {
-        //    headerFile = new io.FileWriter(headerFileName);
-        //    if ((/\.d$/i).test(baseName))
-        //    {
-        //        baseName = baseName.substring(0, baseName.length - 2);
-        //    }
+        ioHost.stdout.WriteLine(baseName);
+        if ((/\.d$/i).test(baseName))
+        {
+            baseName = baseName.substring(0, baseName.length - 2);
+        }
 
-        //    writeDeclarationsPrologue(baseName, headerFile);
+        headerFile = writeDeclarationsPrologue(baseName, headerFile);
         //    writeScriptDeclaration(baseName, scriptAST, types, headerFile);
-        //    writeDeclarationsEpilogue(headerFile);
-        //    headerFile.close();
+        headerFile = writeDeclarationsEpilogue(headerFile);
+
+        ioHost.writeFile(headerFileName, headerFile, false);
     }
     catch (err)
     {
