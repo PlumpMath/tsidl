@@ -14,7 +14,7 @@ enum ErrorCode
     NoFiles = 1007,
     ExternalModulesNotAllowed = 1008,
     ClassExtensionNotAllowed = 1009,
-    // UNUSED 1010,
+    UnexpectedModifier = 1010,
     PrivateMembersNotAllowed = 1011,
     StaticMembersNotAllowed = 1012,
     NonFunctionAnonymousTypesNotAllowed = 1013,
@@ -22,6 +22,8 @@ enum ErrorCode
     CallAndConstructNotAllowed = 1015,
     //CallInNonAnonymousTypeNotAllowed = 1016,
     ConstructInNonAnonymousTypeNonClassNotAllowed = 1017,
+    InternalError = 1018,
+    GenericsNotAllowed = 1019,
 };
 
 var ErrorMessages: any =
@@ -36,6 +38,7 @@ var ErrorMessages: any =
     /* NoFiles */ 1007: "An input file must be specified.",
     /* ExternalModulesNotAllowed */ 1008: "Script cannot be an external module.",
     /* ClassExtensionNotAllowed */ 1009: "Class inheritance is not allowed.",
+    /* UnexpectedModifier */ 1010: "Unexpected modifier {0}.",
     /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
     /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
     /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
@@ -43,6 +46,8 @@ var ErrorMessages: any =
     /* CallAndConstructNotAllowed */ 1015: "Types that declare call signatures and constructor signatures are not allowed.",
     ///* CallInNonAnonymousTypeNotAllowed */ 1016: "Non-anonymous types cannot declare a call signature.",
     /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
+    /* InternalError */ 1018: "Internal error.",
+    /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
 };
 
 function formatString(value: string, substitutions: string[]): string
@@ -78,7 +83,17 @@ function compile(source: string, path: string, ioHost: TypeScript.IIO): TypeScri
             ioHost.stderr.WriteLine(diagnostic.message());
         }
 
+        var compilerFilePath = ioHost.getExecutingFilePath();
+        var containingDirectoryPath = ioHost.dirName(compilerFilePath);
+        var libraryFilePath = ioHost.resolvePath(containingDirectoryPath + "/" + "lib.d.ts");
+        var library: string = ioHost.readFile(libraryFilePath, null).contents;
+
         var compiler: TypeScript.TypeScriptCompiler = new TypeScript.TypeScriptCompiler();
+
+        compiler.addFile(libraryFilePath, TypeScript.ScriptSnapshot.fromString(library), TypeScript.ByteOrderMark.None, 0, false);
+        compiler.getSyntacticDiagnostics(libraryFilePath).forEach(d => addDiagnostic(d));
+        compiler.getSemanticDiagnostics(libraryFilePath).forEach(d => addDiagnostic(d));
+
         compiler.addFile(path, TypeScript.ScriptSnapshot.fromString(source), TypeScript.ByteOrderMark.None, 0, false);
         compiler.getSyntacticDiagnostics(path).forEach(d => addDiagnostic(d));
         compiler.getSemanticDiagnostics(path).forEach(d => addDiagnostic(d));
@@ -525,68 +540,70 @@ function writeDeclarationsEpilogue(file: string): string
 //    return checkType(fileName, signature.returnType.type, types);
 //}
 
-//function checkMembers(fileName: string, members: TypeScript.ScopedMembers, types: TypeScript.Type[]): boolean
+//function checkMembers(fileName: string, members: TypeScript.PullSymbol[], types: TypeScript.PullTypeSymbol[]): boolean
 //{
-//    if (members && members.allMembers.count() > 0)
+//    console.log("checkMembers " + members.length.toString());
+//    if (members && members.length > 0 && !members.every(
+//        (symbol: TypeScript.PullSymbol) =>
+//        {
+//            if (!symbol.isExternallyVisible())
+//            {
+//                reportError(fileName, ErrorCode.PrivateMembersNotAllowed);
+//                return false;
+//            }
+//            return checkType(fileName, symbol.type, types);
+//        }, null))
 //    {
-//        if (members.privateMembers.count() > 0)
-//        {
-//            reportError(fileName, ErrorCode.PrivateMembersNotAllowed);
-//            return false;
-//        }
-
-//        if (!members.publicMembers.every(
-//            function (name: string, symbol: TypeScript.Symbol, context: any) 
-//            { 
-//                return checkType(fileName, symbol.getType(), types)
-//            }, null))
-//        {
-//            return false;
-//        }
+//        return false;
 //    }
 
 //    return true;
 //}
 
-//function checkType(fileName: string, type: TypeScript.Type, types: TypeScript.Type[]): boolean
-//{
-//    if (!type)
-//    {
-//        reportError(fileName, ErrorCode.UnsupportedType);
-//        return false;
-//    }
-//    else if (type.primitiveTypeClass != TypeScript.Primitive.None)
-//    {
-//        if (type.primitiveTypeClass == TypeScript.Primitive.Boolean ||
-//            type.primitiveTypeClass == TypeScript.Primitive.Double ||
-//            type.primitiveTypeClass == TypeScript.Primitive.String ||
-//            type.primitiveTypeClass == TypeScript.Primitive.Void ||
-//            type.primitiveTypeClass == TypeScript.Primitive.Any)
-//        {
-//            return true;
-//        }
-//        else
-//        {
-//            reportError(fileName, ErrorCode.UnsupportedType);
-//            return false;
-//        }
-//    }
-//    else if (type.isArray())
-//    {
-//        return checkType(fileName, type.elementType, types);
-//    }
-//    else if (types[type.typeID])
-//    {
-//        return true;
-//    }
+function checkType(fileName: string, type: TypeScript.PullTypeSymbol, types: TypeScript.PullTypeSymbol[]): boolean
+{
+    if (!type)
+    {
+        reportError(fileName, ErrorCode.UnsupportedType);
+        return false;
+    }
+    else if (type.isPrimitive())
+    {
+        if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any")
+        {
+            return true;
+        }
+        else
+        {
+            reportError(fileName, ErrorCode.UnsupportedType);
+            return false;
+        }
+    }
+    else if (type.isArrayNamedTypeReference())
+    {
+        return checkType(fileName, type.getElementType(), types);
+    }
+    else if (types[type.pullSymbolID])
+    {
+        return true;
+    }
 
-//    types[type.typeID] = type;
+    types[type.pullSymbolID] = type;
 
-//    if (type.index)
-//    {
-//        reportError(fileName, ErrorCode.IndexersNotAllowed);
-//        return false;
-//    }
+    if (type.isGeneric())
+    {
+        reportError(fileName, ErrorCode.GenericsNotAllowed);
+        return false;
+    }
+
+    if (type.getIndexSignatures().length != 0)
+    {
+        reportError(fileName, ErrorCode.IndexersNotAllowed);
+        return false;
+    }
+
+    reportError(fileName, ErrorCode.UnsupportedType);
+    return false;
 
 //    if (type.call)
 //    {
@@ -647,52 +664,124 @@ function writeDeclarationsEpilogue(file: string): string
 //        }
 //    }
 
-//    return checkMembers(fileName, type.members, types) && checkMembers(fileName, type.ambientMembers, types);
-//}
+//    return checkMembers(fileName, type.getMembers(), types);
+}
 
-function checkDocument(fileName: string, document: TypeScript.Document, types: TypeScript.PullTypeSymbol[]): boolean
+function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement, types: TypeScript.PullTypeSymbol[]): boolean
 {
-    if (!document.isDeclareFile())
+    var index: number;
+
+    // TODO: Ambient will be required for top level, but other contexts?
+
+    for (index = 0; index < variableStatement.modifiers.length; index++)
     {
-        reportError(fileName, ErrorCode.NotADeclareFile);
-        return false;
+        switch (variableStatement.modifiers[index])
+        {
+            case TypeScript.PullElementFlags.Ambient:
+                break;
+
+            default:
+                reportError(variableStatement.fileName(), ErrorCode.UnexpectedModifier, variableStatement.modifiers[index].toString());
+                return false;
+        }
     }
 
-    if (document.isExternalModule())
+    var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
+
+    for (index = 0; index < declarators.nonSeparatorCount(); index++)
     {
-        reportError(fileName, ErrorCode.ExternalModulesNotAllowed);
-        return false;
+        var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
+
+        if (declarator.kind() !== TypeScript.SyntaxKind.VariableDeclarator)
+        {
+            reportError(variableStatement.fileName(), ErrorCode.UnexpectedDeclaration, declarator.kind().toString());
+            return false;
+        }
+
+        var decl: TypeScript.PullDecl = document._getDeclForAST(declarator);
+
+        if (!decl)
+        {
+            reportError(variableStatement.fileName(), ErrorCode.InternalError);
+            return false;
+        }
+
+        var symbol: TypeScript.PullSymbol = decl.getSymbol();
+
+        if (!symbol)
+        {
+            reportError(variableStatement.fileName(), ErrorCode.InternalError);
+            return false;
+        }
+
+        if (!checkType(variableStatement.fileName(), symbol.type, types))
+        {
+            return false;
+        }
+
+        // TODO: Don't have to worry about ambient initializers, not allowed, but other contexts?
     }
 
-    var sourceUnit: TypeScript.SourceUnit = document.sourceUnit();
+    return true;
+}
 
+function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.SourceUnit, types: TypeScript.PullTypeSymbol[]): boolean
+{
     for (var index: number = 0; index < sourceUnit.moduleElements.childCount(); index++)
     {
         var ast: TypeScript.AST = sourceUnit.moduleElements.childAt(index);
         switch (ast.kind())
         {
             case TypeScript.SyntaxKind.VariableStatement:
-            case TypeScript.SyntaxKind.FunctionDeclaration:
-            case TypeScript.SyntaxKind.InterfaceDeclaration:
-            case TypeScript.SyntaxKind.ClassDeclaration:
-            case TypeScript.SyntaxKind.ModuleDeclaration:
-                //if (!checkType(fileName, ast.type, types))
-                //{
-                //    return false;
-                //}
-                break;
+                return checkVariableStatement(document, <TypeScript.VariableStatement>ast, types);
+
+            //case TypeScript.SyntaxKind.FunctionDeclaration:
+            //case TypeScript.SyntaxKind.InterfaceDeclaration:
+            //case TypeScript.SyntaxKind.ClassDeclaration:
+            //case TypeScript.SyntaxKind.ModuleDeclaration:
+            //var symbol: TypeScript.PullSymbol = document._getDeclForAST(ast).getSymbol();
+            //console.log(ast.kind().toString() + " " + symbol.kind.toString());
+            //if (!symbol.isType())
+            //{
+            //    reportError(fileName, ErrorCode.UnexpectedDeclaration, ast.kind().toString());
+            //    return false;
+            //}
+
+            //if (!checkType(fileName, <TypeScript.PullTypeSymbol>symbol, types))
+            //{
+            //    return false;
+            //}
+            //break;
 
             case TypeScript.SyntaxKind.EmptyStatement:
                 // ignore;
                 break;
 
             default:
-                reportError(fileName, ErrorCode.UnexpectedDeclaration, ast.kind().toString());
+                reportError(sourceUnit.fileName(), ErrorCode.UnexpectedDeclaration, ast.kind().toString());
                 return false;
         }
     }
 
     return true;
+   
+}
+
+function checkDocument(document: TypeScript.Document, types: TypeScript.PullTypeSymbol[]): boolean
+{
+    if (!document.isDeclareFile())
+    {
+        reportError(document.fileName, ErrorCode.NotADeclareFile);
+        return false;
+    }
+
+    if (document.isExternalModule())
+    {
+        reportError(document.fileName, ErrorCode.ExternalModulesNotAllowed);
+        return false;
+    }
+
+    return checkSourceUnit(document, document.sourceUnit(), types);
 }
 
 function printLogo(): void
@@ -776,10 +865,9 @@ function main()
         return 1;
     }
 
-    var fileName: string = getFileName(files[0]);
     var types: TypeScript.PullTypeSymbol[] = [];
 
-    if (!checkDocument(fileName, document, types))
+    if (!checkDocument(document, types))
     {
         return 1;
     }
@@ -790,7 +878,6 @@ function main()
 
     try
     {
-        ioHost.stdout.WriteLine(baseName);
         if ((/\.d$/i).test(baseName))
         {
             baseName = baseName.substring(0, baseName.length - 2);
