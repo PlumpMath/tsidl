@@ -1,0 +1,20 @@
+{
+    "name": "tsidl",
+    "version": "0.1.0",
+    "description": "A tool to generate Chakra hosting objects from TypeScript.",
+    "keywords": [ "typescript", "ts", "chakra", "hosting" ],
+    "author": "Paul Vick <paul@panopticoncentral.net> (http://www.panopticoncentral.net)",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/panopticoncentral/tsidl.git"
+    },
+    "homepage": "https://github.com/panopticoncentral/tsidl",
+    "license": "Apache-2.0",
+    "main": "src/tsidl.js",
+    "devDependencies": {
+        "jake-typescript": "0.1.1"
+    },
+    "engines": {
+        "node": "*"
+    }
+}
