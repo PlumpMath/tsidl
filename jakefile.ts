@@ -130,8 +130,7 @@ var libSource: string = "external/typescript/typings/lib.d.ts";
 
 // The actual sources
 var tsidlSources: string[] = [
-    "src/tsidl.ts",
-    "src/options.ts"
+    "src/tsidl.ts"
 ];
 
 directory(srcBuiltDirectory);
