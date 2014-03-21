@@ -1,6 +1,8 @@
+///<reference path='../typings/nomnom/nomnom.d.ts'/>
 ///<reference path='../external/typescript/src/compiler/typescript.ts'/>
 ///<reference path='../external/typescript/src/compiler/io.ts'/>
-///<reference path='options.ts'/>
+
+import nomnom = require('nomnom');
 
 enum ErrorCode
 {
@@ -560,11 +562,11 @@ function writeDeclarationsEpilogue(file: string): string
 //    return true;
 //}
 
-function checkType(fileName: string, type: TypeScript.PullTypeSymbol, types: TypeScript.PullTypeSymbol[]): boolean
+function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbol): boolean
 {
     if (!type)
     {
-        reportError(fileName, ErrorCode.UnsupportedType);
+        reportError(document.fileName, ErrorCode.UnsupportedType);
         return false;
     }
     else if (type.isPrimitive())
@@ -575,35 +577,58 @@ function checkType(fileName: string, type: TypeScript.PullTypeSymbol, types: Typ
         }
         else
         {
-            reportError(fileName, ErrorCode.UnsupportedType);
+            reportError(document.fileName, ErrorCode.UnsupportedType);
             return false;
         }
     }
     else if (type.isArrayNamedTypeReference())
     {
-        return checkType(fileName, type.getElementType(), types);
-    }
-    else if (types[type.pullSymbolID])
-    {
-        return true;
+        return checkType(document, type.getElementType());
     }
 
-    types[type.pullSymbolID] = type;
+    var declarations: TypeScript.PullDecl[] = type.getDeclarations();
 
-    if (type.isGeneric())
+    if (!declarations || declarations.length == 0)
     {
-        reportError(fileName, ErrorCode.GenericsNotAllowed);
+        reportError(document.fileName, ErrorCode.UnsupportedType);
         return false;
     }
 
-    if (type.getIndexSignatures().length != 0)
+    var sourceUnit: TypeScript.SourceUnit = document.sourceUnit();
+
+    if (!declarations.every((value: TypeScript.PullDecl): boolean=>
     {
-        reportError(fileName, ErrorCode.IndexersNotAllowed);
+        var ast: TypeScript.AST = document._getASTForDecl(value);
+        while (ast)
+        {
+            if (ast === sourceUnit)
+            {
+                return true;
+            }
+
+            ast = ast.parent;
+        }
+
+        return false;
+    }))
+    {
+        reportError(document.fileName, ErrorCode.UnsupportedType);
         return false;
     }
 
-    reportError(fileName, ErrorCode.UnsupportedType);
-    return false;
+    return true;
+
+    //if (type.isGeneric())
+    //{
+    //    reportError(fileName, ErrorCode.GenericsNotAllowed);
+    //    return false;
+    //}
+
+    //if (type.getIndexSignatures().length != 0)
+    //{
+    //    reportError(fileName, ErrorCode.IndexersNotAllowed);
+    //    return false;
+    //}
 
 //    if (type.call)
 //    {
@@ -667,7 +692,7 @@ function checkType(fileName: string, type: TypeScript.PullTypeSymbol, types: Typ
 //    return checkMembers(fileName, type.getMembers(), types);
 }
 
-function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement, types: TypeScript.PullTypeSymbol[]): boolean
+function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement): boolean
 {
     var index: number;
 
@@ -714,7 +739,7 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
             return false;
         }
 
-        if (!checkType(variableStatement.fileName(), symbol.type, types))
+        if (!checkType(document, symbol.type))
         {
             return false;
         }
@@ -725,7 +750,7 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
     return true;
 }
 
-function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.SourceUnit, types: TypeScript.PullTypeSymbol[]): boolean
+function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.SourceUnit): boolean
 {
     for (var index: number = 0; index < sourceUnit.moduleElements.childCount(); index++)
     {
@@ -733,7 +758,7 @@ function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.S
         switch (ast.kind())
         {
             case TypeScript.SyntaxKind.VariableStatement:
-                return checkVariableStatement(document, <TypeScript.VariableStatement>ast, types);
+                return checkVariableStatement(document, <TypeScript.VariableStatement>ast);
 
             //case TypeScript.SyntaxKind.FunctionDeclaration:
             //case TypeScript.SyntaxKind.InterfaceDeclaration:
@@ -767,7 +792,7 @@ function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.S
    
 }
 
-function checkDocument(document: TypeScript.Document, types: TypeScript.PullTypeSymbol[]): boolean
+function checkDocument(document: TypeScript.Document): boolean
 {
     if (!document.isDeclareFile())
     {
@@ -781,7 +806,7 @@ function checkDocument(document: TypeScript.Document, types: TypeScript.PullType
         return false;
     }
 
-    return checkSourceUnit(document, document.sourceUnit(), types);
+    return checkSourceUnit(document, document.sourceUnit());
 }
 
 function printLogo(): void
@@ -794,42 +819,18 @@ function printLogo(): void
 function main()
 {
     var ioHost: TypeScript.IIO = TypeScript.IO;
-    var optionProcessor: Options.OptionProcessor = new Options.OptionProcessor();
-    var noLogo: boolean;
-    var help: boolean;
 
-    optionProcessor.option("nologo",
+    nomnom.script("tsidl");
+    nomnom.option("nologo",
     {
         flag: true,
-        usage: "Suppress logo display",
-        set: ()=>
-        {
-            noLogo = true;
-        }
+        help: "Suppress logo display",
     });
 
-    optionProcessor.option('help',
-    {
-        usage: 'Print this message',
-        set: ()=>
-        {
-            printLogo();
-            optionProcessor.printUsage();
-            help = true;
-        }
-    }, 'h');
+    var cmdLine = nomnom.parse(ioHost.arguments);
+    var files = <string[]>cmdLine._;
 
-    var files: string[] = optionProcessor.parse(ioHost.arguments);
-
-// ReSharper disable once ConditionIsAlwaysConst
-    if (help)
-// ReSharper disable once HeuristicallyUnreachableCode
-    {
-        return 0;
-    }
-
-// ReSharper disable once ConditionIsAlwaysConst
-    if (!noLogo)
+    if (!cmdLine.nologo)
     {
         printLogo();
     }
@@ -865,9 +866,7 @@ function main()
         return 1;
     }
 
-    var types: TypeScript.PullTypeSymbol[] = [];
-
-    if (!checkDocument(document, types))
+    if (!checkDocument(document))
     {
         return 1;
     }

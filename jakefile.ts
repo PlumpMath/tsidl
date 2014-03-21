@@ -144,7 +144,7 @@ task("emitSourceMaps", () =>
 
 function compileOptions(): ts.CompileOptions
 {
-    var options: ts.CompileOptions = { noImplicitAny: true };
+    var options: ts.CompileOptions = { noImplicitAny: true, moduleKind: ts.ModuleKind.commonjs };
     if (emitSourceMaps)
     {
         options.generateSourceMap = true;
