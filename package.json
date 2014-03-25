@@ -10,7 +10,7 @@
     },
     "homepage": "https://github.com/panopticoncentral/tsidl",
     "license": "Apache-2.0",
-    "main": "src/tsidl.js",
+    "bin": "built/src/tsidl.js",
     "dependencies": {
         "nomnom": "1.6.2"
     },
