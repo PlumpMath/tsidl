@@ -1,5 +1,5 @@
 # Various output
-*.js
+jakefile.js
 built/
 node_modules/
 vs/
