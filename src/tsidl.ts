@@ -1,6 +1,5 @@
 ///<reference path='../typings/nomnom/nomnom.d.ts'/>
-///<reference path='../external/typescript/src/compiler/typescript.ts'/>
-///<reference path='../external/typescript/src/compiler/io.ts'/>
+///<reference path='../lib/ts.d.ts'/>
 
 import nomnom = require('nomnom');
 
