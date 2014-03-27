@@ -3,8 +3,7 @@
 
 import nomnom = require('nomnom');
 
-enum ErrorCode
-{
+enum ErrorCode {
     MultipleFiles = 1000,
     CouldNotReadFile = 1001,
     CantOpenOutputFile = 1002,
@@ -27,112 +26,99 @@ enum ErrorCode
     GenericsNotAllowed = 1019,
 };
 
-var ErrorMessages: any =
-{
-    /* MultipleFiles */ 1000: "Only one input file may be specified.",
-    /* CouldNotReadFile */ 1001: "Could not read file '{0}'.",
-    /* CantOpenOutputFile */ 1002: "Could not open output file '{0}'.",
-    /* NotADeclareFile */ 1003: "Script is not a declare file.",
-    /* UnexpectedDeclaration */ 1004: "Unexpected declaration type {0}.",
-    /* UnsupportedType */ 1005: "Unsupported type.",
-    /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
-    /* NoFiles */ 1007: "An input file must be specified.",
-    /* ExternalModulesNotAllowed */ 1008: "Script cannot be an external module.",
-    /* ClassExtensionNotAllowed */ 1009: "Class inheritance is not allowed.",
-    /* UnexpectedModifier */ 1010: "Unexpected modifier {0}.",
-    /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
-    /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
-    /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
-    /* IndexersNotAllowed */ 1014: "Indexers are not allowed.",
-    /* CallAndConstructNotAllowed */ 1015: "Types that declare call signatures and constructor signatures are not allowed.",
-    ///* CallInNonAnonymousTypeNotAllowed */ 1016: "Non-anonymous types cannot declare a call signature.",
-    /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
-    /* InternalError */ 1018: "Internal error.",
-    /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
-};
-
-function formatString(value: string, substitutions: string[]): string
-{
-    return value.replace(/{(\d+)}/g, 
-        (match: string, ...args: any[])=> typeof substitutions[args[0]] != 'undefined' ? substitutions[args[0]] : match);
-}
-
-function reportError(origin: string, error: number, ... substitutions: string[]): void
-{
-    console.error(origin + ": error TS" + error.toString() + ": " + formatString(ErrorMessages[error], substitutions));
-}
-
-function compile(source: string, path: string, ioHost: TypeScript.IIO): TypeScript.Document
-{
-    if (source != null)
+var errorMessage: any =
     {
-        var hasErrors: boolean = false;
+        /* MultipleFiles */ 1000: "Only one input file may be specified.",
+        /* CouldNotReadFile */ 1001: "Could not read file '{0}'.",
+        /* CantOpenOutputFile */ 1002: "Could not open output file '{0}'.",
+        /* NotADeclareFile */ 1003: "Script is not a declare file.",
+        /* UnexpectedDeclaration */ 1004: "Unexpected declaration type {0}.",
+        /* UnsupportedType */ 1005: "Unsupported type.",
+        /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
+        /* NoFiles */ 1007: "An input file must be specified.",
+        /* ExternalModulesNotAllowed */ 1008: "Script cannot be an external module.",
+        /* ClassExtensionNotAllowed */ 1009: "Class inheritance is not allowed.",
+        /* UnexpectedModifier */ 1010: "Unexpected modifier {0}.",
+        /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
+        /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
+        /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
+        /* IndexersNotAllowed */ 1014: "Indexers are not allowed.",
+        /* CallAndConstructNotAllowed */ 1015: "Types that declare call signatures and constructor signatures are not allowed.",
+        ///* CallInNonAnonymousTypeNotAllowed */ 1016: "Non-anonymous types cannot declare a call signature.",
+        /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
+        /* InternalError */ 1018: "Internal error.",
+        /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
+    };
 
-        function addDiagnostic(diagnostic: TypeScript.Diagnostic)
-        {
-            var diagnosticInfo = diagnostic.info();
-            if (diagnosticInfo.category === TypeScript.DiagnosticCategory.Error)
-            {
-                hasErrors = true;
-            }
+function formatString(value: string, substitutions: string[]): string {
+    return value.replace(/{(\d+)}/g,
+        (match: string, ...args: any[]) => typeof substitutions[args[0]] != 'undefined' ? substitutions[args[0]] : match);
+}
 
-            if (diagnostic.fileName())
-            {
-                ioHost.stderr.Write(diagnostic.fileName() + "(" + (diagnostic.line() + 1) + "," + (diagnostic.character() + 1) + "): ");
-            }
+function reportError(origin: string, error: number, ...substitutions: string[]): void {
+    console.error(origin + ": error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions));
+}
 
-            ioHost.stderr.WriteLine(diagnostic.message());
+function compile(source: string, path: string, ioHost: TypeScript.IIO): TypeScript.Document {
+    if (source == null) {
+        return null;
+    }
+    var hasErrors: boolean = false;
+
+    function addDiagnostic(diagnostic: TypeScript.Diagnostic) {
+        var diagnosticInfo = diagnostic.info();
+        if (diagnosticInfo.category === TypeScript.DiagnosticCategory.Error) {
+            hasErrors = true;
         }
 
-        var compilerFilePath = ioHost.getExecutingFilePath();
-        var containingDirectoryPath = ioHost.dirName(compilerFilePath);
-        var libraryFilePath = ioHost.resolvePath(containingDirectoryPath + "/" + "lib.d.ts");
-        var library: string = ioHost.readFile(libraryFilePath, null).contents;
+        if (diagnostic.fileName()) {
+            ioHost.stderr.Write(diagnostic.fileName() + "(" + (diagnostic.line() + 1) + "," + (diagnostic.character() + 1) + "): ");
+        }
 
-        var compiler: TypeScript.TypeScriptCompiler = new TypeScript.TypeScriptCompiler();
-
-        compiler.addFile(libraryFilePath, TypeScript.ScriptSnapshot.fromString(library), TypeScript.ByteOrderMark.None, 0, false);
-        compiler.getSyntacticDiagnostics(libraryFilePath).forEach(d => addDiagnostic(d));
-        compiler.getSemanticDiagnostics(libraryFilePath).forEach(d => addDiagnostic(d));
-
-        compiler.addFile(path, TypeScript.ScriptSnapshot.fromString(source), TypeScript.ByteOrderMark.None, 0, false);
-        compiler.getSyntacticDiagnostics(path).forEach(d => addDiagnostic(d));
-        compiler.getSemanticDiagnostics(path).forEach(d => addDiagnostic(d));
-
-// ReSharper disable once ConditionIsAlwaysConst
-// ReSharper disable once HeuristicallyUnreachableCode
-        return hasErrors ? null : compiler.getDocument(path);
+        ioHost.stderr.WriteLine(diagnostic.message());
     }
 
-    return null;
+    var compilerFilePath = ioHost.getExecutingFilePath();
+    var containingDirectoryPath = ioHost.dirName(compilerFilePath);
+    var libraryFilePath = ioHost.resolvePath(containingDirectoryPath + "/" + "lib.d.ts");
+    var library: string = ioHost.readFile(libraryFilePath, null).contents;
+
+    var compiler: TypeScript.TypeScriptCompiler = new TypeScript.TypeScriptCompiler();
+
+    compiler.addFile(libraryFilePath, TypeScript.ScriptSnapshot.fromString(library), TypeScript.ByteOrderMark.None, 0, false);
+    compiler.getSyntacticDiagnostics(libraryFilePath).forEach(d => addDiagnostic(d));
+    compiler.getSemanticDiagnostics(libraryFilePath).forEach(d => addDiagnostic(d));
+
+    compiler.addFile(path, TypeScript.ScriptSnapshot.fromString(source), TypeScript.ByteOrderMark.None, 0, false);
+    compiler.getSyntacticDiagnostics(path).forEach(d => addDiagnostic(d));
+    compiler.getSemanticDiagnostics(path).forEach(d => addDiagnostic(d));
+
+    // ReSharper disable once ConditionIsAlwaysConst
+    // ReSharper disable once HeuristicallyUnreachableCode
+    return hasErrors ? null : compiler.getDocument(path);
 }
 
-function clean(path: string): string
-{
+function clean(path: string): string {
     return path.replace("\"", "").replace("'", "").replace("'", "").replace("\"", "").replace(/\\/g, "/");
 }
 
-function getFileNameWithoutExtension(path: string): string
-{
+function getFileNameWithoutExtension(path: string): string {
     var pathComponents: string[] = clean(path).split("/");
     var fullFileName: string = pathComponents[pathComponents.length - 1];
     var fileNameComponents: string[] = fullFileName.split(".");
 
-    if (fileNameComponents[fileNameComponents.length - 1] != "")
-    {
+    if (fileNameComponents[fileNameComponents.length - 1] != "") {
         return fileNameComponents.slice(0, fileNameComponents.length - 1).join(".");
     }
-    else
-    {
+    else {
         return fullFileName;
     }
 }
 
-function getFileName(path: string): string
-{
-    var pathComponents: string[] = clean(path).split("/");
-    return pathComponents[pathComponents.length - 1];
-}
+//function getFileName(path: string): string {
+//    var pathComponents: string[] = clean(path).split("/");
+//    return pathComponents[pathComponents.length - 1];
+//}
 
 //function isAnonymous(type: TypeScript.Type): boolean
 //{
@@ -198,7 +184,7 @@ function getFileName(path: string): string
 //    {
 //        var name: string = type.getTypeName() + "_proxy";
 //        var symbol: TypeScript.Symbol = type.symbol;
-    
+
 //        while ((container && symbol.container != container.symbol && symbol.container.name != TypeScript.globalId) ||
 //            (!container && symbol.container.name != TypeScript.globalId))
 //        {
@@ -309,7 +295,7 @@ function getFileName(path: string): string
 
 //    writeTypeMemberDeclarations(type, type.members, isMember, headerFile);
 //    writeTypeMemberDeclarations(type, type.ambientMembers, isMember, headerFile);
-    
+
 //    headerFile.write("\n};");
 //}
 
@@ -411,7 +397,7 @@ function getFileName(path: string): string
 
 //    writeTypeMemberDeclarations(type, type.members, null, headerFile);
 //    writeTypeMemberDeclarations(type, type.ambientMembers, null, headerFile);
-    
+
 //    headerFile.write("\n};");
 //}
 
@@ -440,7 +426,7 @@ function getFileName(path: string): string
 //            type.symbol.container.name == TypeScript.globalId);
 
 //    writeTypeForwardDeclarations(types.filter((type: TypeScript.Type) => type.symbol.container.name == TypeScript.globalId), headerFile);
-                
+
 //    if (types.length > 0)
 //    {
 //        for (var index: number = 0; index < types.length; index++)
@@ -503,8 +489,7 @@ function getFileName(path: string): string
 //    headerFile.write("\n};");
 //}
 
-function writeDeclarationsPrologue(baseName: string, file: string): string
-{
+function writeDeclarationsPrologue(baseName: string, file: string): string {
     file += "\
 // This file contains automatically generated proxies for JavaScript.\n\
 \n\
@@ -513,8 +498,7 @@ function writeDeclarationsPrologue(baseName: string, file: string): string
     return file;
 }
 
-function writeDeclarationsEpilogue(file: string): string
-{
+function writeDeclarationsEpilogue(file: string): string {
     return file;
 }
 
@@ -561,47 +545,37 @@ function writeDeclarationsEpilogue(file: string): string
 //    return true;
 //}
 
-function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbol): boolean
-{
-    if (!type)
-    {
+function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbol): boolean {
+    if (!type) {
         reportError(document.fileName, ErrorCode.UnsupportedType);
         return false;
     }
-    else if (type.isPrimitive())
-    {
-        if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any")
-        {
+    else if (type.isPrimitive()) {
+        if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any") {
             return true;
         }
-        else
-        {
+        else {
             reportError(document.fileName, ErrorCode.UnsupportedType);
             return false;
         }
     }
-    else if (type.isArrayNamedTypeReference())
-    {
+    else if (type.isArrayNamedTypeReference()) {
         return checkType(document, type.getElementType());
     }
 
     var declarations: TypeScript.PullDecl[] = type.getDeclarations();
 
-    if (!declarations || declarations.length == 0)
-    {
+    if (!declarations || declarations.length == 0) {
         reportError(document.fileName, ErrorCode.UnsupportedType);
         return false;
     }
 
     var sourceUnit: TypeScript.SourceUnit = document.sourceUnit();
 
-    if (!declarations.every((value: TypeScript.PullDecl): boolean=>
-    {
+    if (!declarations.every((value: TypeScript.PullDecl): boolean=> {
         var ast: TypeScript.AST = document._getASTForDecl(value);
-        while (ast)
-        {
-            if (ast === sourceUnit)
-            {
+        while (ast) {
+            if (ast === sourceUnit) {
                 return true;
             }
 
@@ -609,8 +583,7 @@ function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbo
         }
 
         return false;
-    }))
-    {
+    })) {
         reportError(document.fileName, ErrorCode.UnsupportedType);
         return false;
     }
@@ -629,78 +602,75 @@ function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbo
     //    return false;
     //}
 
-//    if (type.call)
-//    {
-//        //if (!isAnonymous(type))
-//        //{
-//        //    reportError(fileName, ErrorCode.CallInNonAnonymousTypeNotAllowed);
-//        //    return false;
-//        //}
-//        //else 
-//        if (type.construct)
-//        {
-//            reportError(fileName, ErrorCode.CallAndConstructNotAllowed);
-//            return false;
-//        }
-//        if (!checkSignatureGroup(fileName, type, type.call, types))
-//        {
-//            return false;
-//        }
-//    }
+    //    if (type.call)
+    //    {
+    //        //if (!isAnonymous(type))
+    //        //{
+    //        //    reportError(fileName, ErrorCode.CallInNonAnonymousTypeNotAllowed);
+    //        //    return false;
+    //        //}
+    //        //else 
+    //        if (type.construct)
+    //        {
+    //            reportError(fileName, ErrorCode.CallAndConstructNotAllowed);
+    //            return false;
+    //        }
+    //        if (!checkSignatureGroup(fileName, type, type.call, types))
+    //        {
+    //            return false;
+    //        }
+    //    }
 
-//    if (type.construct)
-//    {
-//        if (!isAnonymous(type) && !type.isClass())
-//        {
-//            reportError(fileName, ErrorCode.ConstructInNonAnonymousTypeNonClassNotAllowed);
-//            return false;
-//        }
-//        else if (type.construct && !checkSignatureGroup(fileName, type, type.construct, types))
-//        {
-//            return false;
-//        }
-//    }
+    //    if (type.construct)
+    //    {
+    //        if (!isAnonymous(type) && !type.isClass())
+    //        {
+    //            reportError(fileName, ErrorCode.ConstructInNonAnonymousTypeNonClassNotAllowed);
+    //            return false;
+    //        }
+    //        else if (type.construct && !checkSignatureGroup(fileName, type, type.construct, types))
+    //        {
+    //            return false;
+    //        }
+    //    }
 
-//    if (isAnonymous(type) && type.members && type.members.allMembers.count() > 0)
-//    {
-//        reportError(fileName, ErrorCode.NonFunctionAnonymousTypesNotAllowed);
-//        return false;
-//    }
+    //    if (isAnonymous(type) && type.members && type.members.allMembers.count() > 0)
+    //    {
+    //        reportError(fileName, ErrorCode.NonFunctionAnonymousTypesNotAllowed);
+    //        return false;
+    //    }
 
-//    if (type.isClass())
-//    {
-//        if (type.extendsList && type.extendsList.length > 0)
-//        {
-//            reportError(fileName, ErrorCode.ClassExtensionNotAllowed);
-//            return false;
-//        }
+    //    if (type.isClass())
+    //    {
+    //        if (type.extendsList && type.extendsList.length > 0)
+    //        {
+    //            reportError(fileName, ErrorCode.ClassExtensionNotAllowed);
+    //            return false;
+    //        }
 
-//        // All classes have a static prototype property on their class
-//        if (type.members.allMembers.count() > 1)
-//        {
-//            reportError(fileName, ErrorCode.StaticMembersNotAllowed);
-//            return false;
-//        }
+    //        // All classes have a static prototype property on their class
+    //        if (type.members.allMembers.count() > 1)
+    //        {
+    //            reportError(fileName, ErrorCode.StaticMembersNotAllowed);
+    //            return false;
+    //        }
 
-//        if (!checkType(fileName, type.instanceType, types))
-//        {
-//            return false;
-//        }
-//    }
+    //        if (!checkType(fileName, type.instanceType, types))
+    //        {
+    //            return false;
+    //        }
+    //    }
 
-//    return checkMembers(fileName, type.getMembers(), types);
+    //    return checkMembers(fileName, type.getMembers(), types);
 }
 
-function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement): boolean
-{
+function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement): boolean {
     var index: number;
 
     // TODO: Ambient will be required for top level, but other contexts?
 
-    for (index = 0; index < variableStatement.modifiers.length; index++)
-    {
-        switch (variableStatement.modifiers[index])
-        {
+    for (index = 0; index < variableStatement.modifiers.length; index++) {
+        switch (variableStatement.modifiers[index]) {
             case TypeScript.PullElementFlags.Ambient:
                 break;
 
@@ -712,34 +682,29 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
 
     var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
 
-    for (index = 0; index < declarators.nonSeparatorCount(); index++)
-    {
+    for (index = 0; index < declarators.nonSeparatorCount(); index++) {
         var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
 
-        if (declarator.kind() !== TypeScript.SyntaxKind.VariableDeclarator)
-        {
+        if (declarator.kind() !== TypeScript.SyntaxKind.VariableDeclarator) {
             reportError(variableStatement.fileName(), ErrorCode.UnexpectedDeclaration, declarator.kind().toString());
             return false;
         }
 
         var decl: TypeScript.PullDecl = document._getDeclForAST(declarator);
 
-        if (!decl)
-        {
+        if (!decl) {
             reportError(variableStatement.fileName(), ErrorCode.InternalError);
             return false;
         }
 
         var symbol: TypeScript.PullSymbol = decl.getSymbol();
 
-        if (!symbol)
-        {
+        if (!symbol) {
             reportError(variableStatement.fileName(), ErrorCode.InternalError);
             return false;
         }
 
-        if (!checkType(document, symbol.type))
-        {
+        if (!checkType(document, symbol.type)) {
             return false;
         }
 
@@ -749,13 +714,10 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
     return true;
 }
 
-function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.SourceUnit): boolean
-{
-    for (var index: number = 0; index < sourceUnit.moduleElements.childCount(); index++)
-    {
+function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.SourceUnit): boolean {
+    for (var index: number = 0; index < sourceUnit.moduleElements.childCount(); index++) {
         var ast: TypeScript.AST = sourceUnit.moduleElements.childAt(index);
-        switch (ast.kind())
-        {
+        switch (ast.kind()) {
             case TypeScript.SyntaxKind.VariableStatement:
                 return checkVariableStatement(document, <TypeScript.VariableStatement>ast);
 
@@ -788,19 +750,16 @@ function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.S
     }
 
     return true;
-   
+
 }
 
-function checkDocument(document: TypeScript.Document): boolean
-{
-    if (!document.isDeclareFile())
-    {
+function checkDocument(document: TypeScript.Document): boolean {
+    if (!document.isDeclareFile()) {
         reportError(document.fileName, ErrorCode.NotADeclareFile);
         return false;
     }
 
-    if (document.isExternalModule())
-    {
+    if (document.isExternalModule()) {
         reportError(document.fileName, ErrorCode.ExternalModulesNotAllowed);
         return false;
     }
@@ -808,65 +767,56 @@ function checkDocument(document: TypeScript.Document): boolean
     return checkSourceUnit(document, document.sourceUnit());
 }
 
-function printLogo(): void
-{
+function printLogo(): void {
     console.log("TsIdl Version 1.0");
     console.log("Copyright (C) Paul Vick. All rights reserved.");
     console.log();
 }
 
-function main()
-{
+function main() {
     var ioHost: TypeScript.IIO = TypeScript.IO;
 
     nomnom.script("tsidl");
     nomnom.option("nologo",
-    {
-        flag: true,
-        help: "Suppress logo display",
-    });
+        {
+            flag: true,
+            help: "Suppress logo display",
+        });
 
     var cmdLine = nomnom.parse(ioHost.arguments);
     var files = <string[]>cmdLine._;
 
-    if (!cmdLine.nologo)
-    {
+    if (!cmdLine.nologo) {
         printLogo();
     }
 
-    if (!files || files.length == 0)
-    {
+    if (!files || files.length == 0) {
         reportError("tsidl", ErrorCode.NoFiles);
         return 1;
     }
 
-    if (files.length > 1)
-    {
+    if (files.length > 1) {
         reportError("tsidl", ErrorCode.MultipleFiles);
         return 1;
     }
 
     var script: string = "";
 
-    try
-    {
+    try {
         var scriptFile: TypeScript.FileInformation = ioHost.readFile(files[0], null);
         script = scriptFile.contents;
     }
-    catch (err)
-    {
+    catch (err) {
         reportError("tsidl", ErrorCode.CouldNotReadFile, files[0]);
     }
 
     var document: TypeScript.Document = compile(script, files[0], ioHost);
 
-    if (!document)
-    {
+    if (!document) {
         return 1;
     }
 
-    if (!checkDocument(document))
-    {
+    if (!checkDocument(document)) {
         return 1;
     }
 
@@ -874,10 +824,8 @@ function main()
     var baseName: string = getFileNameWithoutExtension(files[0]);
     var headerFileName: string = baseName + ".proxy.h";
 
-    try
-    {
-        if ((/\.d$/i).test(baseName))
-        {
+    try {
+        if ((/\.d$/i).test(baseName)) {
             baseName = baseName.substring(0, baseName.length - 2);
         }
 
@@ -887,8 +835,7 @@ function main()
 
         ioHost.writeFile(headerFileName, headerFile, false);
     }
-    catch (err)
-    {
+    catch (err) {
         reportError("tsidl", ErrorCode.CantOpenOutputFile, headerFileName);
     }
 
