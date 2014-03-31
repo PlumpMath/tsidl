@@ -73,34 +73,64 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
         return;
     }
 
-    var source: string = testDirectory + filename;
-    var outputBase: string = filename.substr(0, filename.length - 3) + ".proxy.h";
-    var outputBaseline: string = testDirectory + outputBase;
-    var output: string = testBuiltDirectory + outputBase;
+    var test: string = testDirectory + filename;
+    var outputBase: string = filename.substr(0, filename.length - 5);
+    var outputProxy: string = outputBase + ".d.proxy.h";
+    var outputOutput: string = outputBase + ".output";
+
+    var outputProxyBaseline: string = testDirectory + outputProxy;
+    var outputProxyBuilt: string = testBuiltDirectory + outputProxy;
+    var outputOutputBaseline: string = testDirectory + outputOutput;
+    var outputOutputBuilt: string = testBuiltDirectory + outputOutput;
+
+    var dependencies: string[] = [testBuiltDirectory, test, outputOutputBaseline, tsidlCliTarget];
+    var fails: boolean = !fs.existsSync(outputProxyBaseline);
+
+    if (!fails) {
+        dependencies.push(outputProxyBaseline);
+    }
 
     desc("Test " + filename);
-    file(output, [testBuiltDirectory, source, outputBaseline, tsidlCliTarget], () => {
-        var command: string = "node ./" + tsidlCliTarget + " " + source + " --out " + output;
+    file(outputOutputBuilt, dependencies, () => {
+        var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --out " + outputProxyBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
         console.log(command + "\n");
+
         jake.exec([command], () => {
-            var baseline: string = <any>fs.readFileSync(outputBaseline, { encoding: "utf8" });
-            var result: string = <any>fs.readFileSync(output, { encoding: "utf8" });
-            if (baseline == result) {
-                console.log("test " + filename + ": " + "PASSED".green + "\n");
-                complete();
-            } else {
+            var outputBaseline: string = <any>fs.readFileSync(outputOutputBaseline, { encoding: "utf8" });
+            var outputBuilt: string = <any>fs.readFileSync(outputOutputBuilt, { encoding: "utf8" });
+
+            if (outputBaseline != outputBuilt) {
                 console.log("test " + filename + ": " + "FAILED".red + "\n");
                 fail();
             }
-        });
+
+            if (!fails) {
+                var baseline: string = <any>fs.readFileSync(outputProxyBaseline, { encoding: "utf8" });
+                var result: string = <any>fs.readFileSync(outputProxyBuilt, { encoding: "utf8" });
+                if (baseline == result) {
+                    console.log("test " + filename + ": " + "PASSED".green + "\n");
+                    complete();
+                } else {
+                    console.log("test " + filename + ": " + "FAILED".red + "\n");
+                    fail();
+                }
+            } else {
+                if (fs.existsSync(outputProxyBuilt)) {
+                    console.log("test " + filename + ": " + "FAILED".red + "\n");
+                    fail();
+                } else {
+                    console.log("test " + filename + ": " + "PASSED".green + "\n");
+                    complete();
+                }
+            }
+        }, { windowsVerbatimArguments: true, breakOnError: false });
     }, { async: true });
 
-    tests.push(output);
+    tests.push(outputOutputBuilt);
 });
 
 desc("Tests the output.");
-task("test", tests, () => {
-});
+task("test", tests);
 
 task("default", ["release", "test"]);
 

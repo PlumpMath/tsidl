@@ -821,11 +821,11 @@ function main() {
     var document: TypeScript.Document = compile(script, files[0], ioHost);
 
     if (!document) {
-        return 1;
+        process.exit(1);
     }
 
     //if (!checkDocument(document)) {
-    //    return 1;
+    //    process.exit(1);
     //}
 
     var headerFile: string = "";
@@ -845,9 +845,8 @@ function main() {
     }
     catch (err) {
         reportError("tsidl", ErrorCode.CantOpenOutputFile, headerFileName);
+        process.exit(1);
     }
-
-    return 0;
 }
 
 main();

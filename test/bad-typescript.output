@@ -1,0 +1,4 @@
+TsIdl Version 1.0
+Copyright (C) Paul Vick. All rights reserved.
+
+test/bad-typescript.d.ts(1,1): error TS1046: 'declare' modifier required for top level element.
