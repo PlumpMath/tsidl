@@ -1,21 +1,28 @@
 /// <reference path="node_modules/jake-typescript/lib/jake-typescript.d.ts"/>
+/// <reference path="./typings/colors/colors.d.ts"/>
 
 import fs = require("fs");
 import path = require("path");
 import ts = require("jake-typescript");
+require("colors");
 
+var srcDirectory: string = "src/";
+var libDirectory: string = "lib/";
+var testDirectory: string = "test/";
 var builtDirectory: string = "built/";
-var srcBuiltDirectory: string = builtDirectory + "src/";
+var srcBuiltDirectory: string = builtDirectory + srcDirectory;
+var testBuiltDirectory: string = builtDirectory + testDirectory;
 
 var emitSourceMaps: boolean = false;
 
-var libSource: string = "lib/lib.d.ts";
+var libSource: string = libDirectory + "lib.d.ts";
 var libTarget: string = path.join(srcBuiltDirectory, "lib.d.ts");
-var tsSource: string = "lib/ts.js";
-var tsDeclSource: string = "lib/ts.d.ts";
+var tsSource: string = libDirectory + "ts.js";
+var tsDeclSource: string = libDirectory + "ts.d.ts";
 
-var tsidlSource: string = "src/tsidl.ts";
+var tsidlSource: string = srcDirectory + "tsidl.ts";
 var tsidlTarget: string = srcBuiltDirectory + "tsidl.js";
+var tsidlCliTarget: string = srcBuiltDirectory + "tsidl-cli.js";
 
 function compileOptions(): ts.BatchCompileOptions {
     var options: ts.BatchCompileOptions = { noImplicitAny: true, removeComments: true, moduleKind: ts.ModuleKind.commonjs };
@@ -29,6 +36,7 @@ function compileOptions(): ts.BatchCompileOptions {
 }
 
 directory(srcBuiltDirectory);
+directory(testBuiltDirectory);
 
 desc("Emit the library with sourcemaps");
 task("emitSourceMaps", () =>
@@ -38,12 +46,13 @@ task("emitSourceMaps", () =>
 
 ts.batchFiles("tsidl-batch", [srcBuiltDirectory, tsidlSource, tsDeclSource], compileOptions());
 
-task("tsidl", ["tsidl-batch", tsSource], () => {
-    var original: NodeBuffer = fs.readFileSync(tsidlTarget);
+file(tsidlCliTarget, [tsidlTarget, tsSource], () => {
     console.log("concatenate " + tsidlTarget + " and " + tsSource + "\n");
-    fs.unlinkSync(tsidlTarget);
-    fs.appendFileSync(tsidlTarget, fs.readFileSync(tsSource));
-    fs.appendFileSync(tsidlTarget, original);
+    if (fs.existsSync(tsidlCliTarget)) {
+        fs.unlinkSync(tsidlCliTarget);
+    }
+    fs.appendFileSync(tsidlCliTarget, fs.readFileSync(tsSource));
+    fs.appendFileSync(tsidlCliTarget, fs.readFileSync(tsidlTarget));
 });
 
 file(libTarget, [libSource], ()=>
@@ -53,12 +62,47 @@ file(libTarget, [libSource], ()=>
 });
 
 desc("Builds the release library");
-task("release", ["tsidl", libTarget]);
+task("release", [tsidlCliTarget, libTarget]);
 
 desc("Builds the debug library");
 task("debug", ["emitSourceMaps", "release"]);
 
-task("default", ["release"]);
+var tests: string[] = [];
+fs.readdirSync(testDirectory).forEach((filename: string) => {
+    if (!ts.isTsDeclarationFile(filename)) {
+        return;
+    }
+
+    var source: string = testDirectory + filename;
+    var outputBase: string = filename.substr(0, filename.length - 3) + ".proxy.h";
+    var outputBaseline: string = testDirectory + outputBase;
+    var output: string = testBuiltDirectory + outputBase;
+
+    desc("Test " + filename);
+    file(output, [testBuiltDirectory, source, outputBaseline, tsidlCliTarget], () => {
+        var command: string = "node ./" + tsidlCliTarget + " " + source + " --out " + output;
+        console.log(command + "\n");
+        jake.exec([command], () => {
+            var baseline: string = <any>fs.readFileSync(outputBaseline, { encoding: "utf8" });
+            var result: string = <any>fs.readFileSync(output, { encoding: "utf8" });
+            if (baseline == result) {
+                console.log("test " + filename + ": " + "PASSED".green + "\n");
+                complete();
+            } else {
+                console.log("test " + filename + ": " + "FAILED".red + "\n");
+                fail();
+            }
+        });
+    }, { async: true });
+
+    tests.push(output);
+});
+
+desc("Tests the output.");
+task("test", tests, () => {
+});
+
+task("default", ["release", "test"]);
 
 desc("Cleans the built directory");
 task("clean", () =>

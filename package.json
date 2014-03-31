@@ -15,7 +15,8 @@
         "nomnom": "1.6.2"
     },
     "devDependencies": {
-        "jake-typescript": "0.1.*"
+        "jake-typescript": "0.1.*",
+	"colors": "0.*"
     },
     "engines": {
         "node": "*"

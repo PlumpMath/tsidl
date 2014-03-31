@@ -211,26 +211,26 @@ function getFileNameWithoutExtension(path: string): string {
 //{
 //    var fieldTypeName: string = typeStringNative(container, type);
 
-//    headerFile.write("\n\
-//\n\
-//    " + fieldTypeName + " __stdcall " + name + "()\n\
-//    {\n\
-//        return get_property<" + fieldTypeName + ">(jsrt::property_id::create(L\"" + name + "\"));\n\
-//    }\n\
-//\n\
-//    void __stdcall set_" + name + "(" + fieldTypeName + " value)\n\
-//    {\n\
-//        set_property(jsrt::property_id::create(L\"" + name + "\"), value);\n\
-//    }\n\
-//\n\
-//    jsrt::property_descriptor<" + fieldTypeName + "> __stdcall " + name + "_descriptor()\n\
-//    {\n\
-//        return get_own_property_descriptor<" + fieldTypeName + ">(jsrt::property_id::create(L\"" + name + "\"));\n\
-//    }\n\
-//\n\
-//    bool __stdcall set_" + name + "_descriptor(jsrt::property_descriptor<" + fieldTypeName + "> descriptor)\n\
-//    {\n\
-//        return define_property(jsrt::property_id::create(L\"" + name + "\"), descriptor);\n\
+//    headerFile.write("\r\n\
+//\r\n\
+//    " + fieldTypeName + " __stdcall " + name + "()\r\n\
+//    {\r\n\
+//        return get_property<" + fieldTypeName + ">(jsrt::property_id::create(L\"" + name + "\"));\r\n\
+//    }\r\n\
+//\r\n\
+//    void __stdcall set_" + name + "(" + fieldTypeName + " value)\r\n\
+//    {\r\n\
+//        set_property(jsrt::property_id::create(L\"" + name + "\"), value);\r\n\
+//    }\r\n\
+//\r\n\
+//    jsrt::property_descriptor<" + fieldTypeName + "> __stdcall " + name + "_descriptor()\r\n\
+//    {\r\n\
+//        return get_own_property_descriptor<" + fieldTypeName + ">(jsrt::property_id::create(L\"" + name + "\"));\r\n\
+//    }\r\n\
+//\r\n\
+//    bool __stdcall set_" + name + "_descriptor(jsrt::property_descriptor<" + fieldTypeName + "> descriptor)\r\n\
+//    {\r\n\
+//        return define_property(jsrt::property_id::create(L\"" + name + "\"), descriptor);\r\n\
 //    }");
 //}
 
@@ -274,18 +274,18 @@ function getFileNameWithoutExtension(path: string): string {
 //{
 //    var symbol: TypeScript.Symbol = type.symbol;
 
-//    headerFile.write("\n\
-//class prototype_proxy: public jsrt::object\n\
-//{\n\
-//public:\n\
-//    prototype_proxy() :\n\
-//        jsrt::object()\n\
-//    {\n\
-//    }\n\
-//\n\
-//    explicit prototype_proxy(jsrt::object object) :\n\
-//        jsrt::object(object.handle())\n\
-//    {\n\
+//    headerFile.write("\r\n\
+//class prototype_proxy: public jsrt::object\r\n\
+//{\r\n\
+//public:\r\n\
+//    prototype_proxy() :\r\n\
+//        jsrt::object()\r\n\
+//    {\r\n\
+//    }\r\n\
+//\r\n\
+//    explicit prototype_proxy(jsrt::object object) :\r\n\
+//        jsrt::object(object.handle())\r\n\
+//    {\r\n\
 //    }");
 
 //    function isMember(symbol: TypeScript.Symbol): boolean
@@ -296,7 +296,7 @@ function getFileNameWithoutExtension(path: string): string {
 //    writeTypeMemberDeclarations(type, type.members, isMember, headerFile);
 //    writeTypeMemberDeclarations(type, type.ambientMembers, isMember, headerFile);
 
-//    headerFile.write("\n};");
+//    headerFile.write("\r\n};");
 //}
 
 //function writeTypeImplements(type: TypeScript.Type, implementsList: TypeScript.Type[], headerFile: IO.FileWriter): void
@@ -308,17 +308,17 @@ function getFileNameWithoutExtension(path: string): string {
 //        var implementedType: TypeScript.Type = implementsList[index];
 //        var implementedTypeName: string = implementedType.symbol.name + "_proxy";
 
-//        headerFile.write("\n\
-//    " + typeName + "(" + implementedTypeName + " value) :\n\
-//        jsrt::object(value.handle())\n\
-//    {\n\
+//        headerFile.write("\r\n\
+//    " + typeName + "(" + implementedTypeName + " value) :\r\n\
+//        jsrt::object(value.handle())\r\n\
+//    {\r\n\
 //    }");
 
-//        headerFile.write("\n\
-//\n\
-//    operator " + implementedTypeName + "()\n\
-//    {\n\
-//        return " + implementedTypeName + "(*this);\n\
+//        headerFile.write("\r\n\
+//\r\n\
+//    operator " + implementedTypeName + "()\r\n\
+//    {\r\n\
+//        return " + implementedTypeName + "(*this);\r\n\
 //    }");
 //    }
 //}
@@ -335,27 +335,27 @@ function getFileNameWithoutExtension(path: string): string {
 //        baseName = javaScriptFunctionType(null, type.call.signatures[0]);
 //    }
 
-//    headerFile.write("\n\
-//class " + declarationName + ": public " + baseName + "\n\
-//{\n\
-//public:\n\
-//    " + typeName + "() :\n\
-//        " + baseName + "()\n\
-//    {\n\
-//    }\n\
-//\n\
-//    explicit " + typeName + "(jsrt::object object) :\n\
-//        " + baseName + "(object.handle())\n\
-//    {\n\
+//    headerFile.write("\r\n\
+//class " + declarationName + ": public " + baseName + "\r\n\
+//{\r\n\
+//public:\r\n\
+//    " + typeName + "() :\r\n\
+//        " + baseName + "()\r\n\
+//    {\r\n\
+//    }\r\n\
+//\r\n\
+//    explicit " + typeName + "(jsrt::object object) :\r\n\
+//        " + baseName + "(object.handle())\r\n\
+//    {\r\n\
 //    }");
 
 //    if (type.call)
 //    {
-//        headerFile.write("\n\
-//\n\
-//    " + typeName + "(Signature signature) :\n\
-//        " + baseName + "(signature)\n\
-//    {\n\
+//        headerFile.write("\r\n\
+//\r\n\
+//    " + typeName + "(Signature signature) :\r\n\
+//        " + baseName + "(signature)\r\n\
+//    {\r\n\
 //    }");
 //    }
 
@@ -364,16 +364,16 @@ function getFileNameWithoutExtension(path: string): string {
 //        writePrototypeDeclaration(type, headerFile);
 //        headerFile.writeLine();
 
-//        headerFile.write("\n\
-//\n\
-//    prototype_proxy prototype_object()\n\
-//    {\n\
-//        return prototype_proxy(prototype);\n\
-//    }\n\
-//\n\
-//    void set_prototype_object(prototype_proxy prototype)\n\
-//    {\n\
-//        this->prototype = prototype;\n\
+//        headerFile.write("\r\n\
+//\r\n\
+//    prototype_proxy prototype_object()\r\n\
+//    {\r\n\
+//        return prototype_proxy(prototype);\r\n\
+//    }\r\n\
+//\r\n\
+//    void set_prototype_object(prototype_proxy prototype)\r\n\
+//    {\r\n\
+//        this->prototype = prototype;\r\n\
 //    }");
 //    }
 
@@ -398,7 +398,7 @@ function getFileNameWithoutExtension(path: string): string {
 //    writeTypeMemberDeclarations(type, type.members, null, headerFile);
 //    writeTypeMemberDeclarations(type, type.ambientMembers, null, headerFile);
 
-//    headerFile.write("\n};");
+//    headerFile.write("\r\n};");
 //}
 
 //function writeTypeForwardDeclarations(types: TypeScript.Type[], headerFile: IO.FileWriter): void
@@ -412,7 +412,7 @@ function getFileNameWithoutExtension(path: string): string {
 
 //    for (var index: number = 0; index < types.length; index++)
 //    {
-//        headerFile.write("\nclass " + types[index].symbol.name + "_proxy;");
+//        headerFile.write("\r\nclass " + types[index].symbol.name + "_proxy;");
 //    }
 //}
 
@@ -442,18 +442,18 @@ function getFileNameWithoutExtension(path: string): string {
 //        headerFile.writeLine();
 //    }
 
-//    headerFile.write("\n\n\
-//class " + baseName + "_global_proxy: public jsrt::object\n\
-//{\n\
-//public:\n\
-//    " + baseName + "_global_proxy() :\n\
-//        jsrt::object()\n\
-//    {\n\
-//    }\n\
-//\n\
-//    explicit " + baseName + "_global_proxy(jsrt::object object) :\n\
-//        jsrt::object(object.handle())\n\
-//    {\n\
+//    headerFile.write("\r\n\r\n\
+//class " + baseName + "_global_proxy: public jsrt::object\r\n\
+//{\r\n\
+//public:\r\n\
+//    " + baseName + "_global_proxy() :\r\n\
+//        jsrt::object()\r\n\
+//    {\r\n\
+//    }\r\n\
+//\r\n\
+//    explicit " + baseName + "_global_proxy(jsrt::object object) :\r\n\
+//        jsrt::object(object.handle())\r\n\
+//    {\r\n\
 //    }");
 
 //    for (var index: number = 0; index < script.bod.members.length; index++)
@@ -486,13 +486,13 @@ function getFileNameWithoutExtension(path: string): string {
 //        }
 //    }
 
-//    headerFile.write("\n};");
+//    headerFile.write("\r\n};");
 //}
 
 function writeDeclarationsPrologue(baseName: string, file: string): string {
     file += "\
-// This file contains automatically generated proxies for JavaScript.\n\
-\n\
+// This file contains automatically generated proxies for JavaScript.\r\n\
+\r\n\
 #include \"jsrt.wrappers.h\"";
 
     return file;
@@ -776,12 +776,20 @@ function printLogo(): void {
 function main() {
     var ioHost: TypeScript.IIO = TypeScript.IO;
 
-    nomnom.script("tsidl");
-    nomnom.option("nologo",
+    nomnom
+        .script("tsidl")
+        .option("nologo",
         {
             flag: true,
             help: "Suppress logo display",
+        })
+        .option("out",
+        {
+            abbrev: "o",
+            help: "The target file to write to."
         });
+
+    // CONSIDER: Option to choose line endings? Choose endings based on platform?
 
     var cmdLine = nomnom.parse(ioHost.arguments);
     var files = <string[]>cmdLine._;
@@ -816,13 +824,13 @@ function main() {
         return 1;
     }
 
-    if (!checkDocument(document)) {
-        return 1;
-    }
+    //if (!checkDocument(document)) {
+    //    return 1;
+    //}
 
     var headerFile: string = "";
     var baseName: string = getFileNameWithoutExtension(files[0]);
-    var headerFileName: string = baseName + ".proxy.h";
+    var headerFileName: string = cmdLine.out || baseName + ".proxy.h";
 
     try {
         if ((/\.d$/i).test(baseName)) {
