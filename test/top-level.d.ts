@@ -1,4 +1,4 @@
-declare var x: number;
+declare var x: number, d: string;
 declare function y(): void;
 interface z {
     

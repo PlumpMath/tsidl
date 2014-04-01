@@ -13,31 +13,6 @@ See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
 
-declare class Enumerator {
-    public atEnd(): boolean;
-    public moveNext(): boolean;
-    public item(): any;
-    constructor(o: any);
-}
-declare module process {
-    var argv: string[];
-    var platform: string;
-    function on(event: string, handler: (arg: any) => void): void;
-    module stdout {
-        function write(str: string): any;
-        function on(event: string, action: () => void): void;
-    }
-    module stderr {
-        function write(str: string): any;
-        function on(event: string, action: () => void): void;
-    }
-    module mainModule {
-        var filename: string;
-    }
-    function exit(exitCode?: number): any;
-}
-declare var require: any;
-declare var module: any;
 declare module TypeScript {
     var DiagnosticCode: {
         error_TS_0_1: string;
@@ -2298,7 +2273,6 @@ declare module TypeScript.Collections {
     function createHashTable<TKey, TValue>(capacity?: number, hash?: (k: TKey) => number): HashTable<TKey, TValue>;
     function identityHashCode(value: any): number;
 }
-declare var Buffer: new(str: string, encoding?: string) => any;
 declare module TypeScript {
     var nodeMakeDirectoryTime: number;
     var nodeCreateBufferTime: number;

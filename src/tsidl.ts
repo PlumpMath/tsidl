@@ -1,7 +1,9 @@
+///<reference path='../typings/node/node.d.ts'/>
 ///<reference path='../typings/nomnom/nomnom.d.ts'/>
 ///<reference path='../lib/ts.d.ts'/>
 
 import nomnom = require('nomnom');
+import assert = require('assert');
 
 enum ErrorCode {
     MultipleFiles = 1000,
@@ -695,16 +697,13 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
         return false;
     }
 
-//    var index: number;
-//    var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
+    var index: number;
+    var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
 
-//    for (index = 0; index < declarators.nonSeparatorCount(); index++) {
-//        var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
+    for (index = 0; index < declarators.nonSeparatorCount(); index++) {
+        var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
 
-//        if (declarator.kind() !== TypeScript.SyntaxKind.VariableDeclarator) {
-//            reportError(document, -1, ErrorCode.UnexpectedDeclaration, declarator.kind().toString());
-//            return false;
-//        }
+        assert.equal(declarator.kind(), TypeScript.SyntaxKind.VariableDeclarator);
 
 //        var decl: TypeScript.PullDecl = document._getDeclForAST(declarator);
 
@@ -724,8 +723,8 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
 //            return false;
 //        }
 
-//        // TODO: Don't have to worry about ambient initializers, not allowed, but other contexts?
-//    }
+        assert(!declarator.equalsValueClause);
+    }
 
     return true;
 }
