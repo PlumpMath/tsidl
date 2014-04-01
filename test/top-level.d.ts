@@ -9,3 +9,6 @@ declare class a {
 declare module b {
     
 }
+declare enum c {
+
+}

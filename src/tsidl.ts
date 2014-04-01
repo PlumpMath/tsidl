@@ -675,22 +675,27 @@ function writeDeclarationsEpilogue(file: string): string {
     //    return checkMembers(fileName, type.getMembers(), types);
 //}
 
+function checkModifiers(document: TypeScript.Document, location: number, modifiers: TypeScript.PullElementFlags[]): boolean {
+    for (var index: number = 0; index < modifiers.length; index++) {
+        switch (modifiers[index]) {
+            case TypeScript.PullElementFlags.Ambient:
+                break;
+
+            default:
+                reportError(document, location, ErrorCode.UnexpectedModifier, TypeScript.PullElementFlags[modifiers[index]]);
+                return false;
+        }
+    }
+
+    return true;
+}
+
 function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement): boolean {
+    if (!checkModifiers(document, variableStatement.start(), variableStatement.modifiers)) {
+        return false;
+    }
+
 //    var index: number;
-
-//    // TODO: Ambient will be required for top level, but other contexts?
-
-//    for (index = 0; index < variableStatement.modifiers.length; index++) {
-//        switch (variableStatement.modifiers[index]) {
-//            case TypeScript.PullElementFlags.Ambient:
-//                break;
-
-//            default:
-//                reportError(document, -1, ErrorCode.UnexpectedModifier, variableStatement.modifiers[index].toString());
-//                return false;
-//        }
-//    }
-
 //    var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
 
 //    for (index = 0; index < declarators.nonSeparatorCount(); index++) {
@@ -726,18 +731,47 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
 }
 
 function checkFunctionDeclaration(document: TypeScript.Document, functionDeclaration: TypeScript.FunctionDeclaration): boolean {
+    if (!checkModifiers(document, functionDeclaration.start(), functionDeclaration.modifiers)) {
+        return false;
+    }
+
     return true;
 }
 
 function checkInterfaceDeclaration(document: TypeScript.Document, interfaceDeclaration: TypeScript.InterfaceDeclaration): boolean {
+    if (!checkModifiers(document, interfaceDeclaration.start(), interfaceDeclaration.modifiers)) {
+        return false;
+    }
+
     return true;
 }
 
 function checkClassDeclaration(document: TypeScript.Document, classDeclaration: TypeScript.ClassDeclaration): boolean {
+    if (!checkModifiers(document, classDeclaration.start(), classDeclaration.modifiers)) {
+        return false;
+    }
+
     return true;
 }
 
 function checkModuleDeclaration(document: TypeScript.Document, moduleDeclaration: TypeScript.ModuleDeclaration): boolean {
+    if (!checkModifiers(document, moduleDeclaration.start(), moduleDeclaration.modifiers)) {
+        return false;
+    }
+
+    if (moduleDeclaration.stringLiteral) {
+        reportError(document, moduleDeclaration.stringLiteral.start(), ErrorCode.ExternalModulesNotAllowed);
+        return false;
+    }
+
+    return true;
+}
+
+function checkEnumDeclaration(document: TypeScript.Document, enumDeclaration: TypeScript.EnumDeclaration): boolean {
+    if (!checkModifiers(document, enumDeclaration.start(), enumDeclaration.modifiers)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -759,6 +793,9 @@ function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.S
 
             case TypeScript.SyntaxKind.ModuleDeclaration:
                 return checkModuleDeclaration(document, <TypeScript.ModuleDeclaration>ast);
+
+            case TypeScript.SyntaxKind.EnumDeclaration:
+                return checkEnumDeclaration(document, <TypeScript.EnumDeclaration>ast);
 
             case TypeScript.SyntaxKind.EmptyStatement:
                 // ignore;
