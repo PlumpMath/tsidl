@@ -556,50 +556,50 @@ function writeDeclarationsEpilogue(file: string): string {
 //    return true;
 //}
 
-function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbol): boolean {
-    if (!type) {
-        reportError(document, -1, ErrorCode.UnsupportedType);
-        return false;
-    }
-    else if (type.isPrimitive()) {
-        if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any") {
-            return true;
-        }
-        else {
-            reportError(document, -1, ErrorCode.UnsupportedType);
-            return false;
-        }
-    }
-    else if (type.isArrayNamedTypeReference()) {
-        return checkType(document, type.getElementType());
-    }
+//function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbol): boolean {
+//    if (!type) {
+//        reportError(document, -1, ErrorCode.UnsupportedType);
+//        return false;
+//    }
+//    else if (type.isPrimitive()) {
+//        if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any") {
+//            return true;
+//        }
+//        else {
+//            reportError(document, -1, ErrorCode.UnsupportedType);
+//            return false;
+//        }
+//    }
+//    else if (type.isArrayNamedTypeReference()) {
+//        return checkType(document, type.getElementType());
+//    }
 
-    var declarations: TypeScript.PullDecl[] = type.getDeclarations();
+//    var declarations: TypeScript.PullDecl[] = type.getDeclarations();
 
-    if (!declarations || declarations.length == 0) {
-        reportError(document, -1, ErrorCode.UnsupportedType);
-        return false;
-    }
+//    if (!declarations || declarations.length == 0) {
+//        reportError(document, -1, ErrorCode.UnsupportedType);
+//        return false;
+//    }
 
-    var sourceUnit: TypeScript.SourceUnit = document.sourceUnit();
+//    var sourceUnit: TypeScript.SourceUnit = document.sourceUnit();
 
-    if (!declarations.every((value: TypeScript.PullDecl): boolean=> {
-        var ast: TypeScript.AST = document._getASTForDecl(value);
-        while (ast) {
-            if (ast === sourceUnit) {
-                return true;
-            }
+//    if (!declarations.every((value: TypeScript.PullDecl): boolean=> {
+//        var ast: TypeScript.AST = document._getASTForDecl(value);
+//        while (ast) {
+//            if (ast === sourceUnit) {
+//                return true;
+//            }
 
-            ast = ast.parent;
-        }
+//            ast = ast.parent;
+//        }
 
-        return false;
-    })) {
-        reportError(document, -1, ErrorCode.UnsupportedType);
-        return false;
-    }
+//        return false;
+//    })) {
+//        reportError(document, -1, ErrorCode.UnsupportedType);
+//        return false;
+//    }
 
-    return true;
+//    return true;
 
     //if (type.isGeneric())
     //{
@@ -673,55 +673,71 @@ function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbo
     //    }
 
     //    return checkMembers(fileName, type.getMembers(), types);
-}
+//}
 
 function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement): boolean {
-    var index: number;
+//    var index: number;
 
-    // TODO: Ambient will be required for top level, but other contexts?
+//    // TODO: Ambient will be required for top level, but other contexts?
 
-    for (index = 0; index < variableStatement.modifiers.length; index++) {
-        switch (variableStatement.modifiers[index]) {
-            case TypeScript.PullElementFlags.Ambient:
-                break;
+//    for (index = 0; index < variableStatement.modifiers.length; index++) {
+//        switch (variableStatement.modifiers[index]) {
+//            case TypeScript.PullElementFlags.Ambient:
+//                break;
 
-            default:
-                reportError(document, -1, ErrorCode.UnexpectedModifier, variableStatement.modifiers[index].toString());
-                return false;
-        }
-    }
+//            default:
+//                reportError(document, -1, ErrorCode.UnexpectedModifier, variableStatement.modifiers[index].toString());
+//                return false;
+//        }
+//    }
 
-    var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
+//    var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
 
-    for (index = 0; index < declarators.nonSeparatorCount(); index++) {
-        var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
+//    for (index = 0; index < declarators.nonSeparatorCount(); index++) {
+//        var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
 
-        if (declarator.kind() !== TypeScript.SyntaxKind.VariableDeclarator) {
-            reportError(document, -1, ErrorCode.UnexpectedDeclaration, declarator.kind().toString());
-            return false;
-        }
+//        if (declarator.kind() !== TypeScript.SyntaxKind.VariableDeclarator) {
+//            reportError(document, -1, ErrorCode.UnexpectedDeclaration, declarator.kind().toString());
+//            return false;
+//        }
 
-        var decl: TypeScript.PullDecl = document._getDeclForAST(declarator);
+//        var decl: TypeScript.PullDecl = document._getDeclForAST(declarator);
 
-        if (!decl) {
-            reportError(document, -1, ErrorCode.InternalError);
-            return false;
-        }
+//        if (!decl) {
+//            reportError(document, -1, ErrorCode.InternalError);
+//            return false;
+//        }
 
-        var symbol: TypeScript.PullSymbol = decl.getSymbol();
+//        var symbol: TypeScript.PullSymbol = decl.getSymbol();
 
-        if (!symbol) {
-            reportError(document, -1, ErrorCode.InternalError);
-            return false;
-        }
+//        if (!symbol) {
+//            reportError(document, -1, ErrorCode.InternalError);
+//            return false;
+//        }
 
-        if (!checkType(document, symbol.type)) {
-            return false;
-        }
+//        if (!checkType(document, symbol.type)) {
+//            return false;
+//        }
 
-        // TODO: Don't have to worry about ambient initializers, not allowed, but other contexts?
-    }
+//        // TODO: Don't have to worry about ambient initializers, not allowed, but other contexts?
+//    }
 
+    return true;
+}
+
+function checkFunctionDeclaration(document: TypeScript.Document, functionDeclaration: TypeScript.FunctionDeclaration): boolean {
+    return true;
+}
+
+function checkInterfaceDeclaration(document: TypeScript.Document, interfaceDeclaration: TypeScript.InterfaceDeclaration): boolean {
+    return true;
+}
+
+function checkClassDeclaration(document: TypeScript.Document, classDeclaration: TypeScript.ClassDeclaration): boolean {
+    return true;
+}
+
+function checkModuleDeclaration(document: TypeScript.Document, moduleDeclaration: TypeScript.ModuleDeclaration): boolean {
     return true;
 }
 
@@ -732,23 +748,17 @@ function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.S
             case TypeScript.SyntaxKind.VariableStatement:
                 return checkVariableStatement(document, <TypeScript.VariableStatement>ast);
 
-            //case TypeScript.SyntaxKind.FunctionDeclaration:
-            //case TypeScript.SyntaxKind.InterfaceDeclaration:
-            //case TypeScript.SyntaxKind.ClassDeclaration:
-            //case TypeScript.SyntaxKind.ModuleDeclaration:
-            //var symbol: TypeScript.PullSymbol = document._getDeclForAST(ast).getSymbol();
-            //console.log(ast.kind().toString() + " " + symbol.kind.toString());
-            //if (!symbol.isType())
-            //{
-            //    reportError(fileName, ErrorCode.UnexpectedDeclaration, ast.kind().toString());
-            //    return false;
-            //}
+            case TypeScript.SyntaxKind.FunctionDeclaration:
+                return checkFunctionDeclaration(document, <TypeScript.FunctionDeclaration>ast);
 
-            //if (!checkType(fileName, <TypeScript.PullTypeSymbol>symbol, types))
-            //{
-            //    return false;
-            //}
-            //break;
+            case TypeScript.SyntaxKind.InterfaceDeclaration:
+                return checkInterfaceDeclaration(document, <TypeScript.InterfaceDeclaration>ast);
+
+            case TypeScript.SyntaxKind.ClassDeclaration:
+                return checkClassDeclaration(document, <TypeScript.ClassDeclaration>ast);
+
+            case TypeScript.SyntaxKind.ModuleDeclaration:
+                return checkModuleDeclaration(document, <TypeScript.ModuleDeclaration>ast);
 
             case TypeScript.SyntaxKind.EmptyStatement:
                 // ignore;
