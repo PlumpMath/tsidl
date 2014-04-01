@@ -26,6 +26,7 @@ enum ErrorCode {
     ConstructInNonAnonymousTypeNonClassNotAllowed = 1017,
     InternalError = 1018,
     GenericsNotAllowed = 1019,
+    ExternalTypesNotAllowed = 1020
 };
 
 var errorMessage: any =
@@ -50,6 +51,7 @@ var errorMessage: any =
         /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
         /* InternalError */ 1018: "Internal error.",
         /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
+        /* ExternalTypesNotAllowed */ 1020: "Externally declared types are not allowed."
     };
 
 function formatString(value: string, substitutions: string[]): string {
@@ -572,36 +574,33 @@ function checkType(document: TypeScript.Document, start: number, type: TypeScrip
             return false;
         }
     }
-//    else if (type.isArrayNamedTypeReference()) {
-//        return checkType(document, type.getElementType());
-//    }
+    else if (type.isArrayNamedTypeReference()) {
+        return checkType(document, start, type.getElementType());
+    }
+    else if (type.isNamedTypeSymbol()) {
+        var declarations: TypeScript.PullDecl[] = type.getDeclarations();
+        var sourceUnit: TypeScript.SourceUnit = document.sourceUnit();
 
-//    var declarations: TypeScript.PullDecl[] = type.getDeclarations();
+        assert(declarations && declarations.length > 0);
 
-//    if (!declarations || declarations.length == 0) {
-//        reportError(document, -1, ErrorCode.UnsupportedType);
-//        return false;
-//    }
+        if (declarations.every((value: TypeScript.PullDecl): boolean => {
+            var ast: TypeScript.AST = document._getASTForDecl(value);
+            while (ast) {
+                if (ast === sourceUnit) {
+                    return true;
+                }
 
-//    var sourceUnit: TypeScript.SourceUnit = document.sourceUnit();
+                ast = ast.parent;
+            }
 
-//    if (!declarations.every((value: TypeScript.PullDecl): boolean=> {
-//        var ast: TypeScript.AST = document._getASTForDecl(value);
-//        while (ast) {
-//            if (ast === sourceUnit) {
-//                return true;
-//            }
-
-//            ast = ast.parent;
-//        }
-
-//        return false;
-//    })) {
-//        reportError(document, -1, ErrorCode.UnsupportedType);
-//        return false;
-//    }
-
-//    return true;
+            return false;
+        })) {
+            return true;
+        } else {
+            reportError(document, start, ErrorCode.ExternalTypesNotAllowed);
+            return false;
+        }
+    }
 
     //if (type.isGeneric())
     //{
