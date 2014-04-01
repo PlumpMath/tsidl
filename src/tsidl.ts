@@ -558,20 +558,20 @@ function writeDeclarationsEpilogue(file: string): string {
 //    return true;
 //}
 
-//function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbol): boolean {
-//    if (!type) {
-//        reportError(document, -1, ErrorCode.UnsupportedType);
-//        return false;
-//    }
-//    else if (type.isPrimitive()) {
-//        if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any") {
-//            return true;
-//        }
-//        else {
-//            reportError(document, -1, ErrorCode.UnsupportedType);
-//            return false;
-//        }
-//    }
+function checkType(document: TypeScript.Document, start: number, type: TypeScript.PullTypeSymbol): boolean {
+    if (!type) {
+        reportError(document, start, ErrorCode.UnsupportedType);
+        return false;
+    }
+    else if (type.isPrimitive()) {
+        if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any") {
+            return true;
+        }
+        else {
+            reportError(document, start, ErrorCode.UnsupportedType);
+            return false;
+        }
+    }
 //    else if (type.isArrayNamedTypeReference()) {
 //        return checkType(document, type.getElementType());
 //    }
@@ -675,7 +675,10 @@ function writeDeclarationsEpilogue(file: string): string {
     //    }
 
     //    return checkMembers(fileName, type.getMembers(), types);
-//}
+
+    reportError(document, start, ErrorCode.UnsupportedType);
+    return false;
+}
 
 function checkModifiers(document: TypeScript.Document, location: number, modifiers: TypeScript.PullElementFlags[]): boolean {
     for (var index: number = 0; index < modifiers.length; index++) {
@@ -705,23 +708,9 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
 
         assert.equal(declarator.kind(), TypeScript.SyntaxKind.VariableDeclarator);
 
-//        var decl: TypeScript.PullDecl = document._getDeclForAST(declarator);
-
-//        if (!decl) {
-//            reportError(document, -1, ErrorCode.InternalError);
-//            return false;
-//        }
-
-//        var symbol: TypeScript.PullSymbol = decl.getSymbol();
-
-//        if (!symbol) {
-//            reportError(document, -1, ErrorCode.InternalError);
-//            return false;
-//        }
-
-//        if (!checkType(document, symbol.type)) {
-//            return false;
-//        }
+        if (!checkType(document, declarator.typeAnnotation ? declarator.typeAnnotation.start() : declarator.start(), document._getDeclForAST(declarator).getSymbol().type)) {
+            return false;
+        }
 
         assert(!declarator.equalsValueClause);
     }
