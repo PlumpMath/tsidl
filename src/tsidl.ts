@@ -55,7 +55,18 @@ function formatString(value: string, substitutions: string[]): string {
         (match: string, ...args: any[]) => typeof substitutions[args[0]] != 'undefined' ? substitutions[args[0]] : match);
 }
 
-function reportError(origin: string, error: number, ...substitutions: string[]): void {
+function reportGenericError(error: number, ...substitutions: string[]): void {
+    console.error("tsidl: error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions));
+}
+
+function reportError(document: TypeScript.Document, position: number, error: number, ...substitutions: string[]): void {
+    var origin: string = document.fileName;
+
+    if (position !== -1) {
+        var lineAndCharacter = document.lineMap().getLineAndCharacterFromPosition(position);
+        origin += "(" + lineAndCharacter.line().toString() + "," + lineAndCharacter.character().toString() + ")";
+    }
+
     console.error(origin + ": error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions));
 }
 
@@ -547,7 +558,7 @@ function writeDeclarationsEpilogue(file: string): string {
 
 function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbol): boolean {
     if (!type) {
-        reportError(document.fileName, ErrorCode.UnsupportedType);
+        reportError(document, -1, ErrorCode.UnsupportedType);
         return false;
     }
     else if (type.isPrimitive()) {
@@ -555,7 +566,7 @@ function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbo
             return true;
         }
         else {
-            reportError(document.fileName, ErrorCode.UnsupportedType);
+            reportError(document, -1, ErrorCode.UnsupportedType);
             return false;
         }
     }
@@ -566,7 +577,7 @@ function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbo
     var declarations: TypeScript.PullDecl[] = type.getDeclarations();
 
     if (!declarations || declarations.length == 0) {
-        reportError(document.fileName, ErrorCode.UnsupportedType);
+        reportError(document, -1, ErrorCode.UnsupportedType);
         return false;
     }
 
@@ -584,7 +595,7 @@ function checkType(document: TypeScript.Document, type: TypeScript.PullTypeSymbo
 
         return false;
     })) {
-        reportError(document.fileName, ErrorCode.UnsupportedType);
+        reportError(document, -1, ErrorCode.UnsupportedType);
         return false;
     }
 
@@ -675,7 +686,7 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
                 break;
 
             default:
-                reportError(variableStatement.fileName(), ErrorCode.UnexpectedModifier, variableStatement.modifiers[index].toString());
+                reportError(document, -1, ErrorCode.UnexpectedModifier, variableStatement.modifiers[index].toString());
                 return false;
         }
     }
@@ -686,21 +697,21 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
         var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
 
         if (declarator.kind() !== TypeScript.SyntaxKind.VariableDeclarator) {
-            reportError(variableStatement.fileName(), ErrorCode.UnexpectedDeclaration, declarator.kind().toString());
+            reportError(document, -1, ErrorCode.UnexpectedDeclaration, declarator.kind().toString());
             return false;
         }
 
         var decl: TypeScript.PullDecl = document._getDeclForAST(declarator);
 
         if (!decl) {
-            reportError(variableStatement.fileName(), ErrorCode.InternalError);
+            reportError(document, -1, ErrorCode.InternalError);
             return false;
         }
 
         var symbol: TypeScript.PullSymbol = decl.getSymbol();
 
         if (!symbol) {
-            reportError(variableStatement.fileName(), ErrorCode.InternalError);
+            reportError(document, -1, ErrorCode.InternalError);
             return false;
         }
 
@@ -744,7 +755,7 @@ function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.S
                 break;
 
             default:
-                reportError(sourceUnit.fileName(), ErrorCode.UnexpectedDeclaration, ast.kind().toString());
+                reportError(document, ast.start(), ErrorCode.UnexpectedDeclaration, TypeScript.SyntaxKind[ast.kind()]);
                 return false;
         }
     }
@@ -755,12 +766,12 @@ function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.S
 
 function checkDocument(document: TypeScript.Document): boolean {
     if (!document.isDeclareFile()) {
-        reportError(document.fileName, ErrorCode.NotADeclareFile);
+        reportError(document, -1, ErrorCode.NotADeclareFile);
         return false;
     }
 
     if (document.isExternalModule()) {
-        reportError(document.fileName, ErrorCode.ExternalModulesNotAllowed);
+        reportError(document, -1, ErrorCode.ExternalModulesNotAllowed);
         return false;
     }
 
@@ -773,7 +784,7 @@ function printLogo(): void {
     console.log();
 }
 
-function main() {
+function main(): void {
     var ioHost: TypeScript.IIO = TypeScript.IO;
 
     nomnom
@@ -799,13 +810,13 @@ function main() {
     }
 
     if (!files || files.length == 0) {
-        reportError("tsidl", ErrorCode.NoFiles);
-        return 1;
+        reportGenericError(ErrorCode.NoFiles);
+        process.exit(1);
     }
 
     if (files.length > 1) {
-        reportError("tsidl", ErrorCode.MultipleFiles);
-        return 1;
+        reportGenericError(ErrorCode.MultipleFiles);
+        process.exit(1);
     }
 
     var script: string = "";
@@ -815,7 +826,7 @@ function main() {
         script = scriptFile.contents;
     }
     catch (err) {
-        reportError("tsidl", ErrorCode.CouldNotReadFile, files[0]);
+        reportGenericError(ErrorCode.CouldNotReadFile, files[0]);
     }
 
     var document: TypeScript.Document = compile(script, files[0], ioHost);
@@ -844,7 +855,7 @@ function main() {
         ioHost.writeFile(headerFileName, headerFile, false);
     }
     catch (err) {
-        reportError("tsidl", ErrorCode.CantOpenOutputFile, headerFileName);
+        reportGenericError(ErrorCode.CantOpenOutputFile, headerFileName);
         process.exit(1);
     }
 }

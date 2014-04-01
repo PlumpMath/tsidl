@@ -1,0 +1,4 @@
+TsIdl Version 1.0
+Copyright (C) Paul Vick. All rights reserved.
+
+test/import.d.ts(0,0): error TS1004: Unexpected declaration type ImportDeclaration.
