@@ -69,13 +69,13 @@ task("debug", ["emitSourceMaps", "release"]);
 
 var tests: string[] = [];
 fs.readdirSync(testDirectory).forEach((filename: string) => {
-    if (!ts.isTsDeclarationFile(filename)) {
+    if (!ts.isTsFile(filename)) {
         return;
     }
 
     var test: string = testDirectory + filename;
-    var outputBase: string = filename.substr(0, filename.length - 5);
-    var outputProxy: string = outputBase + ".d.proxy.h";
+    var outputBase: string = filename.substr(0, filename.length - 3);
+    var outputProxy: string = outputBase + ".proxy.h";
     var outputOutput: string = outputBase + ".output";
 
     var outputProxyBaseline: string = testDirectory + outputProxy;

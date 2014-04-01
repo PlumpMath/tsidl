@@ -824,9 +824,9 @@ function main() {
         process.exit(1);
     }
 
-    //if (!checkDocument(document)) {
-    //    process.exit(1);
-    //}
+    if (!checkDocument(document)) {
+        process.exit(1);
+    }
 
     var headerFile: string = "";
     var baseName: string = getFileNameWithoutExtension(files[0]);
