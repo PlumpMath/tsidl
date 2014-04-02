@@ -26,7 +26,9 @@ enum ErrorCode {
     ConstructInNonAnonymousTypeNonClassNotAllowed = 1017,
     InternalError = 1018,
     GenericsNotAllowed = 1019,
-    ExternalTypesNotAllowed = 1020
+    ExternalTypesNotAllowed = 1020,
+    UnexpectedType = 1021,
+    DefaultParametersNotAllowed = 1022
 };
 
 var errorMessage: any =
@@ -51,7 +53,9 @@ var errorMessage: any =
         /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
         /* InternalError */ 1018: "Internal error.",
         /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
-        /* ExternalTypesNotAllowed */ 1020: "Externally declared types are not allowed."
+        /* ExternalTypesNotAllowed */ 1020: "Externally declared types are not allowed.",
+        /* UnexpectedType */ 1021: "Unexpected type declaration type {0}.",
+        /* DefaultParametersNotAllowed */ 1022: "Default parameter values are not allowed."
     };
 
 function formatString(value: string, substitutions: string[]): string {
@@ -560,9 +564,28 @@ function writeDeclarationsEpilogue(file: string): string {
 //    return true;
 //}
 
-function checkType(document: TypeScript.Document, start: number, type: TypeScript.PullTypeSymbol): boolean {
+function checkFunctionType(document: TypeScript.Document, functionType: TypeScript.FunctionType): boolean {
+    if (functionType.typeParameterList) {
+        reportError(document, functionType.typeParameterList.start(), ErrorCode.GenericsNotAllowed);
+        return false;
+    }
+
+    if (!checkParameterList(document, functionType, functionType.parameterList)) {
+        return false;
+    }
+
+    assert(!functionType.type || functionType.kind() === TypeScript.SyntaxKind.TypeAnnotation);
+
+    if (!checkTypeAnnotation(document, functionType, <TypeScript.TypeAnnotation>functionType.type)) {
+        return false;
+    }
+
+    return true;
+}
+
+function checkType(document: TypeScript.Document, declaration: TypeScript.AST, type: TypeScript.PullTypeSymbol): boolean {
     if (!type) {
-        reportError(document, start, ErrorCode.UnsupportedType);
+        reportError(document, declaration.start(), ErrorCode.UnsupportedType);
         return false;
     }
     else if (type.isPrimitive()) {
@@ -570,12 +593,12 @@ function checkType(document: TypeScript.Document, start: number, type: TypeScrip
             return true;
         }
         else {
-            reportError(document, start, ErrorCode.UnsupportedType);
+            reportError(document, declaration.start(), ErrorCode.UnsupportedType);
             return false;
         }
     }
     else if (type.isArrayNamedTypeReference()) {
-        return checkType(document, start, type.getElementType());
+        return checkType(document, declaration, type.getElementType());
     }
     else if (type.isNamedTypeSymbol()) {
         var declarations: TypeScript.PullDecl[] = type.getDeclarations();
@@ -597,8 +620,23 @@ function checkType(document: TypeScript.Document, start: number, type: TypeScrip
         })) {
             return true;
         } else {
-            reportError(document, start, ErrorCode.ExternalTypesNotAllowed);
+            reportError(document, declaration.start(), ErrorCode.ExternalTypesNotAllowed);
             return false;
+        }
+    }
+    else if (type.kind == TypeScript.PullElementKind.ObjectType && type.getDeclarations().length == 1) {
+        var objectDeclaration: TypeScript.AST = type.getDeclarations()[0].ast();
+
+        if (objectDeclaration.kind() == TypeScript.SyntaxKind.ObjectType) {
+            // UNDONE: Check when we get to classes/interfaces
+            return true;
+        }
+    }
+    else if (type.kind == TypeScript.PullElementKind.FunctionType && type.getDeclarations().length == 1) {
+        var functionDeclaration: TypeScript.AST = type.getDeclarations()[0].ast();
+
+        if (functionDeclaration.kind() == TypeScript.SyntaxKind.FunctionType) {
+            return checkFunctionType(document, <TypeScript.FunctionType>functionDeclaration);
         }
     }
 
@@ -675,18 +713,18 @@ function checkType(document: TypeScript.Document, start: number, type: TypeScrip
 
     //    return checkMembers(fileName, type.getMembers(), types);
 
-    reportError(document, start, ErrorCode.UnsupportedType);
+    reportError(document, declaration.start(), ErrorCode.UnsupportedType);
     return false;
 }
 
-function checkModifiers(document: TypeScript.Document, location: number, modifiers: TypeScript.PullElementFlags[]): boolean {
+function checkModifiers(document: TypeScript.Document, declaration: TypeScript.AST, modifiers: TypeScript.PullElementFlags[]): boolean {
     for (var index: number = 0; index < modifiers.length; index++) {
         switch (modifiers[index]) {
             case TypeScript.PullElementFlags.Ambient:
                 break;
 
             default:
-                reportError(document, location, ErrorCode.UnexpectedModifier, TypeScript.PullElementFlags[modifiers[index]]);
+                reportError(document, declaration.start(), ErrorCode.UnexpectedModifier, TypeScript.PullElementFlags[modifiers[index]]);
                 return false;
         }
     }
@@ -694,8 +732,20 @@ function checkModifiers(document: TypeScript.Document, location: number, modifie
     return true;
 }
 
+function checkTypeAnnotation(document: TypeScript.Document, declaration: TypeScript.AST, typeAnnotation: TypeScript.TypeAnnotation): boolean {
+    if (!typeAnnotation) {
+        return true;
+    }
+
+    if (!checkType(document, declaration, document._getDeclForAST(declaration).getSymbol().type)) {
+        return false;
+    }
+
+    return true;
+}
+
 function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement): boolean {
-    if (!checkModifiers(document, variableStatement.start(), variableStatement.modifiers)) {
+    if (!checkModifiers(document, variableStatement, variableStatement.modifiers)) {
         return false;
     }
 
@@ -707,7 +757,7 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
 
         assert.equal(declarator.kind(), TypeScript.SyntaxKind.VariableDeclarator);
 
-        if (!checkType(document, declarator.typeAnnotation ? declarator.typeAnnotation.start() : declarator.start(), document._getDeclForAST(declarator).getSymbol().type)) {
+        if (!checkTypeAnnotation(document, declarator, declarator.typeAnnotation)) {
             return false;
         }
 
@@ -717,16 +767,61 @@ function checkVariableStatement(document: TypeScript.Document, variableStatement
     return true;
 }
 
-function checkFunctionDeclaration(document: TypeScript.Document, functionDeclaration: TypeScript.FunctionDeclaration): boolean {
-    if (!checkModifiers(document, functionDeclaration.start(), functionDeclaration.modifiers)) {
+function checkParameterList(document: TypeScript.Document, declaration: TypeScript.AST, parameterList: TypeScript.ParameterList): boolean {
+    var parameters: TypeScript.ISeparatedSyntaxList2 = parameterList.parameters;
+
+    for (var index: number = 0; index < parameters.nonSeparatorCount(); index++) {
+        var ast: TypeScript.AST = parameters.nonSeparatorAt(index);
+
+        assert(ast.kind() === TypeScript.SyntaxKind.Parameter);
+
+        var parameter: TypeScript.Parameter = <TypeScript.Parameter>ast;
+
+        if (!checkTypeAnnotation(document, ast, parameter.typeAnnotation)) {
+            return false;
+        }
+
+        if (parameter.equalsValueClause) {
+            reportError(document, parameter.start(), ErrorCode.DefaultParametersNotAllowed);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function checkCallSignature(document: TypeScript.Document, declaration: TypeScript.AST, callSignature: TypeScript.CallSignature): boolean {
+    if (callSignature.typeParameterList) {
+        reportError(document, callSignature.typeParameterList.start(), ErrorCode.GenericsNotAllowed);
+        return false;
+    }
+
+    if (!checkParameterList(document, declaration, callSignature.parameterList)) {
+        return false;
+    }
+
+    if (!checkTypeAnnotation(document, declaration, callSignature.typeAnnotation)) {
         return false;
     }
 
     return true;
 }
 
+function checkFunctionDeclaration(document: TypeScript.Document, functionDeclaration: TypeScript.FunctionDeclaration): boolean {
+    if (!checkModifiers(document, functionDeclaration, functionDeclaration.modifiers)) {
+        return false;
+    }
+
+    if (!checkCallSignature(document, functionDeclaration, functionDeclaration.callSignature)) {
+        return false;
+    }
+
+    assert(!functionDeclaration.block);
+    return true;
+}
+
 function checkInterfaceDeclaration(document: TypeScript.Document, interfaceDeclaration: TypeScript.InterfaceDeclaration): boolean {
-    if (!checkModifiers(document, interfaceDeclaration.start(), interfaceDeclaration.modifiers)) {
+    if (!checkModifiers(document, interfaceDeclaration, interfaceDeclaration.modifiers)) {
         return false;
     }
 
@@ -734,7 +829,7 @@ function checkInterfaceDeclaration(document: TypeScript.Document, interfaceDecla
 }
 
 function checkClassDeclaration(document: TypeScript.Document, classDeclaration: TypeScript.ClassDeclaration): boolean {
-    if (!checkModifiers(document, classDeclaration.start(), classDeclaration.modifiers)) {
+    if (!checkModifiers(document, classDeclaration, classDeclaration.modifiers)) {
         return false;
     }
 
@@ -742,7 +837,7 @@ function checkClassDeclaration(document: TypeScript.Document, classDeclaration: 
 }
 
 function checkModuleDeclaration(document: TypeScript.Document, moduleDeclaration: TypeScript.ModuleDeclaration): boolean {
-    if (!checkModifiers(document, moduleDeclaration.start(), moduleDeclaration.modifiers)) {
+    if (!checkModifiers(document, moduleDeclaration, moduleDeclaration.modifiers)) {
         return false;
     }
 
@@ -755,7 +850,7 @@ function checkModuleDeclaration(document: TypeScript.Document, moduleDeclaration
 }
 
 function checkEnumDeclaration(document: TypeScript.Document, enumDeclaration: TypeScript.EnumDeclaration): boolean {
-    if (!checkModifiers(document, enumDeclaration.start(), enumDeclaration.modifiers)) {
+    if (!checkModifiers(document, enumDeclaration, enumDeclaration.modifiers)) {
         return false;
     }
 

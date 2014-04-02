@@ -93,14 +93,13 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
     desc("Test " + filename);
     file(outputOutputBuilt, dependencies, () => {
         var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --out " + outputProxyBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
-        console.log(command + "\n");
 
         jake.exec([command], () => {
             var outputBaseline: string = <any>fs.readFileSync(outputOutputBaseline, { encoding: "utf8" });
             var outputBuilt: string = <any>fs.readFileSync(outputOutputBuilt, { encoding: "utf8" });
 
             if (outputBaseline != outputBuilt) {
-                console.log("test " + filename + ": " + "FAILED".red + "\n");
+                console.log("test " + filename + ": " + "FAILED".red);
                 fail();
             }
 
@@ -108,18 +107,18 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
                 var baseline: string = <any>fs.readFileSync(outputProxyBaseline, { encoding: "utf8" });
                 var result: string = <any>fs.readFileSync(outputProxyBuilt, { encoding: "utf8" });
                 if (baseline == result) {
-                    console.log("test " + filename + ": " + "PASSED".green + "\n");
+                    console.log("test " + filename + ": " + "PASSED".green);
                     complete();
                 } else {
-                    console.log("test " + filename + ": " + "FAILED".red + "\n");
+                    console.log("test " + filename + ": " + "FAILED".red);
                     fail();
                 }
             } else {
                 if (fs.existsSync(outputProxyBuilt)) {
-                    console.log("test " + filename + ": " + "FAILED".red + "\n");
+                    console.log("test " + filename + ": " + "FAILED".red);
                     fail();
                 } else {
-                    console.log("test " + filename + ": " + "PASSED".green + "\n");
+                    console.log("test " + filename + ": " + "PASSED".green);
                     complete();
                 }
             }
