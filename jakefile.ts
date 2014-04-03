@@ -35,6 +35,11 @@ function compileOptions(): ts.BatchCompileOptions {
     return options;
 }
 
+function testResult(filename: string, value: boolean): void {
+    console.log("test " + filename + ": " + (value ? "PASSED".green : "FAILED".red));
+    complete(value);
+}
+
 directory(srcBuiltDirectory);
 directory(testBuiltDirectory);
 
@@ -99,28 +104,13 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
             var outputBuilt: string = <any>fs.readFileSync(outputOutputBuilt, { encoding: "utf8" });
 
             if (outputBaseline != outputBuilt) {
-                console.log("test " + filename + ": " + "FAILED".red);
-                fail();
-            }
-
-            if (!fails) {
+                testResult(filename, false);
+            } else if (!fails) {
                 var baseline: string = <any>fs.readFileSync(outputProxyBaseline, { encoding: "utf8" });
                 var result: string = <any>fs.readFileSync(outputProxyBuilt, { encoding: "utf8" });
-                if (baseline == result) {
-                    console.log("test " + filename + ": " + "PASSED".green);
-                    complete();
-                } else {
-                    console.log("test " + filename + ": " + "FAILED".red);
-                    fail();
-                }
+                testResult(filename, baseline == result);
             } else {
-                if (fs.existsSync(outputProxyBuilt)) {
-                    console.log("test " + filename + ": " + "FAILED".red);
-                    fail();
-                } else {
-                    console.log("test " + filename + ": " + "PASSED".green);
-                    complete();
-                }
+                testResult(filename, !fs.existsSync(outputProxyBuilt));
             }
         }, { windowsVerbatimArguments: true, breakOnError: false });
     }, { async: true });
@@ -129,7 +119,9 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
 });
 
 desc("Tests the output.");
-task("test", tests);
+task("test", tests, () => {
+    (tests.every(t => { return jake.Task[t].value; })) ? complete() : fail();
+});
 
 task("default", ["release", "test"]);
 
