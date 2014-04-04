@@ -120,7 +120,10 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
 
 desc("Tests the output.");
 task("test", tests, () => {
-    (tests.every(t => { return jake.Task[t].value; })) ? complete() : fail();
+    (tests.every(t => {
+        var task: jake.Task = jake.Task[t];
+        return task.value === undefined || task.value === true;
+    })) ? complete() : fail();
 });
 
 task("default", ["release", "test"]);

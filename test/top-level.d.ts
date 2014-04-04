@@ -1,5 +1,5 @@
 declare var x: number, d: string;
-declare function y(): void;
+declare function y(a: string): void;
 interface z {
     
 }

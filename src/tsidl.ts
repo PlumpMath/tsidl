@@ -5,6 +5,8 @@
 import nomnom = require('nomnom');
 import assert = require('assert');
 
+var verbose: boolean = false;
+
 enum ErrorCode {
     MultipleFiles = 1000,
     CouldNotReadFile = 1001,
@@ -28,7 +30,8 @@ enum ErrorCode {
     GenericsNotAllowed = 1019,
     ExternalTypesNotAllowed = 1020,
     UnexpectedType = 1021,
-    DefaultParametersNotAllowed = 1022
+    DefaultParametersNotAllowed = 1022,
+    ImportsNotAllowed = 1023
 };
 
 var errorMessage: any =
@@ -38,7 +41,7 @@ var errorMessage: any =
         /* CantOpenOutputFile */ 1002: "Could not open output file '{0}'.",
         /* NotADeclareFile */ 1003: "Script is not a declare file.",
         /* UnexpectedDeclaration */ 1004: "Unexpected declaration type {0}.",
-        /* UnsupportedType */ 1005: "Unsupported type.",
+        /* UnsupportedType */ 1005: "Unsupported type {0}.",
         /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
         /* NoFiles */ 1007: "An input file must be specified.",
         /* ExternalModulesNotAllowed */ 1008: "Script cannot be an external module.",
@@ -55,7 +58,8 @@ var errorMessage: any =
         /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
         /* ExternalTypesNotAllowed */ 1020: "Externally declared types are not allowed.",
         /* UnexpectedType */ 1021: "Unexpected type declaration type {0}.",
-        /* DefaultParametersNotAllowed */ 1022: "Default parameter values are not allowed."
+        /* DefaultParametersNotAllowed */ 1022: "Default parameter values are not allowed.",
+        /* ImportsNotAllowed */ 1023: "'import' statements are not allowed."
     };
 
 function formatString(value: string, substitutions: string[]): string {
@@ -67,7 +71,7 @@ function reportGenericError(error: number, ...substitutions: string[]): void {
     console.error("tsidl: error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions));
 }
 
-function reportError(document: TypeScript.Document, position: number, error: number, ...substitutions: string[]): void {
+function reportError(errors: string[], document: TypeScript.Document, position: number, error: number, ...substitutions: string[]): void {
     var origin: string = document.fileName;
 
     if (position !== -1) {
@@ -75,7 +79,7 @@ function reportError(document: TypeScript.Document, position: number, error: num
         origin += "(" + lineAndCharacter.line().toString() + "," + lineAndCharacter.character().toString() + ")";
     }
 
-    console.error(origin + ": error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions));
+    errors.push(origin + ": error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions));
 }
 
 function compile(source: string, path: string, ioHost: TypeScript.IIO): TypeScript.Document {
@@ -521,29 +525,6 @@ function writeDeclarationsEpilogue(file: string): string {
     return file;
 }
 
-//function checkSignatureGroup(fileName: string, type: TypeScript.Type, group: TypeScript.SignatureGroup, types: TypeScript.Type[]): boolean
-//{
-//    if (group.signatures.length > 1)
-//    {
-//        reportError(fileName, ErrorCode.OverloadingNotAllowed);
-//        return false;
-//    }
-
-//    var signature: TypeScript.Signature = group.signatures[0];
-
-//    for (var index: number = 0; index < signature.parameters.length; index++)
-//    {
-//        var parameter: TypeScript.ParameterSymbol = signature.parameters[index];
-
-//        if (!checkType(fileName, parameter.getType(), types))
-//        {
-//            return false;
-//        }
-//    }
-
-//    return checkType(fileName, signature.returnType.type, types);
-//}
-
 //function checkMembers(fileName: string, members: TypeScript.PullSymbol[], types: TypeScript.PullTypeSymbol[]): boolean
 //{
 //    console.log("checkMembers " + members.length.toString());
@@ -564,41 +545,50 @@ function writeDeclarationsEpilogue(file: string): string {
 //    return true;
 //}
 
-function checkFunctionType(document: TypeScript.Document, functionType: TypeScript.FunctionType): boolean {
-    if (functionType.typeParameterList) {
-        reportError(document, functionType.typeParameterList.start(), ErrorCode.GenericsNotAllowed);
-        return false;
+function checkFunctionType(document: TypeScript.Document, decl: TypeScript.PullDecl, functionType: TypeScript.PullTypeSymbol, errors: string[]): void {
+    var callSignatures: TypeScript.PullSignatureSymbol[] = functionType.getCallSignatures();
+
+    if (callSignatures.length > 1) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
+        return;
     }
 
-    if (!checkParameterList(document, functionType, functionType.parameterList)) {
-        return false;
+    var callSignature: TypeScript.PullSignatureSymbol = callSignatures[0];
+
+    if (callSignature.isGeneric()) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+        return;
     }
 
-    assert(!functionType.type || functionType.kind() === TypeScript.SyntaxKind.TypeAnnotation);
+    callSignature.parameters.forEach(param => {
+        if (verbose) {
+            console.log(formatString("Checking parameter '{0}'.", [param.name]));
+        }
+        checkType(document, decl, param.type, errors);
+    });
 
-    if (!checkTypeAnnotation(document, functionType, <TypeScript.TypeAnnotation>functionType.type)) {
-        return false;
+    if (verbose) {
+        console.log("Checking return type.");
     }
-
-    return true;
+    checkType(document, decl, callSignature.returnType, errors);
 }
 
-function checkType(document: TypeScript.Document, declaration: TypeScript.AST, type: TypeScript.PullTypeSymbol): boolean {
+function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+    if (verbose && type) {
+        console.log(formatString("Checking type, kind '{0}'.", [TypeScript.PullElementKind[type.kind]]));
+    }
+
     if (!type) {
-        reportError(document, declaration.start(), ErrorCode.UnsupportedType);
-        return false;
+        // Fall through
     }
     else if (type.isPrimitive()) {
         if (type.name === "boolean" || type.name === "number" || type.name === "string" || type.name === "void" || type.name === "any") {
-            return true;
-        }
-        else {
-            reportError(document, declaration.start(), ErrorCode.UnsupportedType);
-            return false;
+            return;
         }
     }
     else if (type.isArrayNamedTypeReference()) {
-        return checkType(document, declaration, type.getElementType());
+        checkType(document, decl, type.getElementType(), errors);
+        return;
     }
     else if (type.isNamedTypeSymbol()) {
         var declarations: TypeScript.PullDecl[] = type.getDeclarations();
@@ -618,10 +608,10 @@ function checkType(document: TypeScript.Document, declaration: TypeScript.AST, t
 
             return false;
         })) {
-            return true;
+            return;
         } else {
-            reportError(document, declaration.start(), ErrorCode.ExternalTypesNotAllowed);
-            return false;
+            reportError(errors, document, decl.getSpan().start(), ErrorCode.ExternalTypesNotAllowed);
+            return;
         }
     }
     else if (type.kind == TypeScript.PullElementKind.ObjectType && type.getDeclarations().length == 1) {
@@ -629,15 +619,12 @@ function checkType(document: TypeScript.Document, declaration: TypeScript.AST, t
 
         if (objectDeclaration.kind() == TypeScript.SyntaxKind.ObjectType) {
             // UNDONE: Check when we get to classes/interfaces
-            return true;
+            return;
         }
     }
-    else if (type.kind == TypeScript.PullElementKind.FunctionType && type.getDeclarations().length == 1) {
-        var functionDeclaration: TypeScript.AST = type.getDeclarations()[0].ast();
-
-        if (functionDeclaration.kind() == TypeScript.SyntaxKind.FunctionType) {
-            return checkFunctionType(document, <TypeScript.FunctionType>functionDeclaration);
-        }
+    else if (type.kind == TypeScript.PullElementKind.FunctionType) {
+        checkFunctionType(document, decl, type, errors);
+        return;
     }
 
     //if (type.isGeneric())
@@ -713,198 +700,74 @@ function checkType(document: TypeScript.Document, declaration: TypeScript.AST, t
 
     //    return checkMembers(fileName, type.getMembers(), types);
 
-    reportError(document, declaration.start(), ErrorCode.UnsupportedType);
-    return false;
+    reportError(errors, document, decl.getSpan().start(), ErrorCode.UnsupportedType, TypeScript.PullElementKind[type.kind]);
 }
 
-function checkModifiers(document: TypeScript.Document, declaration: TypeScript.AST, modifiers: TypeScript.PullElementFlags[]): boolean {
-    for (var index: number = 0; index < modifiers.length; index++) {
-        switch (modifiers[index]) {
-            case TypeScript.PullElementFlags.Ambient:
-                break;
-
-            default:
-                reportError(document, declaration.start(), ErrorCode.UnexpectedModifier, TypeScript.PullElementFlags[modifiers[index]]);
-                return false;
-        }
+function checkChildDecls(document: TypeScript.Document, decls: TypeScript.PullDecl[], errors: string[]): void {
+    if (!decls) {
+        return;
     }
 
-    return true;
+    for (var index: number = 0; index < decls.length; index++) {
+        checkDecl(document, decls[index], errors);
+    }
 }
 
-function checkTypeAnnotation(document: TypeScript.Document, declaration: TypeScript.AST, typeAnnotation: TypeScript.TypeAnnotation): boolean {
-    if (!typeAnnotation) {
-        return true;
+function checkDecl(document: TypeScript.Document, decl: TypeScript.PullDecl, errors: string[]): void {
+    var skip: boolean =
+        decl.name === "" ||
+        (decl.getSymbol() && decl.getSymbol().type.getAssociatedContainerType() !== null);
+
+    if (verbose) {
+        console.log(formatString("{0} decl '{1}', kind '{2}'.", [skip ? "Skipping" : "Checking", decl.name, TypeScript.PullElementKind[decl.kind]]));
     }
 
-    if (!checkType(document, declaration, document._getDeclForAST(declaration).getSymbol().type)) {
-        return false;
+    if (skip) {
+        return;
     }
 
-    return true;
+    switch (decl.kind) {
+        case TypeScript.PullElementKind.Script:
+            checkChildDecls(document, decl.getChildDecls(), errors);
+            break;
+
+        case TypeScript.PullElementKind.Function:
+        case TypeScript.PullElementKind.Variable:
+            checkType(document, decl, decl.getSymbol().type, errors);
+            break;
+
+        case TypeScript.PullElementKind.Class:
+        case TypeScript.PullElementKind.Interface:
+        case TypeScript.PullElementKind.Enum:
+        case TypeScript.PullElementKind.Container:
+            break;
+
+        case TypeScript.PullElementKind.TypeAlias:
+            reportError(errors, document, decl.getSpan().start(), ErrorCode.ImportsNotAllowed);
+            break;
+
+        case TypeScript.PullElementKind.DynamicModule:
+            reportError(errors, document, -1, ErrorCode.ExternalModulesNotAllowed);
+            break;
+
+        default:
+            reportError(errors, document, decl.getSpan().start(), ErrorCode.UnexpectedDeclaration, TypeScript.PullElementKind[decl.kind]);
+            break;
+    }
 }
 
-function checkVariableStatement(document: TypeScript.Document, variableStatement: TypeScript.VariableStatement): boolean {
-    if (!checkModifiers(document, variableStatement, variableStatement.modifiers)) {
-        return false;
-    }
-
-    var index: number;
-    var declarators: TypeScript.ISeparatedSyntaxList2 = variableStatement.declaration.declarators;
-
-    for (index = 0; index < declarators.nonSeparatorCount(); index++) {
-        var declarator: TypeScript.VariableDeclarator = <TypeScript.VariableDeclarator>declarators.nonSeparatorAt(index);
-
-        assert.equal(declarator.kind(), TypeScript.SyntaxKind.VariableDeclarator);
-
-        if (!checkTypeAnnotation(document, declarator, declarator.typeAnnotation)) {
-            return false;
-        }
-
-        assert(!declarator.equalsValueClause);
-    }
-
-    return true;
-}
-
-function checkParameterList(document: TypeScript.Document, declaration: TypeScript.AST, parameterList: TypeScript.ParameterList): boolean {
-    var parameters: TypeScript.ISeparatedSyntaxList2 = parameterList.parameters;
-
-    for (var index: number = 0; index < parameters.nonSeparatorCount(); index++) {
-        var ast: TypeScript.AST = parameters.nonSeparatorAt(index);
-
-        assert(ast.kind() === TypeScript.SyntaxKind.Parameter);
-
-        var parameter: TypeScript.Parameter = <TypeScript.Parameter>ast;
-
-        if (!checkTypeAnnotation(document, ast, parameter.typeAnnotation)) {
-            return false;
-        }
-
-        if (parameter.equalsValueClause) {
-            reportError(document, parameter.start(), ErrorCode.DefaultParametersNotAllowed);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function checkCallSignature(document: TypeScript.Document, declaration: TypeScript.AST, callSignature: TypeScript.CallSignature): boolean {
-    if (callSignature.typeParameterList) {
-        reportError(document, callSignature.typeParameterList.start(), ErrorCode.GenericsNotAllowed);
-        return false;
-    }
-
-    if (!checkParameterList(document, declaration, callSignature.parameterList)) {
-        return false;
-    }
-
-    if (!checkTypeAnnotation(document, declaration, callSignature.typeAnnotation)) {
-        return false;
-    }
-
-    return true;
-}
-
-function checkFunctionDeclaration(document: TypeScript.Document, functionDeclaration: TypeScript.FunctionDeclaration): boolean {
-    if (!checkModifiers(document, functionDeclaration, functionDeclaration.modifiers)) {
-        return false;
-    }
-
-    if (!checkCallSignature(document, functionDeclaration, functionDeclaration.callSignature)) {
-        return false;
-    }
-
-    assert(!functionDeclaration.block);
-    return true;
-}
-
-function checkInterfaceDeclaration(document: TypeScript.Document, interfaceDeclaration: TypeScript.InterfaceDeclaration): boolean {
-    if (!checkModifiers(document, interfaceDeclaration, interfaceDeclaration.modifiers)) {
-        return false;
-    }
-
-    return true;
-}
-
-function checkClassDeclaration(document: TypeScript.Document, classDeclaration: TypeScript.ClassDeclaration): boolean {
-    if (!checkModifiers(document, classDeclaration, classDeclaration.modifiers)) {
-        return false;
-    }
-
-    return true;
-}
-
-function checkModuleDeclaration(document: TypeScript.Document, moduleDeclaration: TypeScript.ModuleDeclaration): boolean {
-    if (!checkModifiers(document, moduleDeclaration, moduleDeclaration.modifiers)) {
-        return false;
-    }
-
-    if (moduleDeclaration.stringLiteral) {
-        reportError(document, moduleDeclaration.stringLiteral.start(), ErrorCode.ExternalModulesNotAllowed);
-        return false;
-    }
-
-    return true;
-}
-
-function checkEnumDeclaration(document: TypeScript.Document, enumDeclaration: TypeScript.EnumDeclaration): boolean {
-    if (!checkModifiers(document, enumDeclaration, enumDeclaration.modifiers)) {
-        return false;
-    }
-
-    return true;
-}
-
-function checkSourceUnit(document: TypeScript.Document, sourceUnit: TypeScript.SourceUnit): boolean {
-    for (var index: number = 0; index < sourceUnit.moduleElements.childCount(); index++) {
-        var ast: TypeScript.AST = sourceUnit.moduleElements.childAt(index);
-        switch (ast.kind()) {
-            case TypeScript.SyntaxKind.VariableStatement:
-                return checkVariableStatement(document, <TypeScript.VariableStatement>ast);
-
-            case TypeScript.SyntaxKind.FunctionDeclaration:
-                return checkFunctionDeclaration(document, <TypeScript.FunctionDeclaration>ast);
-
-            case TypeScript.SyntaxKind.InterfaceDeclaration:
-                return checkInterfaceDeclaration(document, <TypeScript.InterfaceDeclaration>ast);
-
-            case TypeScript.SyntaxKind.ClassDeclaration:
-                return checkClassDeclaration(document, <TypeScript.ClassDeclaration>ast);
-
-            case TypeScript.SyntaxKind.ModuleDeclaration:
-                return checkModuleDeclaration(document, <TypeScript.ModuleDeclaration>ast);
-
-            case TypeScript.SyntaxKind.EnumDeclaration:
-                return checkEnumDeclaration(document, <TypeScript.EnumDeclaration>ast);
-
-            case TypeScript.SyntaxKind.EmptyStatement:
-                // ignore;
-                break;
-
-            default:
-                reportError(document, ast.start(), ErrorCode.UnexpectedDeclaration, TypeScript.SyntaxKind[ast.kind()]);
-                return false;
-        }
-    }
-
-    return true;
-
-}
-
-function checkDocument(document: TypeScript.Document): boolean {
+function checkDocument(document: TypeScript.Document, errors: string[]): void {
     if (!document.isDeclareFile()) {
-        reportError(document, -1, ErrorCode.NotADeclareFile);
-        return false;
+        reportError(errors, document, -1, ErrorCode.NotADeclareFile);
+        return;
     }
 
     if (document.isExternalModule()) {
-        reportError(document, -1, ErrorCode.ExternalModulesNotAllowed);
-        return false;
+        reportError(errors, document, -1, ErrorCode.ExternalModulesNotAllowed);
+        return;
     }
 
-    return checkSourceUnit(document, document.sourceUnit());
+    checkDecl(document, document.topLevelDecl(), errors);
 }
 
 function printLogo(): void {
@@ -927,6 +790,12 @@ function main(): void {
         {
             abbrev: "o",
             help: "The target file to write to."
+        })
+        .option("verbose",
+        {
+            flag: true,
+            abbrev: "v",
+            help: "Output verbose information"
         });
 
     // CONSIDER: Option to choose line endings? Choose endings based on platform?
@@ -937,6 +806,8 @@ function main(): void {
     if (!cmdLine.nologo) {
         printLogo();
     }
+
+    verbose = cmdLine.verbose;
 
     if (!files || files.length == 0) {
         reportGenericError(ErrorCode.NoFiles);
@@ -964,7 +835,14 @@ function main(): void {
         process.exit(1);
     }
 
-    if (!checkDocument(document)) {
+    var errors: string[] = [];
+
+    checkDocument(document, errors);
+
+    if (errors.length > 0) {
+        errors.forEach(s => {
+            console.error(s);
+        });
         process.exit(1);
     }
 
