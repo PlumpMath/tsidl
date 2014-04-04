@@ -79,7 +79,16 @@ function reportError(errors: string[], document: TypeScript.Document, position: 
         origin += "(" + lineAndCharacter.line().toString() + "," + lineAndCharacter.character().toString() + ")";
     }
 
-    errors.push(origin + ": error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions));
+    var errorString: string = origin + ": error TS" + error.toString() + ": " + formatString(errorMessage[error], substitutions);
+
+    errors.push(errorString);
+    logVerbose(errorString);
+}
+
+function logVerbose(message: string, substitutions?: string[]): void {
+    if (verbose) {
+        console.log(formatString(message, substitutions));
+    }
 }
 
 function compile(source: string, path: string, ioHost: TypeScript.IIO): TypeScript.Document {
@@ -525,55 +534,7 @@ function writeDeclarationsEpilogue(file: string): string {
     return file;
 }
 
-//function checkMembers(fileName: string, members: TypeScript.PullSymbol[], types: TypeScript.PullTypeSymbol[]): boolean
-//{
-//    console.log("checkMembers " + members.length.toString());
-//    if (members && members.length > 0 && !members.every(
-//        (symbol: TypeScript.PullSymbol) =>
-//        {
-//            if (!symbol.isExternallyVisible())
-//            {
-//                reportError(fileName, ErrorCode.PrivateMembersNotAllowed);
-//                return false;
-//            }
-//            return checkType(fileName, symbol.type, types);
-//        }, null))
-//    {
-//        return false;
-//    }
-
-//    return true;
-//}
-
-function checkFunctionType(document: TypeScript.Document, decl: TypeScript.PullDecl, functionType: TypeScript.PullTypeSymbol, errors: string[]): void {
-    var callSignatures: TypeScript.PullSignatureSymbol[] = functionType.getCallSignatures();
-
-    if (callSignatures.length > 1) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
-        return;
-    }
-
-    var callSignature: TypeScript.PullSignatureSymbol = callSignatures[0];
-
-    if (callSignature.isGeneric()) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
-        return;
-    }
-
-    callSignature.parameters.forEach(param => {
-        if (verbose) {
-            console.log(formatString("Checking parameter '{0}'.", [param.name]));
-        }
-        checkType(document, decl, param.type, errors);
-    });
-
-    if (verbose) {
-        console.log("Checking return type.");
-    }
-    checkType(document, decl, callSignature.returnType, errors);
-}
-
-function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+function checkTypeReference(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
     if (verbose && type) {
         console.log(formatString("Checking type, kind '{0}'.", [TypeScript.PullElementKind[type.kind]]));
     }
@@ -587,7 +548,7 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
         }
     }
     else if (type.isArrayNamedTypeReference()) {
-        checkType(document, decl, type.getElementType(), errors);
+        checkTypeReference(document, decl, type.getElementType(), errors);
         return;
     }
     else if (type.isNamedTypeSymbol()) {
@@ -614,93 +575,118 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
             return;
         }
     }
-    else if (type.kind == TypeScript.PullElementKind.ObjectType && type.getDeclarations().length == 1) {
-        var objectDeclaration: TypeScript.AST = type.getDeclarations()[0].ast();
-
-        if (objectDeclaration.kind() == TypeScript.SyntaxKind.ObjectType) {
-            // UNDONE: Check when we get to classes/interfaces
-            return;
-        }
-    }
-    else if (type.kind == TypeScript.PullElementKind.FunctionType) {
-        checkFunctionType(document, decl, type, errors);
+    else if (type.kind == TypeScript.PullElementKind.ObjectType ||
+        type.kind == TypeScript.PullElementKind.FunctionType ||
+        type.kind == TypeScript.PullElementKind.ConstructorType) {
+        checkType(document, decl, type, errors);
         return;
     }
 
-    //if (type.isGeneric())
-    //{
-    //    reportError(fileName, ErrorCode.GenericsNotAllowed);
-    //    return false;
-    //}
-
-    //if (type.getIndexSignatures().length != 0)
-    //{
-    //    reportError(fileName, ErrorCode.IndexersNotAllowed);
-    //    return false;
-    //}
-
-    //    if (type.call)
-    //    {
-    //        //if (!isAnonymous(type))
-    //        //{
-    //        //    reportError(fileName, ErrorCode.CallInNonAnonymousTypeNotAllowed);
-    //        //    return false;
-    //        //}
-    //        //else 
-    //        if (type.construct)
-    //        {
-    //            reportError(fileName, ErrorCode.CallAndConstructNotAllowed);
-    //            return false;
-    //        }
-    //        if (!checkSignatureGroup(fileName, type, type.call, types))
-    //        {
-    //            return false;
-    //        }
-    //    }
-
-    //    if (type.construct)
-    //    {
-    //        if (!isAnonymous(type) && !type.isClass())
-    //        {
-    //            reportError(fileName, ErrorCode.ConstructInNonAnonymousTypeNonClassNotAllowed);
-    //            return false;
-    //        }
-    //        else if (type.construct && !checkSignatureGroup(fileName, type, type.construct, types))
-    //        {
-    //            return false;
-    //        }
-    //    }
-
-    //    if (isAnonymous(type) && type.members && type.members.allMembers.count() > 0)
-    //    {
-    //        reportError(fileName, ErrorCode.NonFunctionAnonymousTypesNotAllowed);
-    //        return false;
-    //    }
-
-    //    if (type.isClass())
-    //    {
-    //        if (type.extendsList && type.extendsList.length > 0)
-    //        {
-    //            reportError(fileName, ErrorCode.ClassExtensionNotAllowed);
-    //            return false;
-    //        }
-
-    //        // All classes have a static prototype property on their class
-    //        if (type.members.allMembers.count() > 1)
-    //        {
-    //            reportError(fileName, ErrorCode.StaticMembersNotAllowed);
-    //            return false;
-    //        }
-
-    //        if (!checkType(fileName, type.instanceType, types))
-    //        {
-    //            return false;
-    //        }
-    //    }
-
-    //    return checkMembers(fileName, type.getMembers(), types);
-
     reportError(errors, document, decl.getSpan().start(), ErrorCode.UnsupportedType, TypeScript.PullElementKind[type.kind]);
+}
+
+function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+    var members: TypeScript.PullSymbol[] = type.getMembers();
+
+    if (members && members.length > 0) {
+        members.forEach((symbol: TypeScript.PullSymbol) => {
+            if (!symbol.isExternallyVisible()) {
+                reportError(errors, document, decl.getSpan().start(), ErrorCode.PrivateMembersNotAllowed);
+            }
+            //checkType(fileName, symbol.type, types);
+        });
+    }
+}
+
+function checkCallSignatures(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+    var callSignatures: TypeScript.PullSignatureSymbol[] = type.getCallSignatures();
+
+    if (!callSignatures || callSignatures.length === 0) {
+        return;
+    }
+
+    if (callSignatures.length > 1) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
+        return;
+    }
+
+    if (type.getConstructSignatures() && type.getConstructSignatures().length > 0) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.CallAndConstructNotAllowed);
+    }
+
+    var callSignature: TypeScript.PullSignatureSymbol = callSignatures[0];
+
+    if (callSignature.isGeneric()) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+        return;
+    }
+
+    callSignature.parameters.forEach(param => {
+        logVerbose("Checking parameter '{0}'.", [param.name]);
+        checkTypeReference(document, decl, param.type, errors);
+    });
+
+    logVerbose("Checking return type.");
+
+    checkTypeReference(document, decl, callSignature.returnType, errors);
+}
+
+function checkConstructSignatures(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+    var constructSignatures: TypeScript.PullSignatureSymbol[] = type.getConstructSignatures();
+
+    if (!constructSignatures || constructSignatures.length === 0) {
+        return;
+    }
+
+    if (type.name !== "" && !type.isClass()) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.ConstructInNonAnonymousTypeNonClassNotAllowed);
+        return;
+    }
+
+    if (constructSignatures.length > 1) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
+        return;
+    }
+
+    var constructSignature: TypeScript.PullSignatureSymbol = constructSignatures[0];
+
+    assert(!constructSignature.isGeneric());
+
+    constructSignature.parameters.forEach(param => {
+        logVerbose("Checking parameter '{0}'.", [param.name]);
+        checkTypeReference(document, decl, param.type, errors);
+    });
+}
+
+function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+    if (type.isGeneric()) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+    }
+
+    if (type.getIndexSignatures() && type.getIndexSignatures().length > 0) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.IndexersNotAllowed);
+    }
+
+    checkCallSignatures(document, decl, type, errors);
+    checkConstructSignatures(document, decl, type, errors);
+
+    if (type.name === "" && type.getMembers() && type.getMembers().length > 0) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.NonFunctionAnonymousTypesNotAllowed);
+    }
+
+    if (type.getExtendedTypes() && type.getExtendedTypes().length > 0) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.ClassExtensionNotAllowed);
+    }
+
+    var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
+
+    if (implementedTypes && implementedTypes.length > 0) {
+        for (var index: number = 0; index < implementedTypes.length; index++) {
+            checkTypeReference(document, decl, implementedTypes[index], errors);
+        }
+    }
+
+    return checkMembers(document, decl, type, errors);
 }
 
 function checkChildDecls(document: TypeScript.Document, decls: TypeScript.PullDecl[], errors: string[]): void {
@@ -718,9 +704,7 @@ function checkDecl(document: TypeScript.Document, decl: TypeScript.PullDecl, err
         decl.name === "" ||
         (decl.getSymbol() && decl.getSymbol().type.getAssociatedContainerType() !== null);
 
-    if (verbose) {
-        console.log(formatString("{0} decl '{1}', kind '{2}'.", [skip ? "Skipping" : "Checking", decl.name, TypeScript.PullElementKind[decl.kind]]));
-    }
+    logVerbose("{0} decl '{1}', kind '{2}'.", [skip ? "Skipping" : "Checking", decl.name, TypeScript.PullElementKind[decl.kind]]);
 
     if (skip) {
         return;
@@ -731,15 +715,16 @@ function checkDecl(document: TypeScript.Document, decl: TypeScript.PullDecl, err
             checkChildDecls(document, decl.getChildDecls(), errors);
             break;
 
-        case TypeScript.PullElementKind.Function:
         case TypeScript.PullElementKind.Variable:
-            checkType(document, decl, decl.getSymbol().type, errors);
+            checkTypeReference(document, decl, decl.getSymbol().type, errors);
             break;
 
         case TypeScript.PullElementKind.Class:
         case TypeScript.PullElementKind.Interface:
         case TypeScript.PullElementKind.Enum:
         case TypeScript.PullElementKind.Container:
+        case TypeScript.PullElementKind.Function:
+            checkType(document, decl, decl.getSymbol().type, errors);
             break;
 
         case TypeScript.PullElementKind.TypeAlias:
