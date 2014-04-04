@@ -11,3 +11,7 @@ interface b {
 declare class c implements b {
 	public x: number;
 }
+
+declare class d extends c {
+	
+}

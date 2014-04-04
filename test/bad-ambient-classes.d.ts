@@ -1,11 +1,3 @@
-declare class a {
-	
-}
-
-declare class b extends a {
-	
-}
-
 declare class c<T> {
 
 }

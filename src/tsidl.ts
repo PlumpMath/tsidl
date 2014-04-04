@@ -17,15 +17,12 @@ enum ErrorCode {
     OverloadingNotAllowed = 1006,
     NoFiles = 1007,
     ExternalModulesNotAllowed = 1008,
-    ClassExtensionNotAllowed = 1009,
     UnexpectedModifier = 1010,
     PrivateMembersNotAllowed = 1011,
     StaticMembersNotAllowed = 1012,
     NonFunctionAnonymousTypesNotAllowed = 1013,
     IndexersNotAllowed = 1014,
     CallAndConstructNotAllowed = 1015,
-    //CallInNonAnonymousTypeNotAllowed = 1016,
-    ConstructInNonAnonymousTypeNonClassNotAllowed = 1017,
     InternalError = 1018,
     GenericsNotAllowed = 1019,
     ExternalTypesNotAllowed = 1020,
@@ -45,15 +42,12 @@ var errorMessage: any =
         /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
         /* NoFiles */ 1007: "An input file must be specified.",
         /* ExternalModulesNotAllowed */ 1008: "Script cannot be an external module.",
-        /* ClassExtensionNotAllowed */ 1009: "Class inheritance is not allowed.",
         /* UnexpectedModifier */ 1010: "Unexpected modifier {0}.",
         /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
         /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
         /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
         /* IndexersNotAllowed */ 1014: "Indexers are not allowed.",
         /* CallAndConstructNotAllowed */ 1015: "Types that declare call signatures and constructor signatures are not allowed.",
-        ///* CallInNonAnonymousTypeNotAllowed */ 1016: "Non-anonymous types cannot declare a call signature.",
-        /* ConstructInNonAnonymousTypeNonClassNotAllowed */ 1017: "Constructors can only be declared in classes and anonymous types.",
         /* InternalError */ 1018: "Internal error.",
         /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
         /* ExternalTypesNotAllowed */ 1020: "Externally declared types are not allowed.",
@@ -642,11 +636,6 @@ function checkConstructSignatures(document: TypeScript.Document, decl: TypeScrip
         return;
     }
 
-    if (type.name !== "" && !type.isClass()) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.ConstructInNonAnonymousTypeNonClassNotAllowed);
-        return;
-    }
-
     if (constructSignatures.length > 1) {
         reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
         return;
@@ -680,10 +669,6 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
 
     if (type.name === "" && type.getMembers() && type.getMembers().length > 0) {
         reportError(errors, document, decl.getSpan().start(), ErrorCode.NonFunctionAnonymousTypesNotAllowed);
-    }
-
-    if (type.getExtendedTypes() && type.getExtendedTypes().length > 0) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.ClassExtensionNotAllowed);
     }
 
     var constructorMethod: TypeScript.PullSymbol = type.getConstructorMethod();
