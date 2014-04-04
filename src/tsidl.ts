@@ -593,7 +593,11 @@ function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, 
             if (!symbol.isExternallyVisible()) {
                 reportError(errors, document, decl.getSpan().start(), ErrorCode.PrivateMembersNotAllowed);
             }
-            //checkType(fileName, symbol.type, types);
+
+            var memberDecls: TypeScript.PullDecl[] = symbol.getDeclarations();
+
+            assert(memberDecls && memberDecls.length === 1);
+            checkType(document, memberDecls[0], symbol.type, errors);
         });
     }
 }
@@ -650,7 +654,10 @@ function checkConstructSignatures(document: TypeScript.Document, decl: TypeScrip
 
     var constructSignature: TypeScript.PullSignatureSymbol = constructSignatures[0];
 
-    assert(!constructSignature.isGeneric());
+    if (constructSignature.isGeneric()) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+        return;
+    }
 
     constructSignature.parameters.forEach(param => {
         logVerbose("Checking parameter '{0}'.", [param.name]);
@@ -661,6 +668,7 @@ function checkConstructSignatures(document: TypeScript.Document, decl: TypeScrip
 function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
     if (type.isGeneric()) {
         reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+        return;
     }
 
     if (type.getIndexSignatures() && type.getIndexSignatures().length > 0) {
@@ -678,6 +686,21 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
         reportError(errors, document, decl.getSpan().start(), ErrorCode.ClassExtensionNotAllowed);
     }
 
+    var constructorMethod: TypeScript.PullSymbol = type.getConstructorMethod();
+
+    if (constructorMethod) {
+        var prototype: TypeScript.PullTypeSymbol = constructorMethod.type;
+        var prototypeMembers: TypeScript.PullSymbol[] = prototype.getMembers();
+
+        if (prototypeMembers && prototypeMembers.length > 0) {
+            prototypeMembers.forEach(m => {
+                if (m.name !== "prototype") {
+                    reportError(errors, document, decl.getSpan().start(), ErrorCode.StaticMembersNotAllowed);
+                }
+            });
+        }
+    }
+
     var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
 
     if (implementedTypes && implementedTypes.length > 0) {
@@ -686,7 +709,7 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
         }
     }
 
-    return checkMembers(document, decl, type, errors);
+    checkMembers(document, decl, type, errors);
 }
 
 function checkChildDecls(document: TypeScript.Document, decls: TypeScript.PullDecl[], errors: string[]): void {

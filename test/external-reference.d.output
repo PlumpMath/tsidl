@@ -1,4 +1,0 @@
-TsIdl Version 1.0
-Copyright (C) Paul Vick. All rights reserved.
-
-test/external-reference.d.ts(0,12): error TS1020: Externally declared types are not allowed.
