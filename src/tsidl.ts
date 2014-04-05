@@ -457,19 +457,19 @@ function writeDocument(baseName: string, document: TypeScript.Document, file: st
 //        headerFile.writeLine();
 //    }
 
-//    file += "\r\n\r\n\
-//class " + baseName + "_global_proxy: public jsrt::object\r\n\
-//{\r\n\
-//public:\r\n\
-//    " + baseName + "_global_proxy() :\r\n\
-//        jsrt::object()\r\n\
-//    {\r\n\
-//    }\r\n\
-//\r\n\
-//    explicit " + baseName + "_global_proxy(jsrt::object object) :\r\n\
-//        jsrt::object(object.handle())\r\n\
-//    {\r\n\
-//    }";
+    file += "\r\n\r\n\
+class " + baseName + "_global_proxy: public jsrt::object\r\n\
+{\r\n\
+public:\r\n\
+    " + baseName + "_global_proxy() :\r\n\
+        jsrt::object()\r\n\
+    {\r\n\
+    }\r\n\
+\r\n\
+    explicit " + baseName + "_global_proxy(jsrt::object object) :\r\n\
+        jsrt::object(object.handle())\r\n\
+    {\r\n\
+    }";
 
 //    for (var index: number = 0; index < script.bod.members.length; index++)
 //    {
@@ -501,7 +501,7 @@ function writeDocument(baseName: string, document: TypeScript.Document, file: st
 //        }
 //    }
 
-    //file += "\r\n};";
+    file += "\r\n};";
 
     return file;
 }
