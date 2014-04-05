@@ -141,17 +141,6 @@ function getFileNameWithoutExtension(path: string): string {
     }
 }
 
-//function getFileName(path: string): string {
-//    var pathComponents: string[] = clean(path).split("/");
-//    return pathComponents[pathComponents.length - 1];
-//}
-
-//function isAnonymous(type: TypeScript.Type): boolean
-//{
-//    return (type.symbol.name && (type.symbol.name == "_anonymous" || type.symbol.name == "_construct")) ||
-//           (type.symbol.declAST && type.symbol.declAST.nodeType == TypeScript.NodeType.FuncDecl);
-//}
-
 //function javaScriptFunctionType(container: TypeScript.Type, signature: TypeScript.Signature): string
 //{
 //    var result: string = "jsrt::function<" + typeStringNative(container, signature.returnType.type);
@@ -442,8 +431,8 @@ function getFileNameWithoutExtension(path: string): string {
 //    }
 //}
 
-//function writeScriptDeclaration(baseName: string, script: TypeScript.Script, types: TypeScript.Type[], headerFile: IO.FileWriter): void
-//{
+function writeDocument(baseName: string, document: TypeScript.Document, file: string): string
+{
 //    // We only want the types that are named top-level declarations. (And we don't want the class containers, just the instance types.)
 //    types = types.filter(
 //        (type: TypeScript.Type) => 
@@ -468,7 +457,7 @@ function getFileNameWithoutExtension(path: string): string {
 //        headerFile.writeLine();
 //    }
 
-//    headerFile.write("\r\n\r\n\
+//    file += "\r\n\r\n\
 //class " + baseName + "_global_proxy: public jsrt::object\r\n\
 //{\r\n\
 //public:\r\n\
@@ -480,7 +469,7 @@ function getFileNameWithoutExtension(path: string): string {
 //    explicit " + baseName + "_global_proxy(jsrt::object object) :\r\n\
 //        jsrt::object(object.handle())\r\n\
 //    {\r\n\
-//    }");
+//    }";
 
 //    for (var index: number = 0; index < script.bod.members.length; index++)
 //    {
@@ -512,10 +501,12 @@ function getFileNameWithoutExtension(path: string): string {
 //        }
 //    }
 
-//    headerFile.write("\r\n};");
-//}
+    //file += "\r\n};";
 
-function writeDeclarationsPrologue(baseName: string, file: string): string {
+    return file;
+}
+
+function writePrologue(baseName: string, file: string): string {
     file += "\
 // This file contains automatically generated proxies for JavaScript.\r\n\
 \r\n\
@@ -524,13 +515,13 @@ function writeDeclarationsPrologue(baseName: string, file: string): string {
     return file;
 }
 
-function writeDeclarationsEpilogue(file: string): string {
+function writeEpilogue(file: string): string {
     return file;
 }
 
 function checkTypeReference(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
     if (verbose && type) {
-        console.log(formatString("Checking type, kind '{0}'.", [TypeScript.PullElementKind[type.kind]]));
+        console.log(formatString("Checking type reference, kind '{0}'.", [TypeScript.PullElementKind[type.kind]]));
     }
 
     if (!type) {
@@ -572,6 +563,7 @@ function checkTypeReference(document: TypeScript.Document, decl: TypeScript.Pull
     else if (type.kind == TypeScript.PullElementKind.ObjectType ||
         type.kind == TypeScript.PullElementKind.FunctionType ||
         type.kind == TypeScript.PullElementKind.ConstructorType) {
+        assert(type.name === "");
         checkType(document, decl, type, errors);
         return;
     }
@@ -584,6 +576,8 @@ function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, 
 
     if (members && members.length > 0) {
         members.forEach((symbol: TypeScript.PullSymbol) => {
+            logVerbose("Checking member '{0}', kind '{1}'.", [symbol.name, TypeScript.PullElementKind[symbol.kind]]);
+
             if (!symbol.isExternallyVisible()) {
                 reportError(errors, document, decl.getSpan().start(), ErrorCode.PrivateMembersNotAllowed);
             }
@@ -655,6 +649,8 @@ function checkConstructSignatures(document: TypeScript.Document, decl: TypeScrip
 }
 
 function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+    logVerbose("Checking type '{0}', kind '{1}'.", [type.name, TypeScript.PullElementKind[type.kind]]);
+
     if (type.isGeneric()) {
         reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
         return;
@@ -697,46 +693,37 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
     checkMembers(document, decl, type, errors);
 }
 
-function checkChildDecls(document: TypeScript.Document, decls: TypeScript.PullDecl[], errors: string[]): void {
-    if (!decls) {
-        return;
-    }
+function checkContainerMember(document: TypeScript.Document, member: TypeScript.PullSymbol, errors: string[]): void {
+    var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
 
-    for (var index: number = 0; index < decls.length; index++) {
-        checkDecl(document, decls[index], errors);
-    }
-}
-
-function checkDecl(document: TypeScript.Document, decl: TypeScript.PullDecl, errors: string[]): void {
-    var skip: boolean =
-        decl.name === "" ||
-        (decl.getSymbol() && decl.getSymbol().type.getAssociatedContainerType() !== null);
-
-    logVerbose("{0} decl '{1}', kind '{2}'.", [skip ? "Skipping" : "Checking", decl.name, TypeScript.PullElementKind[decl.kind]]);
+    logVerbose("{0} container member '{1}', kind '{2}'.", [skip ? "Skipping" : "Checking", member.name, TypeScript.PullElementKind[member.kind]]);
 
     if (skip) {
         return;
     }
 
-    switch (decl.kind) {
-        case TypeScript.PullElementKind.Script:
-            checkChildDecls(document, decl.getChildDecls(), errors);
-            break;
-
+    switch (member.kind) {
         case TypeScript.PullElementKind.Variable:
-            checkTypeReference(document, decl, decl.getSymbol().type, errors);
+            assert(member.getDeclarations().length > 0);
+            checkTypeReference(document, member.getDeclarations()[0], member.type, errors);
             break;
 
         case TypeScript.PullElementKind.Class:
         case TypeScript.PullElementKind.Interface:
         case TypeScript.PullElementKind.Enum:
-        case TypeScript.PullElementKind.Container:
         case TypeScript.PullElementKind.Function:
-            checkType(document, decl, decl.getSymbol().type, errors);
+            assert(member.getDeclarations().length > 0);
+            checkType(document, member.getDeclarations()[0], member.type, errors);
+            break;
+
+        case TypeScript.PullElementKind.Container:
+            assert(member.getDeclarations().length > 0);
+            checkContainer(document, member.getDeclarations()[0], member.type, errors);
             break;
 
         case TypeScript.PullElementKind.TypeAlias:
-            reportError(errors, document, decl.getSpan().start(), ErrorCode.ImportsNotAllowed);
+            assert(member.getDeclarations().length > 0);
+            reportError(errors, document, member.getDeclarations()[0].getSpan().start(), ErrorCode.ImportsNotAllowed);
             break;
 
         case TypeScript.PullElementKind.DynamicModule:
@@ -744,8 +731,26 @@ function checkDecl(document: TypeScript.Document, decl: TypeScript.PullDecl, err
             break;
 
         default:
-            reportError(errors, document, decl.getSpan().start(), ErrorCode.UnexpectedDeclaration, TypeScript.PullElementKind[decl.kind]);
+            assert(member.getDeclarations().length > 0);
+            reportError(errors, document, member.getDeclarations()[0].getSpan().start(), ErrorCode.UnexpectedDeclaration, TypeScript.PullElementKind[member.kind]);
             break;
+    }
+}
+
+function checkContainer(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
+    logVerbose("Checking container '{0}', kind '{1}'.", [type.name, TypeScript.PullElementKind[type.kind]]);
+
+    var members: TypeScript.PullSymbol[] = type.getAllMembers(TypeScript.PullElementKind.All, TypeScript.GetAllMembersVisiblity.all);
+
+    if (members) {
+        var seen: any = {};
+
+        members.forEach(s => {
+            if (!seen[s]) {
+                checkContainerMember(document, s, errors);
+                seen[s] = true;
+            }
+        });
     }
 }
 
@@ -760,7 +765,19 @@ function checkDocument(document: TypeScript.Document, errors: string[]): void {
         return;
     }
 
-    checkDecl(document, document.topLevelDecl(), errors);
+    var childDecls: TypeScript.PullDecl[] = document.topLevelDecl().getChildDecls();
+
+    if (childDecls) {
+        var seen: any = {};
+
+        childDecls.forEach(childDecl => {
+            var s: TypeScript.PullSymbol = childDecl.getSymbol();
+            if (!seen[s]) {
+                checkContainerMember(document, s, errors);
+                seen[s] = true;
+            }
+        });
+    }
 }
 
 function printLogo(): void {
@@ -848,9 +865,9 @@ function main(): void {
             baseName = baseName.substring(0, baseName.length - 2);
         }
 
-        headerFile = writeDeclarationsPrologue(baseName, headerFile);
-        //    writeScriptDeclaration(baseName, scriptAST, types, headerFile);
-        headerFile = writeDeclarationsEpilogue(headerFile);
+        headerFile = writePrologue(baseName, headerFile);
+        headerFile = writeDocument(baseName, document, headerFile);
+        headerFile = writeEpilogue(headerFile);
 
         ioHost.writeFile(headerFileName, headerFile, false);
     }

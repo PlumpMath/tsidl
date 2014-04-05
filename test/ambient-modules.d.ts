@@ -20,8 +20,6 @@ declare module b.c.d {
 
 		}
 	}
-	export import e = a;
 }
 
 declare var z: b.c.d.c.d;
-declare var foo: b.c.d.e.g;
