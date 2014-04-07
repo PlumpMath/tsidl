@@ -80,24 +80,32 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
 
     var test: string = testDirectory + filename;
     var outputBase: string = filename.substr(0, filename.length - 3);
-    var outputProxy: string = outputBase + ".proxy.h";
+
+    if ((/\.d$/i).test(outputBase)) {
+        outputBase = outputBase.substring(0, outputBase.length - 2);
+    }
+
+    var outputHeader: string = outputBase + ".proxy.h";
+    var outputSource: string = outputBase + ".proxy.cpp";
     var outputOutput: string = outputBase + ".output";
 
-    var outputProxyBaseline: string = testDirectory + outputProxy;
-    var outputProxyBuilt: string = testBuiltDirectory + outputProxy;
+    var outputHeaderBaseline: string = testDirectory + outputHeader;
+    var outputHeaderBuilt: string = testBuiltDirectory + outputHeader;
+    var outputSourceBaseline: string = testDirectory + outputSource;
+    var outputSourceBuilt: string = testBuiltDirectory + outputSource;
     var outputOutputBaseline: string = testDirectory + outputOutput;
     var outputOutputBuilt: string = testBuiltDirectory + outputOutput;
 
     var dependencies: string[] = [testBuiltDirectory, test, outputOutputBaseline, tsidlCliTarget];
-    var fails: boolean = !fs.existsSync(outputProxyBaseline);
+    var fails: boolean = !fs.existsSync(outputHeaderBaseline);
 
     if (!fails) {
-        dependencies.push(outputProxyBaseline);
+        dependencies.push(outputHeaderBaseline, outputSourceBaseline);
     }
 
     desc("Test " + filename);
     file(outputOutputBuilt, dependencies, () => {
-        var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --out " + outputProxyBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
+        var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --header " + outputHeaderBuilt + " --source " + outputSourceBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
 
         jake.exec([command], () => {
             var outputBaseline: string = <any>fs.readFileSync(outputOutputBaseline, { encoding: "utf8" });
@@ -106,11 +114,13 @@ fs.readdirSync(testDirectory).forEach((filename: string) => {
             if (outputBaseline != outputBuilt) {
                 testResult(filename, false);
             } else if (!fails) {
-                var baseline: string = <any>fs.readFileSync(outputProxyBaseline, { encoding: "utf8" });
-                var result: string = <any>fs.readFileSync(outputProxyBuilt, { encoding: "utf8" });
-                testResult(filename, baseline == result);
+                var baselineHeader: string = <any>fs.readFileSync(outputHeaderBaseline, { encoding: "utf8" });
+                var resultHeader: string = <any>fs.readFileSync(outputHeaderBuilt, { encoding: "utf8" });
+                var baselineSource: string = <any>fs.readFileSync(outputSourceBaseline, { encoding: "utf8" });
+                var resultSource: string = <any>fs.readFileSync(outputSourceBuilt, { encoding: "utf8" });
+                testResult(filename, (baselineHeader === resultHeader) && (baselineSource === resultSource));
             } else {
-                testResult(filename, !fs.existsSync(outputProxyBuilt));
+                testResult(filename, !fs.existsSync(outputHeaderBuilt));
             }
         }, { windowsVerbatimArguments: true, breakOnError: false });
     }, { async: true });

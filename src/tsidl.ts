@@ -141,6 +141,122 @@ function getFileNameWithoutExtension(path: string): string {
     }
 }
 
+class OutputWriter {
+    private headerFile: string;
+    private headerComplete: boolean;
+    private headerIndent: number;
+    private headerAtLineStart: boolean;
+    private sourceFile: string;
+    private sourceComplete: boolean;
+    private sourceIndent: number;
+    private sourceAtLineStart: boolean;
+
+    constructor() {
+        this.headerFile = "";
+        this.headerComplete = false;
+        this.headerIndent = 0;
+        this.headerAtLineStart = true;
+        this.sourceFile = "";
+        this.sourceComplete = false;
+        this.sourceIndent = 0;
+        this.sourceAtLineStart = true;
+    }
+
+    public completeHeader(): string {
+        this.headerComplete = true;
+        return this.headerFile;
+    }
+
+    public completeSource(): string {
+        this.sourceComplete = true;
+        return this.sourceFile;
+    }
+
+    private checkHeaderComplete(): void {
+        if (this.headerComplete) {
+            throw new Error("invalid header write");
+        }
+    }
+
+    private checkSourceComplete(): void {
+        if (this.sourceComplete) {
+            throw new Error("invalid source write");
+        }
+    }
+
+    private checkHeaderIndent(): void {
+        if (this.headerAtLineStart) {
+            for (var index: number = 0; index < this.headerIndent; index++) {
+                this.headerFile += "    ";
+            }
+        }
+        this.headerAtLineStart = false;
+    }
+
+    public writeLineHeader(s? : string): void {
+        this.checkHeaderComplete();
+        this.checkHeaderIndent();
+        if (s) {
+            this.headerFile += s;
+        }
+        this.headerFile += "\r\n";
+        this.headerAtLineStart = true;
+    }
+
+    public writeHeader(s: string): void {
+        this.checkHeaderComplete();
+        this.checkHeaderIndent();
+        this.headerFile += s;
+    }
+
+    public indentHeader(): void {
+        this.headerIndent += 1;
+    }
+
+    public outdentHeader(): void {
+        this.headerIndent -= 1;
+        if (this.headerIndent < 0) {
+            throw new Error("unbalanced indent");
+        }
+    }
+
+    private checkSourceIndent(): void {
+        if (this.sourceAtLineStart) {
+            for (var index: number = 0; index < this.sourceIndent; index++) {
+                this.sourceFile += "    ";
+            }
+        }
+        this.sourceAtLineStart = false;
+    }
+
+    public writeLineSource(s?: string): void {
+        this.checkSourceComplete();
+        this.checkSourceIndent();
+        if (s) {
+            this.sourceFile += s;
+        }
+        this.sourceFile += "\r\n";
+        this.sourceAtLineStart = true;
+    }
+
+    public writeSource(s: string): void {
+        this.checkSourceComplete();
+        this.checkSourceIndent();
+        this.sourceFile += s;
+    }
+
+    public indentSource(): void {
+        this.sourceIndent += 1;
+    }
+
+    public outdentSource(): void {
+        this.sourceIndent -= 1;
+        if (this.sourceIndent < 0) {
+            throw new Error("unbalanced indent");
+        }
+    }
+}
+
 //function javaScriptFunctionType(container: TypeScript.Type, signature: TypeScript.Signature): string
 //{
 //    var result: string = "jsrt::function<" + typeStringNative(container, signature.returnType.type);
@@ -416,7 +532,7 @@ function getFileNameWithoutExtension(path: string): string {
 //    headerFile.write("\r\n};");
 //}
 
-function writeDocument(baseName: string, document: TypeScript.Document, file: string): string
+function writeDocument(baseName: string, document: TypeScript.Document, outputWriter: OutputWriter): void
 {
 //    // We only want the types that are named top-level declarations. (And we don't want the class containers, just the instance types.)
 //    types = types.filter(
@@ -440,19 +556,19 @@ function writeDocument(baseName: string, document: TypeScript.Document, file: st
 //        headerFile.writeLine();
 //    }
 
-    file += "\r\n\r\n\
-class " + baseName + "_global_proxy: public jsrt::object\r\n\
-{\r\n\
-public:\r\n\
-    " + baseName + "_global_proxy() :\r\n\
-        jsrt::object()\r\n\
-    {\r\n\
-    }\r\n\
-\r\n\
-    explicit " + baseName + "_global_proxy(jsrt::object object) :\r\n\
-        jsrt::object(object.handle())\r\n\
-    {\r\n\
-    }";
+//    file += "\r\n\r\n\
+//class " + baseName + "_global_proxy: public jsrt::object\r\n\
+//{\r\n\
+//public:\r\n\
+//    " + baseName + "_global_proxy() :\r\n\
+//        jsrt::object()\r\n\
+//    {\r\n\
+//    }\r\n\
+//\r\n\
+//    explicit " + baseName + "_global_proxy(jsrt::object object) :\r\n\
+//        jsrt::object(object.handle())\r\n\
+//    {\r\n\
+//    }";
 
 //    for (var index: number = 0; index < script.bod.members.length; index++)
 //    {
@@ -484,22 +600,31 @@ public:\r\n\
 //        }
 //    }
 
-    file += "\r\n};";
-
-    return file;
+    //file += "\r\n};";
 }
 
-function writePrologue(baseName: string, file: string): string {
-    file += "\
-// This file contains automatically generated proxies for JavaScript.\r\n\
-\r\n\
-#include \"jsrt.wrappers.h\"";
+function writePrologue(baseName: string, outputWriter: OutputWriter): void {
+    outputWriter.writeLineHeader("// This file contains automatically generated proxies for JavaScript.");
+    outputWriter.writeLineHeader();
+    outputWriter.writeLineHeader("#include \"jsrt.wrappers.h\"");
+    outputWriter.writeLineHeader();
+    outputWriter.writeLineHeader("namespace " + baseName + " {");
+    outputWriter.indentHeader();
 
-    return file;
+    outputWriter.writeLineSource("// This file contains automatically generated proxies for JavaScript.");
+    outputWriter.writeLineSource();
+    outputWriter.writeLineSource("#include \"" + baseName + "_proxy.h\"");
+    outputWriter.writeLineSource();
+    outputWriter.writeLineSource("namespace " + baseName + " {");
+    outputWriter.indentSource();
 }
 
-function writeEpilogue(file: string): string {
-    return file;
+function writeEpilogue(baseName: string, outputWriter: OutputWriter): void {
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("} // namespace " + baseName);
+
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("} // namespace " + baseName);
 }
 
 function checkTypeReference(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
@@ -779,10 +904,15 @@ function main(): void {
             flag: true,
             help: "Suppress logo display",
         })
-        .option("out",
+        .option("header",
         {
-            abbrev: "o",
-            help: "The target file to write to."
+            abbrev: "h",
+            help: "The target header to write to."
+        })
+        .option("source",
+        {
+            abbrev: "s",
+            help: "The target source to write to."
         })
         .option("verbose",
         {
@@ -839,20 +969,23 @@ function main(): void {
         process.exit(1);
     }
 
-    var headerFile: string = "";
+    var outputWriter: OutputWriter = new OutputWriter();
     var baseName: string = getFileNameWithoutExtension(files[0]);
-    var headerFileName: string = cmdLine.out || baseName + ".proxy.h";
+
+    if ((/\.d$/i).test(baseName)) {
+        baseName = baseName.substring(0, baseName.length - 2);
+    }
+
+    var headerFileName: string = cmdLine.header || baseName + ".proxy.h";
+    var sourceFileName: string = cmdLine.source || baseName + ".proxy.cpp";
 
     try {
-        if ((/\.d$/i).test(baseName)) {
-            baseName = baseName.substring(0, baseName.length - 2);
-        }
+        writePrologue(baseName, outputWriter);
+        writeDocument(baseName, document, outputWriter);
+        writeEpilogue(baseName, outputWriter);
 
-        headerFile = writePrologue(baseName, headerFile);
-        headerFile = writeDocument(baseName, document, headerFile);
-        headerFile = writeEpilogue(headerFile);
-
-        ioHost.writeFile(headerFileName, headerFile, false);
+        ioHost.writeFile(headerFileName, outputWriter.completeHeader(), false);
+        ioHost.writeFile(sourceFileName, outputWriter.completeSource(), false);
     }
     catch (err) {
         reportGenericError(ErrorCode.CantOpenOutputFile, headerFileName);
