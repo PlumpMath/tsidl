@@ -416,21 +416,6 @@ function getFileNameWithoutExtension(path: string): string {
 //    headerFile.write("\r\n};");
 //}
 
-//function writeTypeForwardDeclarations(types: TypeScript.Type[], headerFile: IO.FileWriter): void
-//{
-//    if (types.length == 0)
-//    {
-//        return;
-//    }
-
-//    headerFile.writeLine();
-
-//    for (var index: number = 0; index < types.length; index++)
-//    {
-//        headerFile.write("\r\nclass " + types[index].symbol.name + "_proxy;");
-//    }
-//}
-
 function writeDocument(baseName: string, document: TypeScript.Document, file: string): string
 {
 //    // We only want the types that are named top-level declarations. (And we don't want the class containers, just the instance types.)
@@ -439,8 +424,6 @@ function writeDocument(baseName: string, document: TypeScript.Document, file: st
 //            !isAnonymous(type) && 
 //            !type.isClass() &&
 //            type.symbol.container.name == TypeScript.globalId);
-
-//    writeTypeForwardDeclarations(types.filter((type: TypeScript.Type) => type.symbol.container.name == TypeScript.globalId), headerFile);
 
 //    if (types.length > 0)
 //    {
