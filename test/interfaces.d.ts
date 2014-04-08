@@ -17,3 +17,6 @@ interface d {
 interface e {
 	new (a: string): string;
 }
+interface f extends d {
+	
+}

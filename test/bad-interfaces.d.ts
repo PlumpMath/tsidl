@@ -5,3 +5,12 @@ interface a {
 interface b {
 	[a: string]: string;
 }
+interface c {
+
+}
+interface d extends c {
+	(): void;
+}
+interface e extends c {
+	new();
+}

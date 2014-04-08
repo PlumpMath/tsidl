@@ -12,11 +12,11 @@ namespace interfaces {
     {
     }
     b_proxy::b_proxy() :
-        jsrt::object()
+        a_proxy()
     {
     }
-    b_proxy::b_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+    b_proxy::b_proxy(a_proxy object) :
+        a_proxy(object.handle())
     {
     }
     c_proxy::c_proxy() :
@@ -49,6 +49,14 @@ namespace interfaces {
     }
     e_proxy::e_proxy(Signature signature) :
         jsrt::function<std::wstring, std::wstring>(signature)
+    {
+    }
+    f_proxy::f_proxy() :
+        d_proxy()
+    {
+    }
+    f_proxy::f_proxy(d_proxy object) :
+        d_proxy(object.handle())
     {
     }
 } // namespace interfaces

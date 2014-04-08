@@ -28,7 +28,9 @@ enum ErrorCode {
     ExternalTypesNotAllowed = 1020,
     UnexpectedType = 1021,
     DefaultParametersNotAllowed = 1022,
-    ImportsNotAllowed = 1023
+    ImportsNotAllowed = 1023,
+    ExtendsAndCallNotAllowed = 1024,
+    ExtendsAndConstructNotAllowed = 1025,
 };
 
 var errorMessage: any =
@@ -53,7 +55,9 @@ var errorMessage: any =
         /* ExternalTypesNotAllowed */ 1020: "Externally declared types are not allowed.",
         /* UnexpectedType */ 1021: "Unexpected type declaration type {0}.",
         /* DefaultParametersNotAllowed */ 1022: "Default parameter values are not allowed.",
-        /* ImportsNotAllowed */ 1023: "'import' statements are not allowed."
+        /* ImportsNotAllowed */ 1023: "'import' statements are not allowed.",
+        /* ExtendsAndCallNotAllowed */ 1024: "'extends' and call signature are not allowed.",
+        /* ExtendsAndConstructNotAllowed */ 1025: "'extends' and construct signature are not allowed."
     };
 
 function formatString(value: string, substitutions: string[]): string {
@@ -362,71 +366,6 @@ function writeField(field: TypeScript.PullSymbol, isGlobal: boolean, outputWrite
 
 }
 
-//function writeTypeMemberDeclarations(container: TypeScript.Type, members: TypeScript.ScopedMembers, filter: (symbol: TypeScript.Symbol) => boolean, headerFile: IO.FileWriter): void
-//{
-//    var allMembers: TypeScript.IHashTable = members.allMembers;
-//    var memberNames: string[] = allMembers.getAllKeys();
-//    for (var index = 0; index < memberNames.length; index++)
-//    {
-//        var memberName: string = memberNames[index];
-//        if (!filter || filter(<TypeScript.Symbol>allMembers.lookup(memberName)))
-//        {
-//            writeFieldDeclaration(container, memberName, (<TypeScript.Symbol>allMembers.lookup(memberName)).getType(), headerFile);
-//        }
-//    }
-//}
-
-//function writeNestedTypeDeclarations(members: TypeScript.ScopedMembers, headerFile: IO.FileWriter): void
-//{
-//    var allMembers: TypeScript.IHashTable = members.allMembers;
-//    var memberNames: string[] = allMembers.getAllKeys();
-
-//    if (memberNames.length > 0)
-//    {
-//        headerFile.writeLine();
-//    }
-
-//    for (var index = 0; index < memberNames.length; index++)
-//    {
-//        var memberName: string = memberNames[index];
-//        var type: TypeScript.Type = (<TypeScript.Symbol>allMembers.lookup(memberName)).getType();
-//        if (type.isClass())
-//        {
-//            type = type.instanceType;
-//        }
-//        writeTypeDeclaration(type, headerFile);
-//    }
-//}
-
-//function writePrototypeDeclaration(type: TypeScript.Type, headerFile: IO.FileWriter): void
-//{
-//    var symbol: TypeScript.Symbol = type.symbol;
-
-//    headerFile.write("\r\n\
-//class prototype_proxy: public jsrt::object\r\n\
-//{\r\n\
-//public:\r\n\
-//    prototype_proxy() :\r\n\
-//        jsrt::object()\r\n\
-//    {\r\n\
-//    }\r\n\
-//\r\n\
-//    explicit prototype_proxy(jsrt::object object) :\r\n\
-//        jsrt::object(object.handle())\r\n\
-//    {\r\n\
-//    }");
-
-//    function isMember(symbol: TypeScript.Symbol): boolean
-//    {
-//        return symbol.kind() == TypeScript.SymbolKind.Type && (<TypeScript.TypeSymbol>symbol).isMethod;
-//    }
-
-//    writeTypeMemberDeclarations(type, type.members, isMember, headerFile);
-//    writeTypeMemberDeclarations(type, type.ambientMembers, isMember, headerFile);
-
-//    headerFile.write("\r\n};");
-//}
-
 function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void
 {
     for (var index = 0; index < implementsList.length; index++) {
@@ -455,12 +394,14 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
     var emitSignatureConstructor: boolean = false;
     var typeName: string = type.name + "_proxy";
 
-    if (type.getCallSignatures().length > 0) {
+    if (type.hasOwnCallSignatures()) {
         baseName = javaScriptFunctionType(type, type.getCallSignatures()[0]);
         emitSignatureConstructor = true;
-    } else if (type.getConstructSignatures().length > 0) {
+    } else if (type.hasOwnConstructSignatures()) {
         baseName = javaScriptFunctionType(type, type.getConstructSignatures()[0]);
         emitSignatureConstructor = true;
+    } else if (type.getExtendedTypes().length > 0) {
+        baseName = type.getExtendedTypes()[0].name + "_proxy";
     } else {
         baseName = "jsrt::object";
     }
@@ -484,48 +425,13 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
         writeTypeImplements(typeName, baseName, implementedTypes, outputWriter);
     }
 
-    //checkMembers(document, decl, type, errors);
+    var members: TypeScript.PullSymbol[] = type.getMembers();
 
-//    var symbol: TypeScript.Symbol = type.symbol;
-//    var typeName: string = symbol.name + "_proxy";
-//    var declarationName: string = typeName;
-//    var baseName: string = "jsrt::object";
-
-//    if (type.isClassInstance())
-//    {
-//        writePrototypeDeclaration(type, headerFile);
-//        headerFile.writeLine();
-
-//        headerFile.write("\r\n\
-//\r\n\
-//    prototype_proxy prototype_object()\r\n\
-//    {\r\n\
-//        return prototype_proxy(prototype);\r\n\
-//    }\r\n\
-//\r\n\
-//    void set_prototype_object(prototype_proxy prototype)\r\n\
-//    {\r\n\
-//        this->prototype = prototype;\r\n\
-//    }");
-//    }
-
-//    if (type.extendsList && type.extendsList.length > 0)
-//    {
-//        writeTypeImplements(type, type.extendsList, headerFile);
-//    }
-
-//    if (type.isModuleType())
-//    {
-//        var moduleType: TypeScript.ModuleType = <TypeScript.ModuleType>type;
-
-//        writeNestedTypeDeclarations(moduleType.enclosedTypes, headerFile);
-//        writeNestedTypeDeclarations(moduleType.ambientEnclosedTypes, headerFile);
-//    }
-
-//    writeTypeMemberDeclarations(type, type.members, null, headerFile);
-//    writeTypeMemberDeclarations(type, type.ambientMembers, null, headerFile);
-
-//    headerFile.write("\r\n};");
+    if (members && members.length > 0) {
+        members.forEach((symbol: TypeScript.PullSymbol) => {
+            writeMember(symbol, false, outputWriter);
+        });
+    }
 
     outputWriter.outdentHeader();
     outputWriter.writeLineHeader("};");
@@ -539,7 +445,7 @@ function writeEnumMember(member: TypeScript.PullEnumElementDecl, outputWriter: O
     outputWriter.writeLineHeader(",");
 }
 
-function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+function writeMember(member: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
     var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
 
     if (skip) {
@@ -549,6 +455,8 @@ function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, 
     switch (member.kind) {
         case TypeScript.PullElementKind.Function:
         case TypeScript.PullElementKind.Variable:
+        case TypeScript.PullElementKind.Property:
+        case TypeScript.PullElementKind.Method:
             writeField(member, isGlobal, outputWriter);
             break;
 
@@ -575,7 +483,7 @@ function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, 
             break;
 
         default:
-            assert(false);
+            assert(false, "unexpected kind " + TypeScript.PullElementKind[member.kind]);
             break;
     }
 }
@@ -620,7 +528,7 @@ function writeContainer(container: TypeScript.PullDecl, isGlobal: boolean, outpu
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
             if (s && !seen[s]) {
-                writeContainerMember(s, isGlobal, outputWriter);
+                writeMember(s, isGlobal, outputWriter);
                 seen[s] = true;
             }
         });
@@ -753,6 +661,10 @@ function checkCallSignatures(document: TypeScript.Document, decl: TypeScript.Pul
         reportError(errors, document, decl.getSpan().start(), ErrorCode.CallAndConstructNotAllowed);
     }
 
+    if (type.hasOwnCallSignatures() && type.getExtendedTypes().length > 0) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.ExtendsAndCallNotAllowed);
+    }
+
     var callSignature: TypeScript.PullSignatureSymbol = callSignatures[0];
 
     if (callSignature.isGeneric()) {
@@ -780,6 +692,10 @@ function checkConstructSignatures(document: TypeScript.Document, decl: TypeScrip
     if (constructSignatures.length > 1) {
         reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
         return;
+    }
+
+    if (type.hasOwnConstructSignatures() && type.getExtendedTypes().length > 0) {
+        reportError(errors, document, decl.getSpan().start(), ErrorCode.ExtendsAndConstructNotAllowed);
     }
 
     var constructSignature: TypeScript.PullSignatureSymbol = constructSignatures[0];
@@ -830,11 +746,19 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
     }
 
     var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
+    var index: number;
 
     if (implementedTypes && implementedTypes.length > 0) {
-        for (var index: number = 0; index < implementedTypes.length; index++) {
+        for (index = 0; index < implementedTypes.length; index++) {
             checkTypeReference(document, decl, implementedTypes[index], errors);
         }
+    }
+
+    var extendedTypes: TypeScript.PullTypeSymbol[] = type.getExtendedTypes();
+
+    if (extendedTypes && extendedTypes.length > 0) {
+        assert(extendedTypes.length === 1);
+        checkTypeReference(document, decl, extendedTypes[0], errors);
     }
 
     checkMembers(document, decl, type, errors);

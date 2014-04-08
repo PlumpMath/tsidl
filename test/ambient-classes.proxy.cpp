@@ -35,11 +35,11 @@ namespace ambient-classes {
         return b_proxy(*this);
     }
     d_proxy::d_proxy() :
-        jsrt::object()
+        c_proxy()
     {
     }
-    d_proxy::d_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+    d_proxy::d_proxy(c_proxy object) :
+        c_proxy(object.handle())
     {
     }
 } // namespace ambient-classes
