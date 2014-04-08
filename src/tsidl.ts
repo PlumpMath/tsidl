@@ -257,86 +257,79 @@ class OutputWriter {
     }
 }
 
-//function javaScriptFunctionType(container: TypeScript.Type, signature: TypeScript.Signature): string
-//{
-//    var result: string = "jsrt::function<" + typeStringNative(container, signature.returnType.type);
-//    for (var index: number = 0; index < signature.parameters.length; index++)
-//    {
-//        result += ", ";
-//        var parameter: TypeScript.ParameterSymbol = signature.parameters[index];
-//        var isRest: boolean = signature.hasVariableArgList && (index == signature.parameters.length - 1);
+function javaScriptFunctionType(container: TypeScript.PullTypeSymbol, signature: TypeScript.PullSignatureSymbol): string
+{
+    var result: string = "jsrt::function<" + typeStringNative(container, signature.returnType.type);
+    for (var index: number = 0; index < signature.parameters.length; index++)
+    {
+        result += ", ";
+        var parameter: TypeScript.PullSymbol = signature.parameters[index];
 
-//        result += typeStringNative(container, parameter.getType(), parameter.isOptional(), isRest);
-//    }
-//    result += ">";
-//    return result;
-//}
+        result += typeStringNative(container, parameter.type, parameter.isOptional, parameter.isVarArg);
+    }
+    result += ">";
+    return result;
+}
 
-//function typeStringNative(container: TypeScript.Type, type: TypeScript.Type, isOptional: boolean = false, isRest: boolean = false): string
-//{
-//    var typeString: string;
+function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTypeSymbol, isOptional: boolean = false, isRest: boolean = false): string
+{
+    var typeString: string = "<unknown>";
 
-//    if (type.primitiveTypeClass == TypeScript.Primitive.Boolean)
-//    {
-//        typeString = "bool";
-//    }
-//    else if (type.primitiveTypeClass == TypeScript.Primitive.Double)
-//    {
-//        typeString = "double";
-//    }
-//    else if (type.primitiveTypeClass == TypeScript.Primitive.String)
-//    {
-//        typeString = "std::wstring";
-//    }
-//    else if (type.primitiveTypeClass == TypeScript.Primitive.Void)
-//    {
-//        typeString = "void";
-//    }
-//    else if (type.primitiveTypeClass == TypeScript.Primitive.Any)
-//    {
-//        typeString = "jsrt::object";
-//    }
-//    else if (type.isArray())
-//    {
-//        typeString = "jsrt::array<" + typeStringNative(container, type.elementType) + ">";
-//    }
-//    else if (isAnonymous(type) || type.isClass())
-//    {
-//        if (type.call)
-//        {
-//            typeString = javaScriptFunctionType(container, type.call.signatures[0]);
-//        }
-//        else
-//        {
-//            typeString = javaScriptFunctionType(container, type.construct.signatures[0]);
-//        }
-//    }
-//    else
-//    {
-//        var name: string = type.getTypeName() + "_proxy";
-//        var symbol: TypeScript.Symbol = type.symbol;
+    if (type.isPrimitive()) {
+        if (type.name === "boolean") {
+            typeString = "bool";
+        }
+        else if (type.name === "number") {
+            typeString = "double";
+        }
+        else if (type.name === "string") {
+            typeString = "std::wstring";
+        }
+        else if (type.name === "void") {
+            typeString = "void";
+        }
+        else if (type.name === "any") {
+            typeString = "jsrt::object";
+        }
+    }
+    else if (type.isArrayNamedTypeReference()) {
+        typeString = "jsrt::array<" + typeStringNative(container, type.getElementType()) + ">";
+    }
+    else if (type.kind == TypeScript.PullElementKind.ObjectType ||
+        type.kind == TypeScript.PullElementKind.FunctionType ||
+        type.kind == TypeScript.PullElementKind.ConstructorType) {
+        if (type.getCallSignatures().length > 0)
+        {
+            typeString = javaScriptFunctionType(container, type.getCallSignatures()[0]);
+        }
+        else
+        {
+            typeString = javaScriptFunctionType(container, type.getConstructSignatures()[0]);
+        }
+    }
+    else if (type.isNamedTypeSymbol()) {
+        var name: string = type.name + "_proxy";
 
-//        while ((container && symbol.container != container.symbol && symbol.container.name != TypeScript.globalId) ||
-//            (!container && symbol.container.name != TypeScript.globalId))
-//        {
-//            symbol = symbol.container;
-//            name = symbol.name + "_proxy::" + name;
-//        }
+        while (container)
+        {
+            name = container.name + "_proxy::" + name;
+            container = container.getContainer();
+        }
 
-//        typeString = name;
-//    }
+        typeString = name;
+    }
 
-//    if (isOptional)
-//    {
-//        typeString = "jsrt::optional<" + typeString + ">";
-//    }
-//    else if (isRest)
-//    {
-//        typeString = "jsrt::rest<" + typeString + ">";
-//    }
+    if (isOptional)
+    {
+        typeString = "jsrt::optional<" + typeString + ">";
+    }
+    else if (isRest)
+    {
+        typeString = "jsrt::rest<" + typeString + ">";
+    }
 
-//    return typeString;
-//}
+    return typeString;
+}
 
 //function writeFieldDeclaration(container: TypeScript.Type, name: string, type: TypeScript.Type, headerFile: IO.FileWriter): void
 //{
@@ -537,10 +530,17 @@ function writeField(field: TypeScript.PullSymbol, isGlobal: boolean, outputWrite
 }
 
 function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
-    //var baseType: string = "jsrt::object";
+    var baseType: string;
 
-    //outputWriter.writeLineHeader("class " + type.name + ": public " + baseType + " {");
-    //outputWriter.indentHeader();
+    if (type.getCallSignatures().length > 0) {
+        baseType = javaScriptFunctionType(type, type.getCallSignatures()[0]);
+    } else if (type.getConstructSignatures().length > 0) {
+        baseType = javaScriptFunctionType(type, type.getConstructSignatures()[0]);
+    } else {
+        baseType = "jsrt::object";
+    }
+
+    writeClass(type.name + "_proxy", baseType, outputWriter);
 
     //checkCallSignatures(document, decl, type, errors);
     //checkConstructSignatures(document, decl, type, errors);
@@ -574,8 +574,8 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
 
     //checkMembers(document, decl, type, errors);
 
-    //outputWriter.outdentHeader();
-    //outputWriter.writeLineHeader("};");
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("};");
 }
 
 function writeEnumMember(member: TypeScript.PullEnumElementDecl, outputWriter: OutputWriter): void {
@@ -627,30 +627,32 @@ function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, 
     }
 }
 
+function writeClass(typeName: string, baseName: string, outputWriter: OutputWriter): void {
+    outputWriter.writeLineHeader("class " + typeName + ": public " + baseName + " {");
+    outputWriter.writeLineHeader("public:");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader(typeName + "();");
+    outputWriter.writeLineHeader("explicit " + typeName + "(" + baseName + " object);");
+
+    outputWriter.writeLineSource(typeName + "::" + typeName + "() :");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("" + baseName + "()");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("{");
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource(typeName + "::" + typeName + "(" + baseName + " object) :");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("" + baseName + "(object.handle())");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("{");
+    outputWriter.writeLineSource("}");
+}
+
 function writeContainer(container: TypeScript.PullDecl, isGlobal: boolean, outputWriter: OutputWriter): void {
     if (!isGlobal) {
         if (container.kind === TypeScript.PullElementKind.Container) {
-            var typeName: string = container.name + "_proxy";
-
-            outputWriter.writeLineHeader("class " + typeName + ": public jsrt::object {");
-            outputWriter.writeLineHeader("public:");
-            outputWriter.indentHeader();
-            outputWriter.writeLineHeader(typeName + "();");
-            outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::object object);");
-
-            outputWriter.writeLineSource(typeName + "::" + typeName + "() :");
-            outputWriter.indentSource();
-            outputWriter.writeLineSource("jsrt::object()");
-            outputWriter.outdentSource();
-            outputWriter.writeLineSource("{");
-            outputWriter.writeLineSource("}");
-
-            outputWriter.writeLineSource(typeName + "::" + typeName + "(jsrt::object object) :");
-            outputWriter.indentSource();
-            outputWriter.writeLineSource("jsrt::object(object.handle())");
-            outputWriter.outdentSource();
-            outputWriter.writeLineSource("{");
-            outputWriter.writeLineSource("}");
+            writeClass(container.name + "_proxy", "jsrt::object", outputWriter);
         } else {
             outputWriter.writeLineHeader("enum " + container.name + " {");
             outputWriter.indentHeader();
@@ -1058,11 +1060,11 @@ function main(): void {
     var headerFileName: string = cmdLine.header || baseName + ".proxy.h";
     var sourceFileName: string = cmdLine.source || baseName + ".proxy.cpp";
 
-    try {
-        writePrologue(baseName, outputWriter);
-        writeDocument(document, outputWriter);
-        writeEpilogue(baseName, outputWriter);
+    writePrologue(baseName, outputWriter);
+    writeDocument(document, outputWriter);
+    writeEpilogue(baseName, outputWriter);
 
+    try {
         ioHost.writeFile(headerFileName, outputWriter.completeHeader(), false);
         ioHost.writeFile(sourceFileName, outputWriter.completeSource(), false);
     }

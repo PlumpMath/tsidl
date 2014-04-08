@@ -11,6 +11,14 @@ namespace ambient-modules {
         jsrt::object(object.handle())
     {
     }
+    g_proxy::g_proxy() :
+        jsrt::object()
+    {
+    }
+    g_proxy::g_proxy(jsrt::object object) :
+        jsrt::object(object.handle())
+    {
+    }
     b_proxy::b_proxy() :
         jsrt::object()
     {
@@ -35,11 +43,35 @@ namespace ambient-modules {
         jsrt::object(object.handle())
     {
     }
+    z_proxy::z_proxy() :
+        jsrt::object()
+    {
+    }
+    z_proxy::z_proxy(jsrt::object object) :
+        jsrt::object(object.handle())
+    {
+    }
+    a_proxy::a_proxy() :
+        jsrt::object()
+    {
+    }
+    a_proxy::a_proxy(jsrt::object object) :
+        jsrt::object(object.handle())
+    {
+    }
     c_proxy::c_proxy() :
         jsrt::object()
     {
     }
     c_proxy::c_proxy(jsrt::object object) :
+        jsrt::object(object.handle())
+    {
+    }
+    d_proxy::d_proxy() :
+        jsrt::object()
+    {
+    }
+    d_proxy::d_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
