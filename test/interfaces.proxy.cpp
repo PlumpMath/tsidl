@@ -35,12 +35,20 @@ namespace interfaces {
         jsrt::function<std::wstring, std::wstring>(object.handle())
     {
     }
+    d_proxy::d_proxy(Signature signature) :
+        jsrt::function<std::wstring, std::wstring>(signature)
+    {
+    }
     e_proxy::e_proxy() :
         jsrt::function<std::wstring, std::wstring>()
     {
     }
     e_proxy::e_proxy(jsrt::function<std::wstring, std::wstring> object) :
         jsrt::function<std::wstring, std::wstring>(object.handle())
+    {
+    }
+    e_proxy::e_proxy(Signature signature) :
+        jsrt::function<std::wstring, std::wstring>(signature)
     {
     }
 } // namespace interfaces

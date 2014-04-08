@@ -358,6 +358,10 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 //    }");
 //}
 
+function writeField(field: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+
+}
+
 //function writeTypeMemberDeclarations(container: TypeScript.Type, members: TypeScript.ScopedMembers, filter: (symbol: TypeScript.Symbol) => boolean, headerFile: IO.FileWriter): void
 //{
 //    var allMembers: TypeScript.IHashTable = members.allMembers;
@@ -447,41 +451,63 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 //    }
 //}
 
-//function writeTypeDeclaration(type: TypeScript.Type, headerFile: IO.FileWriter): void
-//{
+function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
+    var baseName: string;
+    var emitSignatureConstructor: boolean = false;
+    var typeName: string = type.name + "_proxy";
+
+    if (type.getCallSignatures().length > 0) {
+        baseName = javaScriptFunctionType(type, type.getCallSignatures()[0]);
+        emitSignatureConstructor = true;
+    } else if (type.getConstructSignatures().length > 0) {
+        baseName = javaScriptFunctionType(type, type.getConstructSignatures()[0]);
+        emitSignatureConstructor = true;
+    } else {
+        baseName = "jsrt::object";
+    }
+
+    writeClass(typeName, baseName, outputWriter);
+
+    if (emitSignatureConstructor) {
+        outputWriter.writeLineHeader(typeName + "(Signature signature);");
+
+        outputWriter.writeLineSource(typeName + "::" + typeName + "(Signature signature) :");
+        outputWriter.indentSource();
+        outputWriter.writeLineSource("" + baseName + "(signature)");
+        outputWriter.outdentSource();
+        outputWriter.writeLineSource("{");
+        outputWriter.writeLineSource("}");
+    }
+
+    //var constructorMethod: TypeScript.PullSymbol = type.getConstructorMethod();
+
+    //if (constructorMethod) {
+    //    var prototype: TypeScript.PullTypeSymbol = constructorMethod.type;
+    //    var prototypeMembers: TypeScript.PullSymbol[] = prototype.getMembers();
+
+    //    if (prototypeMembers && prototypeMembers.length > 0) {
+    //        prototypeMembers.forEach(m => {
+    //            if (m.name !== "prototype") {
+    //                reportError(errors, document, decl.getSpan().start(), ErrorCode.StaticMembersNotAllowed);
+    //            }
+    //        });
+    //    }
+    //}
+
+    //var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
+
+    //if (implementedTypes && implementedTypes.length > 0) {
+    //    for (var index: number = 0; index < implementedTypes.length; index++) {
+    //        checkTypeReference(document, decl, implementedTypes[index], errors);
+    //    }
+    //}
+
+    //checkMembers(document, decl, type, errors);
+
 //    var symbol: TypeScript.Symbol = type.symbol;
 //    var typeName: string = symbol.name + "_proxy";
 //    var declarationName: string = typeName;
 //    var baseName: string = "jsrt::object";
-
-//    if (type.call)
-//    {
-//        baseName = javaScriptFunctionType(null, type.call.signatures[0]);
-//    }
-
-//    headerFile.write("\r\n\
-//class " + declarationName + ": public " + baseName + "\r\n\
-//{\r\n\
-//public:\r\n\
-//    " + typeName + "() :\r\n\
-//        " + baseName + "()\r\n\
-//    {\r\n\
-//    }\r\n\
-//\r\n\
-//    explicit " + typeName + "(jsrt::object object) :\r\n\
-//        " + baseName + "(object.handle())\r\n\
-//    {\r\n\
-//    }");
-
-//    if (type.call)
-//    {
-//        headerFile.write("\r\n\
-//\r\n\
-//    " + typeName + "(Signature signature) :\r\n\
-//        " + baseName + "(signature)\r\n\
-//    {\r\n\
-//    }");
-//    }
 
 //    if (type.isClassInstance())
 //    {
@@ -523,56 +549,6 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 //    writeTypeMemberDeclarations(type, type.ambientMembers, null, headerFile);
 
 //    headerFile.write("\r\n};");
-//}
-
-function writeField(field: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
-    
-}
-
-function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
-    var baseType: string;
-
-    if (type.getCallSignatures().length > 0) {
-        baseType = javaScriptFunctionType(type, type.getCallSignatures()[0]);
-    } else if (type.getConstructSignatures().length > 0) {
-        baseType = javaScriptFunctionType(type, type.getConstructSignatures()[0]);
-    } else {
-        baseType = "jsrt::object";
-    }
-
-    writeClass(type.name + "_proxy", baseType, outputWriter);
-
-    //checkCallSignatures(document, decl, type, errors);
-    //checkConstructSignatures(document, decl, type, errors);
-
-    //if (type.name === "" && type.getMembers() && type.getMembers().length > 0) {
-    //    reportError(errors, document, decl.getSpan().start(), ErrorCode.NonFunctionAnonymousTypesNotAllowed);
-    //}
-
-    //var constructorMethod: TypeScript.PullSymbol = type.getConstructorMethod();
-
-    //if (constructorMethod) {
-    //    var prototype: TypeScript.PullTypeSymbol = constructorMethod.type;
-    //    var prototypeMembers: TypeScript.PullSymbol[] = prototype.getMembers();
-
-    //    if (prototypeMembers && prototypeMembers.length > 0) {
-    //        prototypeMembers.forEach(m => {
-    //            if (m.name !== "prototype") {
-    //                reportError(errors, document, decl.getSpan().start(), ErrorCode.StaticMembersNotAllowed);
-    //            }
-    //        });
-    //    }
-    //}
-
-    //var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
-
-    //if (implementedTypes && implementedTypes.length > 0) {
-    //    for (var index: number = 0; index < implementedTypes.length; index++) {
-    //        checkTypeReference(document, decl, implementedTypes[index], errors);
-    //    }
-    //}
-
-    //checkMembers(document, decl, type, errors);
 
     outputWriter.outdentHeader();
     outputWriter.writeLineHeader("};");

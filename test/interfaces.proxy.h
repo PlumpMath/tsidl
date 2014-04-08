@@ -22,10 +22,12 @@ namespace interfaces {
     public:
         d_proxy();
         explicit d_proxy(jsrt::function<std::wstring, std::wstring> object);
+        d_proxy(Signature signature);
     };
     class e_proxy: public jsrt::function<std::wstring, std::wstring> {
     public:
         e_proxy();
         explicit e_proxy(jsrt::function<std::wstring, std::wstring> object);
+        e_proxy(Signature signature);
     };
 } // namespace interfaces
