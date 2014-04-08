@@ -578,20 +578,12 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
     //outputWriter.writeLineHeader("};");
 }
 
-function writeEnumType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
-    //outputWriter.writeLineHeader("enum " + type.name + " {");
-    //outputWriter.indentHeader();
-
-    //var members: TypeScript.PullSymbol[] = type.getMembers();
-
-    //if (members && members.length > 0) {
-    //    members.forEach((symbol: TypeScript.PullSymbol) => {
-    //        outputWriter.writeLineHeader(symbol.name + ",");
-    //    });
-    //}
-
-    //outputWriter.outdentHeader();
-    //outputWriter.writeLineHeader("};");
+function writeEnumMember(member: TypeScript.PullEnumElementDecl, outputWriter: OutputWriter): void {
+    outputWriter.writeHeader(member.name);
+    if (member.constantValue) {
+        outputWriter.writeHeader(" = " + member.constantValue.toString());
+    }
+    outputWriter.writeLineHeader(",");
 }
 
 function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
@@ -626,6 +618,7 @@ function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, 
             break;
 
         case TypeScript.PullElementKind.EnumMember:
+            writeEnumMember(<TypeScript.PullEnumElementDecl>(member.getDeclarations()[0]), outputWriter);
             break;
 
         default:

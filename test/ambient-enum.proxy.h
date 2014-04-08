@@ -6,5 +6,8 @@ namespace ambient-enum {
     enum a {
     }
     enum b {
+        a,
+        b = 5,
+        c,
     }
 } // namespace ambient-enum
