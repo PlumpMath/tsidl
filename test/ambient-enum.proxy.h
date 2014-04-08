@@ -3,4 +3,8 @@
 #include "jsrt.wrappers.h"
 
 namespace ambient-enum {
+    enum a {
+    }
+    enum b {
+    }
 } // namespace ambient-enum

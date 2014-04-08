@@ -612,7 +612,7 @@ function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, 
             break;
 
         case TypeScript.PullElementKind.Enum:
-            writeEnumType(member.type, outputWriter);
+            writeContainer(member.getDeclarations()[0], false, outputWriter);
             break;
 
         case TypeScript.PullElementKind.Class:
@@ -621,8 +621,11 @@ function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, 
             break;
 
         case TypeScript.PullElementKind.Container:
-            writeContainerType(member.type, outputWriter);
+            writeContainer(member.getDeclarations()[0], false, outputWriter);
             writeField(member, isGlobal, outputWriter);
+            break;
+
+        case TypeScript.PullElementKind.EnumMember:
             break;
 
         default:
@@ -631,62 +634,58 @@ function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, 
     }
 }
 
-function writeContainerType(container: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
-    //var typeName: string = container.name + "_proxy";
+function writeContainer(container: TypeScript.PullDecl, isGlobal: boolean, outputWriter: OutputWriter): void {
+    if (!isGlobal) {
+        if (container.kind === TypeScript.PullElementKind.Container) {
+            var typeName: string = container.name + "_proxy";
 
-    //outputWriter.writeLineHeader("class " + typeName + ": public jsrt::object {");
-    //outputWriter.writeLineHeader("public:");
-    //outputWriter.indentHeader();
-    //outputWriter.writeLineHeader(typeName + "();");
-    //outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::object object);");
-    //outputWriter.writeLineHeader();
+            outputWriter.writeLineHeader("class " + typeName + ": public jsrt::object {");
+            outputWriter.writeLineHeader("public:");
+            outputWriter.indentHeader();
+            outputWriter.writeLineHeader(typeName + "();");
+            outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::object object);");
 
-    //outputWriter.writeLineSource(typeName + "::" + typeName + "()");
-    //outputWriter.indentSource();
-    //outputWriter.writeLineSource("jsrt::object()");
-    //outputWriter.outdentSource();
-    //outputWriter.writeLineSource("{");
-    //outputWriter.writeLineSource("}");
+            outputWriter.writeLineSource(typeName + "::" + typeName + "() :");
+            outputWriter.indentSource();
+            outputWriter.writeLineSource("jsrt::object()");
+            outputWriter.outdentSource();
+            outputWriter.writeLineSource("{");
+            outputWriter.writeLineSource("}");
 
-    //outputWriter.writeLineSource(typeName + "::" + typeName + "(jsrt::object object)");
-    //outputWriter.indentSource();
-    //outputWriter.writeLineSource("jsrt::object(object.handle())");
-    //outputWriter.outdentSource();
-    //outputWriter.writeLineSource("{");
-    //outputWriter.writeLineSource("}");
+            outputWriter.writeLineSource(typeName + "::" + typeName + "(jsrt::object object) :");
+            outputWriter.indentSource();
+            outputWriter.writeLineSource("jsrt::object(object.handle())");
+            outputWriter.outdentSource();
+            outputWriter.writeLineSource("{");
+            outputWriter.writeLineSource("}");
+        } else {
+            outputWriter.writeLineHeader("enum " + container.name + " {");
+            outputWriter.indentHeader();
+        }
+    }
 
-    //var members: TypeScript.PullSymbol[] = container.getAllMembers(TypeScript.PullElementKind.All, TypeScript.GetAllMembersVisiblity.all);
-
-    //if (members) {
-    //    var seen: any = {};
-
-    //    members.forEach(s => {
-    //        if (!seen[s]) {
-    //            writeContainerMember(s, false, outputWriter);
-    //            seen[s] = true;
-    //        }
-    //    });
-    //}
-
-    //outputWriter.outdentHeader();
-    //outputWriter.writeLineHeader("}");
-}
-
-function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter): void
-{
-    var childDecls: TypeScript.PullDecl[] = document.topLevelDecl().getChildDecls();
+    var childDecls: TypeScript.PullDecl[] = container.getChildDecls();
 
     if (childDecls) {
         var seen: any = {};
 
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
-            if (!seen[s]) {
-                writeContainerMember(s, true, outputWriter);
+            if (s && !seen[s]) {
+                writeContainerMember(s, isGlobal, outputWriter);
                 seen[s] = true;
             }
         });
     }
+
+    if (!isGlobal) {
+        outputWriter.outdentHeader();
+        outputWriter.writeLineHeader("}");
+    }
+}
+
+function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter): void {
+    writeContainer(document.topLevelDecl(), true, outputWriter);
 }
 
 function writePrologue(baseName: string, outputWriter: OutputWriter): void {

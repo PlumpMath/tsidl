@@ -3,4 +3,6 @@
 #include "jsrt.wrappers.h"
 
 namespace ambient-variables {
+    enum y {
+    }
 } // namespace ambient-variables
