@@ -532,75 +532,161 @@ class OutputWriter {
 //    headerFile.write("\r\n};");
 //}
 
-function writeDocument(baseName: string, document: TypeScript.Document, outputWriter: OutputWriter): void
+function writeField(field: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+    
+}
+
+function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
+    //var baseType: string = "jsrt::object";
+
+    //outputWriter.writeLineHeader("class " + type.name + ": public " + baseType + " {");
+    //outputWriter.indentHeader();
+
+    //checkCallSignatures(document, decl, type, errors);
+    //checkConstructSignatures(document, decl, type, errors);
+
+    //if (type.name === "" && type.getMembers() && type.getMembers().length > 0) {
+    //    reportError(errors, document, decl.getSpan().start(), ErrorCode.NonFunctionAnonymousTypesNotAllowed);
+    //}
+
+    //var constructorMethod: TypeScript.PullSymbol = type.getConstructorMethod();
+
+    //if (constructorMethod) {
+    //    var prototype: TypeScript.PullTypeSymbol = constructorMethod.type;
+    //    var prototypeMembers: TypeScript.PullSymbol[] = prototype.getMembers();
+
+    //    if (prototypeMembers && prototypeMembers.length > 0) {
+    //        prototypeMembers.forEach(m => {
+    //            if (m.name !== "prototype") {
+    //                reportError(errors, document, decl.getSpan().start(), ErrorCode.StaticMembersNotAllowed);
+    //            }
+    //        });
+    //    }
+    //}
+
+    //var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
+
+    //if (implementedTypes && implementedTypes.length > 0) {
+    //    for (var index: number = 0; index < implementedTypes.length; index++) {
+    //        checkTypeReference(document, decl, implementedTypes[index], errors);
+    //    }
+    //}
+
+    //checkMembers(document, decl, type, errors);
+
+    //outputWriter.outdentHeader();
+    //outputWriter.writeLineHeader("};");
+}
+
+function writeEnumType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
+    //outputWriter.writeLineHeader("enum " + type.name + " {");
+    //outputWriter.indentHeader();
+
+    //var members: TypeScript.PullSymbol[] = type.getMembers();
+
+    //if (members && members.length > 0) {
+    //    members.forEach((symbol: TypeScript.PullSymbol) => {
+    //        outputWriter.writeLineHeader(symbol.name + ",");
+    //    });
+    //}
+
+    //outputWriter.outdentHeader();
+    //outputWriter.writeLineHeader("};");
+}
+
+function writeContainerMember(member: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+    var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
+
+    if (skip) {
+        return;
+    }
+
+    switch (member.kind) {
+        case TypeScript.PullElementKind.Function:
+        case TypeScript.PullElementKind.Variable:
+            writeField(member, isGlobal, outputWriter);
+            break;
+
+        case TypeScript.PullElementKind.Interface:
+            writeType(member.type, outputWriter);
+            break;
+
+        case TypeScript.PullElementKind.Enum:
+            writeEnumType(member.type, outputWriter);
+            break;
+
+        case TypeScript.PullElementKind.Class:
+            writeType(member.type, outputWriter);
+            writeField(member, isGlobal, outputWriter);
+            break;
+
+        case TypeScript.PullElementKind.Container:
+            writeContainerType(member.type, outputWriter);
+            writeField(member, isGlobal, outputWriter);
+            break;
+
+        default:
+            assert(false);
+            break;
+    }
+}
+
+function writeContainerType(container: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
+    //var typeName: string = container.name + "_proxy";
+
+    //outputWriter.writeLineHeader("class " + typeName + ": public jsrt::object {");
+    //outputWriter.writeLineHeader("public:");
+    //outputWriter.indentHeader();
+    //outputWriter.writeLineHeader(typeName + "();");
+    //outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::object object);");
+    //outputWriter.writeLineHeader();
+
+    //outputWriter.writeLineSource(typeName + "::" + typeName + "()");
+    //outputWriter.indentSource();
+    //outputWriter.writeLineSource("jsrt::object()");
+    //outputWriter.outdentSource();
+    //outputWriter.writeLineSource("{");
+    //outputWriter.writeLineSource("}");
+
+    //outputWriter.writeLineSource(typeName + "::" + typeName + "(jsrt::object object)");
+    //outputWriter.indentSource();
+    //outputWriter.writeLineSource("jsrt::object(object.handle())");
+    //outputWriter.outdentSource();
+    //outputWriter.writeLineSource("{");
+    //outputWriter.writeLineSource("}");
+
+    //var members: TypeScript.PullSymbol[] = container.getAllMembers(TypeScript.PullElementKind.All, TypeScript.GetAllMembersVisiblity.all);
+
+    //if (members) {
+    //    var seen: any = {};
+
+    //    members.forEach(s => {
+    //        if (!seen[s]) {
+    //            writeContainerMember(s, false, outputWriter);
+    //            seen[s] = true;
+    //        }
+    //    });
+    //}
+
+    //outputWriter.outdentHeader();
+    //outputWriter.writeLineHeader("}");
+}
+
+function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter): void
 {
-//    // We only want the types that are named top-level declarations. (And we don't want the class containers, just the instance types.)
-//    types = types.filter(
-//        (type: TypeScript.Type) => 
-//            !isAnonymous(type) && 
-//            !type.isClass() &&
-//            type.symbol.container.name == TypeScript.globalId);
+    var childDecls: TypeScript.PullDecl[] = document.topLevelDecl().getChildDecls();
 
-//    if (types.length > 0)
-//    {
-//        for (var index: number = 0; index < types.length; index++)
-//        {
-//            var type: TypeScript.Type = types[index];
-//            headerFile.writeLine();
-//            writeTypeDeclaration(type, headerFile);
-//        }
-//    }
+    if (childDecls) {
+        var seen: any = {};
 
-//    if (types.length > 0)
-//    {
-//        headerFile.writeLine();
-//    }
-
-//    file += "\r\n\r\n\
-//class " + baseName + "_global_proxy: public jsrt::object\r\n\
-//{\r\n\
-//public:\r\n\
-//    " + baseName + "_global_proxy() :\r\n\
-//        jsrt::object()\r\n\
-//    {\r\n\
-//    }\r\n\
-//\r\n\
-//    explicit " + baseName + "_global_proxy(jsrt::object object) :\r\n\
-//        jsrt::object(object.handle())\r\n\
-//    {\r\n\
-//    }";
-
-//    for (var index: number = 0; index < script.bod.members.length; index++)
-//    {
-//        var ast: TypeScript.AST = script.bod.members[index];
-
-//        switch (ast.nodeType)
-//        {
-//            case TypeScript.NodeType.VarDecl:
-//                writeFieldDeclaration(null, (<TypeScript.VarDecl>ast).id.text, ast.type, headerFile);
-//                break;
-
-//            case TypeScript.NodeType.FuncDecl:
-//                writeFieldDeclaration(null, (<TypeScript.FuncDecl>ast).name.text, ast.type, headerFile);
-//                break;
-
-//            case TypeScript.NodeType.ES6Class:
-//                writeFieldDeclaration(null, (<TypeScript.ES6ClassDecl>ast).name.text, ast.type, headerFile);
-//                break;
-
-//            case TypeScript.NodeType.Module:
-//                writeFieldDeclaration(null, (<TypeScript.ModuleDecl>ast).name.text, ast.type, headerFile);
-//                break;
-
-//            case TypeScript.NodeType.Interface:
-//            case TypeScript.NodeType.Empty:
-//            default:
-//                // ignore;
-//                break;
-//        }
-//    }
-
-    //file += "\r\n};";
+        childDecls.forEach(childDecl => {
+            var s: TypeScript.PullSymbol = childDecl.getSymbol();
+            if (!seen[s]) {
+                writeContainerMember(s, true, outputWriter);
+                seen[s] = true;
+            }
+        });
+    }
 }
 
 function writePrologue(baseName: string, outputWriter: OutputWriter): void {
@@ -684,7 +770,13 @@ function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, 
 
     if (members && members.length > 0) {
         members.forEach((symbol: TypeScript.PullSymbol) => {
-            logVerbose("Checking member '{0}', kind '{1}'.", [symbol.name, TypeScript.PullElementKind[symbol.kind]]);
+            var skip: boolean = symbol.name === "" || (symbol.type.getAssociatedContainerType() !== null);
+
+            logVerbose("{0} member '{1}', kind '{2}'.", [skip ? "Skipping" : "Checking", symbol.name, TypeScript.PullElementKind[symbol.kind]]);
+
+            if (skip) {
+                return;
+            }
 
             if (!symbol.isExternallyVisible()) {
                 reportError(errors, document, decl.getSpan().start(), ErrorCode.PrivateMembersNotAllowed);
@@ -771,7 +863,7 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
     checkCallSignatures(document, decl, type, errors);
     checkConstructSignatures(document, decl, type, errors);
 
-    if (type.name === "" && type.getMembers() && type.getMembers().length > 0) {
+    if (!type.getAssociatedContainerType() && type.name === "" && type.getMembers() && type.getMembers().length > 0) {
         reportError(errors, document, decl.getSpan().start(), ErrorCode.NonFunctionAnonymousTypesNotAllowed);
     }
 
@@ -818,15 +910,18 @@ function checkContainerMember(document: TypeScript.Document, member: TypeScript.
 
         case TypeScript.PullElementKind.Class:
         case TypeScript.PullElementKind.Interface:
-        case TypeScript.PullElementKind.Enum:
         case TypeScript.PullElementKind.Function:
             assert(member.getDeclarations().length > 0);
             checkType(document, member.getDeclarations()[0], member.type, errors);
             break;
 
+        case TypeScript.PullElementKind.Enum:
         case TypeScript.PullElementKind.Container:
-            assert(member.getDeclarations().length > 0);
-            checkContainer(document, member.getDeclarations()[0], member.type, errors);
+            assert(member.getDeclarations().length === 1);
+            checkContainer(document, member.getDeclarations()[0], errors);
+            break;
+
+        case TypeScript.PullElementKind.EnumMember:
             break;
 
         case TypeScript.PullElementKind.TypeAlias:
@@ -845,16 +940,20 @@ function checkContainerMember(document: TypeScript.Document, member: TypeScript.
     }
 }
 
-function checkContainer(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
-    logVerbose("Checking container '{0}', kind '{1}'.", [type.name, TypeScript.PullElementKind[type.kind]]);
+function checkContainer(document: TypeScript.Document, decl: TypeScript.PullDecl, errors: string[]): void {
+    logVerbose("Checking container '{0}', kind '{1}'.", [decl.name, TypeScript.PullElementKind[decl.kind]]);
 
-    var members: TypeScript.PullSymbol[] = type.getAllMembers(TypeScript.PullElementKind.All, TypeScript.GetAllMembersVisiblity.all);
+    var childDecls: TypeScript.PullDecl[] = decl.getChildDecls();
 
-    if (members) {
+    if (childDecls) {
         var seen: any = {};
 
-        members.forEach(s => {
-            if (!seen[s]) {
+        childDecls.forEach(childDecl => {
+            var s: TypeScript.PullSymbol = childDecl.getSymbol();
+            if (!s) {
+                logVerbose("Skipping container member decl kind '{0}'.", [TypeScript.PullElementKind[decl.kind]]);
+            }
+            else if (!seen[s]) {
                 checkContainerMember(document, s, errors);
                 seen[s] = true;
             }
@@ -873,19 +972,7 @@ function checkDocument(document: TypeScript.Document, errors: string[]): void {
         return;
     }
 
-    var childDecls: TypeScript.PullDecl[] = document.topLevelDecl().getChildDecls();
-
-    if (childDecls) {
-        var seen: any = {};
-
-        childDecls.forEach(childDecl => {
-            var s: TypeScript.PullSymbol = childDecl.getSymbol();
-            if (!seen[s]) {
-                checkContainerMember(document, s, errors);
-                seen[s] = true;
-            }
-        });
-    }
+    checkContainer(document, document.topLevelDecl(), errors);
 }
 
 function printLogo(): void {
@@ -981,7 +1068,7 @@ function main(): void {
 
     try {
         writePrologue(baseName, outputWriter);
-        writeDocument(baseName, document, outputWriter);
+        writeDocument(document, outputWriter);
         writeEpilogue(baseName, outputWriter);
 
         ioHost.writeFile(headerFileName, outputWriter.completeHeader(), false);
