@@ -27,6 +27,13 @@ namespace ambient-classes {
         jsrt::object(object.handle())
     {
     }
+    c_proxy::c_proxy(b_proxy value) :
+        jsrt::object(value.handle())
+    {
+    }
+    operator b_proxy() {
+        return b_proxy(*this);
+    }
     d_proxy::d_proxy() :
         jsrt::object()
     {

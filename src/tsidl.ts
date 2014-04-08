@@ -427,29 +427,28 @@ function writeField(field: TypeScript.PullSymbol, isGlobal: boolean, outputWrite
 //    headerFile.write("\r\n};");
 //}
 
-//function writeTypeImplements(type: TypeScript.Type, implementsList: TypeScript.Type[], headerFile: IO.FileWriter): void
-//{
-//    var typeName: string = type.symbol.name + "_proxy";
+function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void
+{
+    for (var index = 0; index < implementsList.length; index++) {
+        var implementedType: TypeScript.PullTypeSymbol = implementsList[index];
+        var implementedTypeName: string = implementedType.name + "_proxy";
 
-//    for (var index = 0; index < implementsList.length; index++)
-//    {
-//        var implementedType: TypeScript.Type = implementsList[index];
-//        var implementedTypeName: string = implementedType.symbol.name + "_proxy";
+        outputWriter.writeLineHeader(typeName + "(" + implementedTypeName + " value);");
+        outputWriter.writeLineHeader("operator " + implementedTypeName + "();");
 
-//        headerFile.write("\r\n\
-//    " + typeName + "(" + implementedTypeName + " value) :\r\n\
-//        jsrt::object(value.handle())\r\n\
-//    {\r\n\
-//    }");
-
-//        headerFile.write("\r\n\
-//\r\n\
-//    operator " + implementedTypeName + "()\r\n\
-//    {\r\n\
-//        return " + implementedTypeName + "(*this);\r\n\
-//    }");
-//    }
-//}
+        outputWriter.writeLineSource(typeName + "::" + typeName + "(" + implementedTypeName + " value) :");
+        outputWriter.indentSource();
+        outputWriter.writeLineSource("" + baseName + "(value.handle())");
+        outputWriter.outdentSource();
+        outputWriter.writeLineSource("{");
+        outputWriter.writeLineSource("}");
+        outputWriter.writeLineSource("operator " + implementedTypeName + "() {");
+        outputWriter.indentSource();
+        outputWriter.writeLineSource("return " + implementedTypeName + "(*this);");
+        outputWriter.outdentSource();
+        outputWriter.writeLineSource("}");
+    }
+}
 
 function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
     var baseName: string;
@@ -479,28 +478,11 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
         outputWriter.writeLineSource("}");
     }
 
-    //var constructorMethod: TypeScript.PullSymbol = type.getConstructorMethod();
-
-    //if (constructorMethod) {
-    //    var prototype: TypeScript.PullTypeSymbol = constructorMethod.type;
-    //    var prototypeMembers: TypeScript.PullSymbol[] = prototype.getMembers();
-
-    //    if (prototypeMembers && prototypeMembers.length > 0) {
-    //        prototypeMembers.forEach(m => {
-    //            if (m.name !== "prototype") {
-    //                reportError(errors, document, decl.getSpan().start(), ErrorCode.StaticMembersNotAllowed);
-    //            }
-    //        });
-    //    }
-    //}
-
-    //var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
-
-    //if (implementedTypes && implementedTypes.length > 0) {
-    //    for (var index: number = 0; index < implementedTypes.length; index++) {
-    //        checkTypeReference(document, decl, implementedTypes[index], errors);
-    //    }
-    //}
+    var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
+    if (implementedTypes && implementedTypes.length > 0)
+    {
+        writeTypeImplements(typeName, baseName, implementedTypes, outputWriter);
+    }
 
     //checkMembers(document, decl, type, errors);
 
@@ -525,11 +507,6 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
 //    {\r\n\
 //        this->prototype = prototype;\r\n\
 //    }");
-//    }
-
-//    if (type.implementsList && type.implementsList.length > 0)
-//    {
-//        writeTypeImplements(type, type.implementsList, headerFile);
 //    }
 
 //    if (type.extendsList && type.extendsList.length > 0)

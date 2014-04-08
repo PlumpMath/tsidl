@@ -17,6 +17,8 @@ namespace ambient-classes {
     public:
         c_proxy();
         explicit c_proxy(jsrt::object object);
+        c_proxy(b_proxy value);
+        operator b_proxy();
     };
     class d_proxy: public jsrt::object {
     public:
