@@ -302,13 +302,13 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     else if (type.kind == TypeScript.PullElementKind.ObjectType ||
         type.kind == TypeScript.PullElementKind.FunctionType ||
         type.kind == TypeScript.PullElementKind.ConstructorType) {
-        if (type.getCallSignatures().length > 0)
+        if (type.hasOwnCallSignatures())
         {
             typeString = javaScriptFunctionType(container, type.getCallSignatures()[0]);
-        }
-        else
-        {
+        } else if (type.hasOwnConstructSignatures()) {
             typeString = javaScriptFunctionType(container, type.getConstructSignatures()[0]);
+        } else {
+            typeString = "jsrt::object";
         }
     }
     else if (type.isNamedTypeSymbol()) {
@@ -362,8 +362,18 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 //    }");
 //}
 
-function writeField(field: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+    var typeName: string = typeStringNative(container, field.type);
 
+    //outputWriter.writeLineHeader(typeName + " " + field.name + "();");
+    //outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
+    //outputWriter.writeLineHeader("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor();");
+    //outputWriter.writeLineHeader("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
+
+    //outputWriter.writeLineSource(typeName + " " + field.name + "();");
+    //outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
+    //outputWriter.writeLineHeader("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor();");
+    //outputWriter.writeLineHeader("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
 }
 
 function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void
@@ -429,7 +439,7 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
 
     if (members && members.length > 0) {
         members.forEach((symbol: TypeScript.PullSymbol) => {
-            writeMember(symbol, false, outputWriter);
+            writeMember(type, symbol, false, outputWriter);
         });
     }
 
@@ -445,7 +455,7 @@ function writeEnumMember(member: TypeScript.PullEnumElementDecl, outputWriter: O
     outputWriter.writeLineHeader(",");
 }
 
-function writeMember(member: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
     var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
 
     if (skip) {
@@ -457,7 +467,7 @@ function writeMember(member: TypeScript.PullSymbol, isGlobal: boolean, outputWri
         case TypeScript.PullElementKind.Variable:
         case TypeScript.PullElementKind.Property:
         case TypeScript.PullElementKind.Method:
-            writeField(member, isGlobal, outputWriter);
+            writeField(container, member, isGlobal, outputWriter);
             break;
 
         case TypeScript.PullElementKind.Interface:
@@ -470,12 +480,12 @@ function writeMember(member: TypeScript.PullSymbol, isGlobal: boolean, outputWri
 
         case TypeScript.PullElementKind.Class:
             writeType(member.type, outputWriter);
-            writeField(member, isGlobal, outputWriter);
+            writeField(container, member, isGlobal, outputWriter);
             break;
 
         case TypeScript.PullElementKind.Container:
             writeContainer(member.getDeclarations()[0], false, outputWriter);
-            writeField(member, isGlobal, outputWriter);
+            writeField(container, member, isGlobal, outputWriter);
             break;
 
         case TypeScript.PullElementKind.EnumMember:
@@ -528,7 +538,7 @@ function writeContainer(container: TypeScript.PullDecl, isGlobal: boolean, outpu
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
             if (s && !seen[s]) {
-                writeMember(s, isGlobal, outputWriter);
+                writeMember(isGlobal ? null : container.getSymbol().type, s, isGlobal, outputWriter);
                 seen[s] = true;
             }
         });
