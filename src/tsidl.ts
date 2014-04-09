@@ -362,7 +362,7 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 //    }");
 //}
 
-function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.PullSymbol, outputWriter: OutputWriter): void {
     var typeName: string = typeStringNative(container, field.type);
 
     //outputWriter.writeLineHeader(typeName + " " + field.name + "();");
@@ -439,7 +439,7 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
 
     if (members && members.length > 0) {
         members.forEach((symbol: TypeScript.PullSymbol) => {
-            writeMember(type, symbol, false, outputWriter);
+            writeMember(type, symbol, outputWriter);
         });
     }
 
@@ -455,7 +455,7 @@ function writeEnumMember(member: TypeScript.PullEnumElementDecl, outputWriter: O
     outputWriter.writeLineHeader(",");
 }
 
-function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.PullSymbol, isGlobal: boolean, outputWriter: OutputWriter): void {
+function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.PullSymbol, outputWriter: OutputWriter): void {
     var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
 
     if (skip) {
@@ -467,7 +467,7 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
         case TypeScript.PullElementKind.Variable:
         case TypeScript.PullElementKind.Property:
         case TypeScript.PullElementKind.Method:
-            writeField(container, member, isGlobal, outputWriter);
+            writeField(container, member, outputWriter);
             break;
 
         case TypeScript.PullElementKind.Interface:
@@ -475,17 +475,17 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
             break;
 
         case TypeScript.PullElementKind.Enum:
-            writeContainer(member.getDeclarations()[0], false, outputWriter);
+            writeContainer(member.getDeclarations()[0], outputWriter);
             break;
 
         case TypeScript.PullElementKind.Class:
             writeType(member.type, outputWriter);
-            writeField(container, member, isGlobal, outputWriter);
+            writeField(container, member, outputWriter);
             break;
 
         case TypeScript.PullElementKind.Container:
-            writeContainer(member.getDeclarations()[0], false, outputWriter);
-            writeField(container, member, isGlobal, outputWriter);
+            writeContainer(member.getDeclarations()[0], outputWriter);
+            writeField(container, member, outputWriter);
             break;
 
         case TypeScript.PullElementKind.EnumMember:
@@ -520,8 +520,10 @@ function writeClass(typeName: string, baseName: string, outputWriter: OutputWrit
     outputWriter.writeLineSource("}");
 }
 
-function writeContainer(container: TypeScript.PullDecl, isGlobal: boolean, outputWriter: OutputWriter): void {
-    if (!isGlobal) {
+function writeContainer(container: TypeScript.PullDecl, outputWriter: OutputWriter): void {
+    var containerSymbol: TypeScript.PullSymbol = container.getSymbol();
+
+    if (containerSymbol) {
         if (container.kind === TypeScript.PullElementKind.Container) {
             writeClass(container.name + "_proxy", "jsrt::object", outputWriter);
         } else {
@@ -538,20 +540,20 @@ function writeContainer(container: TypeScript.PullDecl, isGlobal: boolean, outpu
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
             if (s && !seen[s]) {
-                writeMember(isGlobal ? null : container.getSymbol().type, s, isGlobal, outputWriter);
+                writeMember(containerSymbol ? containerSymbol.type : null, s, outputWriter);
                 seen[s] = true;
             }
         });
     }
 
-    if (!isGlobal) {
+    if (containerSymbol) {
         outputWriter.outdentHeader();
         outputWriter.writeLineHeader("}");
     }
 }
 
 function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter): void {
-    writeContainer(document.topLevelDecl(), true, outputWriter);
+    writeContainer(document.topLevelDecl(), outputWriter);
 }
 
 function writePrologue(baseName: string, outputWriter: OutputWriter): void {
