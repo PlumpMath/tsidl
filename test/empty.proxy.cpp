@@ -2,5 +2,6 @@
 
 #include "empty_proxy.h"
 
-namespace empty {
+namespace empty
+{
 } // namespace empty

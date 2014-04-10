@@ -2,10 +2,13 @@
 
 #include "jsrt.wrappers.h"
 
-namespace ambient-enum {
-    enum a {
+namespace ambient-enum
+{
+    enum a
+    {
     }
-    enum b {
+    enum b
+    {
         a,
         b = 5,
         c,

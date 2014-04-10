@@ -2,5 +2,6 @@
 
 #include "ambient-enum_proxy.h"
 
-namespace ambient-enum {
+namespace ambient-enum
+{
 } // namespace ambient-enum

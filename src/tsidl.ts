@@ -335,45 +335,40 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     return typeString;
 }
 
-//function writeFieldDeclaration(container: TypeScript.Type, name: string, type: TypeScript.Type, headerFile: IO.FileWriter): void
-//{
-//    var fieldTypeName: string = typeStringNative(container, type);
-
-//    headerFile.write("\r\n\
-//\r\n\
-//    " + fieldTypeName + " __stdcall " + name + "()\r\n\
-//    {\r\n\
-//        return get_property<" + fieldTypeName + ">(jsrt::property_id::create(L\"" + name + "\"));\r\n\
-//    }\r\n\
-//\r\n\
-//    void __stdcall set_" + name + "(" + fieldTypeName + " value)\r\n\
-//    {\r\n\
-//        set_property(jsrt::property_id::create(L\"" + name + "\"), value);\r\n\
-//    }\r\n\
-//\r\n\
-//    jsrt::property_descriptor<" + fieldTypeName + "> __stdcall " + name + "_descriptor()\r\n\
-//    {\r\n\
-//        return get_own_property_descriptor<" + fieldTypeName + ">(jsrt::property_id::create(L\"" + name + "\"));\r\n\
-//    }\r\n\
-//\r\n\
-//    bool __stdcall set_" + name + "_descriptor(jsrt::property_descriptor<" + fieldTypeName + "> descriptor)\r\n\
-//    {\r\n\
-//        return define_property(jsrt::property_id::create(L\"" + name + "\"), descriptor);\r\n\
-//    }");
-//}
-
 function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.PullSymbol, outputWriter: OutputWriter): void {
     var typeName: string = typeStringNative(container, field.type);
 
-    //outputWriter.writeLineHeader(typeName + " " + field.name + "();");
-    //outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
-    //outputWriter.writeLineHeader("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor();");
-    //outputWriter.writeLineHeader("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
+    outputWriter.writeLineHeader(typeName + " " + field.name + "();");
+    outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
+    outputWriter.writeLineHeader("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor();");
+    outputWriter.writeLineHeader("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
 
-    //outputWriter.writeLineSource(typeName + " " + field.name + "();");
-    //outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
-    //outputWriter.writeLineHeader("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor();");
-    //outputWriter.writeLineHeader("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
+    outputWriter.writeLineSource(typeName + " " + field.name + "()");
+    outputWriter.writeLineSource("{");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("return get_property<" + typeName + ">(jsrt::property_id::create(L\"" + field.name + "\"));");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource("void set_" + field.name + "(" + typeName + " value)");
+    outputWriter.writeLineSource("{");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("set_property(jsrt::property_id::create(L\"" + field.name + "\"), value);");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor()");
+    outputWriter.writeLineSource("{");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("return get_own_property_descriptor<" + typeName + ">(jsrt::property_id::create(L\"" + field.name + "\"));");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("return define_property(jsrt::property_id::create(L\"" + field.name + "\"), descriptor);");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("}");
 }
 
 function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void
@@ -382,16 +377,17 @@ function writeTypeImplements(typeName: string, baseName: string, implementsList:
         var implementedType: TypeScript.PullTypeSymbol = implementsList[index];
         var implementedTypeName: string = implementedType.name + "_proxy";
 
-        outputWriter.writeLineHeader(typeName + "(" + implementedTypeName + " value);");
+        outputWriter.writeLineHeader("explicit " + typeName + "(" + implementedTypeName + " value);");
         outputWriter.writeLineHeader("operator " + implementedTypeName + "();");
 
         outputWriter.writeLineSource(typeName + "::" + typeName + "(" + implementedTypeName + " value) :");
         outputWriter.indentSource();
-        outputWriter.writeLineSource("" + baseName + "(value.handle())");
+        outputWriter.writeLineSource("" + baseName + "(value.handle()) {");
         outputWriter.outdentSource();
         outputWriter.writeLineSource("{");
         outputWriter.writeLineSource("}");
-        outputWriter.writeLineSource("operator " + implementedTypeName + "() {");
+        outputWriter.writeLineSource("operator " + implementedTypeName + "()");
+        outputWriter.writeLineSource("{");
         outputWriter.indentSource();
         outputWriter.writeLineSource("return " + implementedTypeName + "(*this);");
         outputWriter.outdentSource();
@@ -499,7 +495,8 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
 }
 
 function writeClass(typeName: string, baseName: string, outputWriter: OutputWriter): void {
-    outputWriter.writeLineHeader("class " + typeName + ": public " + baseName + " {");
+    outputWriter.writeLineHeader("class " + typeName + ": public " + baseName);
+    outputWriter.writeLineHeader("{");
     outputWriter.writeLineHeader("public:");
     outputWriter.indentHeader();
     outputWriter.writeLineHeader(typeName + "();");
@@ -527,7 +524,8 @@ function writeContainer(container: TypeScript.PullDecl, outputWriter: OutputWrit
         if (container.kind === TypeScript.PullElementKind.Container) {
             writeClass(container.name + "_proxy", "jsrt::object", outputWriter);
         } else {
-            outputWriter.writeLineHeader("enum " + container.name + " {");
+            outputWriter.writeLineHeader("enum " + container.name);
+            outputWriter.writeLineHeader("{");
             outputWriter.indentHeader();
         }
     }
@@ -561,14 +559,16 @@ function writePrologue(baseName: string, outputWriter: OutputWriter): void {
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("#include \"jsrt.wrappers.h\"");
     outputWriter.writeLineHeader();
-    outputWriter.writeLineHeader("namespace " + baseName + " {");
+    outputWriter.writeLineHeader("namespace " + baseName);
+    outputWriter.writeLineHeader("{");
     outputWriter.indentHeader();
 
     outputWriter.writeLineSource("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineSource();
     outputWriter.writeLineSource("#include \"" + baseName + "_proxy.h\"");
     outputWriter.writeLineSource();
-    outputWriter.writeLineSource("namespace " + baseName + " {");
+    outputWriter.writeLineSource("namespace " + baseName);
+    outputWriter.writeLineSource("{");
     outputWriter.indentSource();
 }
 
