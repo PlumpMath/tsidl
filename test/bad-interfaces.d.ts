@@ -14,3 +14,9 @@ interface d extends c {
 interface e extends c {
 	new();
 }
+interface f {
+
+}
+interface g extends c, f {
+
+}

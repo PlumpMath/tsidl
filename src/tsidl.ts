@@ -17,7 +17,6 @@ enum ErrorCode {
     OverloadingNotAllowed = 1006,
     NoFiles = 1007,
     ExternalModulesNotAllowed = 1008,
-    UnexpectedModifier = 1010,
     PrivateMembersNotAllowed = 1011,
     StaticMembersNotAllowed = 1012,
     NonFunctionAnonymousTypesNotAllowed = 1013,
@@ -26,11 +25,10 @@ enum ErrorCode {
     InternalError = 1018,
     GenericsNotAllowed = 1019,
     ExternalTypesNotAllowed = 1020,
-    UnexpectedType = 1021,
-    DefaultParametersNotAllowed = 1022,
     ImportsNotAllowed = 1023,
     ExtendsAndCallNotAllowed = 1024,
     ExtendsAndConstructNotAllowed = 1025,
+    MultipleInheritanceNotAllowed = 1026
 };
 
 var errorMessage: any =
@@ -44,7 +42,6 @@ var errorMessage: any =
         /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
         /* NoFiles */ 1007: "An input file must be specified.",
         /* ExternalModulesNotAllowed */ 1008: "Script cannot be an external module.",
-        /* UnexpectedModifier */ 1010: "Unexpected modifier {0}.",
         /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
         /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
         /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
@@ -53,11 +50,10 @@ var errorMessage: any =
         /* InternalError */ 1018: "Internal error.",
         /* GenericsNotAllowed */ 1019: "Generics are not allowed.",
         /* ExternalTypesNotAllowed */ 1020: "Externally declared types are not allowed.",
-        /* UnexpectedType */ 1021: "Unexpected type declaration type {0}.",
-        /* DefaultParametersNotAllowed */ 1022: "Default parameter values are not allowed.",
         /* ImportsNotAllowed */ 1023: "'import' statements are not allowed.",
         /* ExtendsAndCallNotAllowed */ 1024: "'extends' and call signature are not allowed.",
-        /* ExtendsAndConstructNotAllowed */ 1025: "'extends' and construct signature are not allowed."
+        /* ExtendsAndConstructNotAllowed */ 1025: "'extends' and construct signature are not allowed.",
+        /* MultipleInheritanceNotAllowed */ 1026: "Multiple inheritance is not allowed."
     };
 
 function formatString(value: string, substitutions: string[]): string {
@@ -769,7 +765,9 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
     var extendedTypes: TypeScript.PullTypeSymbol[] = type.getExtendedTypes();
 
     if (extendedTypes && extendedTypes.length > 0) {
-        assert(extendedTypes.length === 1);
+        if (extendedTypes.length !== 1) {
+            reportError(errors, document, decl.getSpan().start(), ErrorCode.MultipleInheritanceNotAllowed);
+        }
         checkTypeReference(document, decl, extendedTypes[0], errors);
     }
 
