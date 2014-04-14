@@ -1,4 +1,0 @@
-TsIdl Version 1.0
-Copyright (C) Paul Vick. All rights reserved.
-
-test/bad-ambient-external-module.d.ts: error TS1008: Script cannot be an external module.

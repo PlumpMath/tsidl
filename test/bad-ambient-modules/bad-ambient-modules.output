@@ -1,0 +1,4 @@
+TsIdl Version 1.0
+Copyright (C) Paul Vick. All rights reserved.
+
+test/bad-ambient-modules/bad-ambient-modules.d.ts(1,1): error TS1023: 'import' statements are not allowed.

@@ -1,7 +1,0 @@
-TsIdl Version 1.0
-Copyright (C) Paul Vick. All rights reserved.
-
-test/bad-ambient-classes.d.ts(0,0): error TS1019: Generics are not allowed.
-test/bad-ambient-classes.d.ts(4,0): error TS1011: Private members are not allowed.
-test/bad-ambient-classes.d.ts(8,0): error TS1012: Static members are not allowed.
-test/bad-ambient-classes.d.ts(12,0): error TS1014: Indexers are not allowed.
