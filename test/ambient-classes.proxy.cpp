@@ -4,11 +4,11 @@
 
 namespace ambient-classes
 {
-    a_proxy::a_proxy() :
+    a::a() :
         jsrt::object()
     {
     }
-    a_proxy::a_proxy(jsrt::object object) :
+    a::a(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
@@ -28,19 +28,19 @@ namespace ambient-classes
     {
         set_property(jsrt::property_id::create(L"y"), value);
     }
-    a_proxy a()
+    a a()
     {
-        return get_property<a_proxy>(jsrt::property_id::create(L"a"));
+        return get_property<a>(jsrt::property_id::create(L"a"));
     }
-    void set_a(a_proxy value)
+    void set_a(a value)
     {
         set_property(jsrt::property_id::create(L"a"), value);
     }
-    b_proxy::b_proxy() :
+    b::b() :
         jsrt::object()
     {
     }
-    b_proxy::b_proxy(jsrt::object object) :
+    b::b(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
@@ -52,21 +52,21 @@ namespace ambient-classes
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    c_proxy::c_proxy() :
+    c::c() :
         jsrt::object()
     {
     }
-    c_proxy::c_proxy(jsrt::object object) :
+    c::c(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    c_proxy::c_proxy(b_proxy value) :
+    c::c(b value) :
         jsrt::object(value.handle()) {
     {
     }
-    operator b_proxy()
+    operator b()
     {
-        return b_proxy(*this);
+        return b(*this);
     }
     double x()
     {
@@ -76,27 +76,27 @@ namespace ambient-classes
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    c_proxy c()
+    c c()
     {
-        return get_property<c_proxy>(jsrt::property_id::create(L"c"));
+        return get_property<c>(jsrt::property_id::create(L"c"));
     }
-    void set_c(c_proxy value)
+    void set_c(c value)
     {
         set_property(jsrt::property_id::create(L"c"), value);
     }
-    d_proxy::d_proxy() :
-        c_proxy()
+    d::d() :
+        c()
     {
     }
-    d_proxy::d_proxy(c_proxy object) :
-        c_proxy(object.handle())
+    d::d(c object) :
+        c(object.handle())
     {
     }
-    d_proxy d()
+    d d()
     {
-        return get_property<d_proxy>(jsrt::property_id::create(L"d"));
+        return get_property<d>(jsrt::property_id::create(L"d"));
     }
-    void set_d(d_proxy value)
+    void set_d(d value)
     {
         set_property(jsrt::property_id::create(L"d"), value);
     }

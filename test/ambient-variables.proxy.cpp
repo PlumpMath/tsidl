@@ -44,19 +44,19 @@ namespace ambient-variables
     {
         set_property(jsrt::property_id::create(L"e"), value);
     }
-    x_proxy f()
+    x f()
     {
-        return get_property<x_proxy>(jsrt::property_id::create(L"f"));
+        return get_property<x>(jsrt::property_id::create(L"f"));
     }
-    void set_f(x_proxy value)
+    void set_f(x value)
     {
         set_property(jsrt::property_id::create(L"f"), value);
     }
-    y_proxy g()
+    y g()
     {
-        return get_property<y_proxy>(jsrt::property_id::create(L"g"));
+        return get_property<y>(jsrt::property_id::create(L"g"));
     }
-    void set_g(y_proxy value)
+    void set_g(y value)
     {
         set_property(jsrt::property_id::create(L"g"), value);
     }
@@ -76,35 +76,35 @@ namespace ambient-variables
     {
         set_property(jsrt::property_id::create(L"i"), value);
     }
-    z_proxy j()
+    z j()
     {
-        return get_property<z_proxy>(jsrt::property_id::create(L"j"));
+        return get_property<z>(jsrt::property_id::create(L"j"));
     }
-    void set_j(z_proxy value)
+    void set_j(z value)
     {
         set_property(jsrt::property_id::create(L"j"), value);
     }
-    x_proxy::x_proxy() :
+    x::x() :
         jsrt::object()
     {
     }
-    x_proxy::x_proxy(jsrt::object object) :
+    x::x(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    x_proxy x()
+    x x()
     {
-        return get_property<x_proxy>(jsrt::property_id::create(L"x"));
+        return get_property<x>(jsrt::property_id::create(L"x"));
     }
-    void set_x(x_proxy value)
+    void set_x(x value)
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    z_proxy::z_proxy() :
+    z::z() :
         jsrt::object()
     {
     }
-    z_proxy::z_proxy(jsrt::object object) :
+    z::z(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }

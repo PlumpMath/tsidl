@@ -308,11 +308,11 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
         }
     }
     else if (type.isNamedTypeSymbol()) {
-        var name: string = type.name + "_proxy";
+        var name: string = type.name;
 
         while (container)
         {
-            name = container.name + "_proxy::" + name;
+            name = container.name + "::" + name;
             container = container.getContainer();
         }
 
@@ -356,7 +356,7 @@ function writeTypeImplements(typeName: string, baseName: string, implementsList:
 {
     for (var index = 0; index < implementsList.length; index++) {
         var implementedType: TypeScript.PullTypeSymbol = implementsList[index];
-        var implementedTypeName: string = implementedType.name + "_proxy";
+        var implementedTypeName: string = implementedType.name;
 
         outputWriter.writeLineHeader("explicit " + typeName + "(" + implementedTypeName + " value);");
         outputWriter.writeLineHeader("operator " + implementedTypeName + "();");
@@ -379,7 +379,7 @@ function writeTypeImplements(typeName: string, baseName: string, implementsList:
 function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
     var baseName: string;
     var emitSignatureConstructor: boolean = false;
-    var typeName: string = type.name + "_proxy";
+    var typeName: string = type.name;
 
     if (type.hasOwnCallSignatures()) {
         baseName = javaScriptFunctionType(type, type.getCallSignatures()[0]);
@@ -388,7 +388,7 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
         baseName = javaScriptFunctionType(type, type.getConstructSignatures()[0]);
         emitSignatureConstructor = true;
     } else if (type.getExtendedTypes().length > 0) {
-        baseName = type.getExtendedTypes()[0].name + "_proxy";
+        baseName = type.getExtendedTypes()[0].name;
     } else {
         baseName = "jsrt::object";
     }
@@ -503,7 +503,7 @@ function writeContainer(container: TypeScript.PullDecl, outputWriter: OutputWrit
 
     if (containerSymbol) {
         if (container.kind === TypeScript.PullElementKind.Container) {
-            writeClass(container.name + "_proxy", "jsrt::object", outputWriter);
+            writeClass(container.name, "jsrt::object", outputWriter);
         } else {
             outputWriter.writeLineHeader("enum " + container.name);
             outputWriter.writeLineHeader("{");

@@ -36,27 +36,27 @@ namespace types-array
     {
         set_property(jsrt::property_id::create(L"a"), value);
     }
-    jsrt::array<c_proxy> b()
+    jsrt::array<c> b()
     {
-        return get_property<jsrt::array<c_proxy>>(jsrt::property_id::create(L"b"));
+        return get_property<jsrt::array<c>>(jsrt::property_id::create(L"b"));
     }
-    void set_b(jsrt::array<c_proxy> value)
+    void set_b(jsrt::array<c> value)
     {
         set_property(jsrt::property_id::create(L"b"), value);
     }
-    c_proxy::c_proxy() :
+    c::c() :
         jsrt::object()
     {
     }
-    c_proxy::c_proxy(jsrt::object object) :
+    c::c(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    c_proxy c()
+    c c()
     {
-        return get_property<c_proxy>(jsrt::property_id::create(L"c"));
+        return get_property<c>(jsrt::property_id::create(L"c"));
     }
-    void set_c(c_proxy value)
+    void set_c(c value)
     {
         set_property(jsrt::property_id::create(L"c"), value);
     }
