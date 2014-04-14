@@ -336,8 +336,6 @@ function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.Pull
 
     outputWriter.writeLineHeader(typeName + " " + field.name + "();");
     outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
-    outputWriter.writeLineHeader("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor();");
-    outputWriter.writeLineHeader("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
 
     outputWriter.writeLineSource(typeName + " " + field.name + "()");
     outputWriter.writeLineSource("{");
@@ -350,19 +348,6 @@ function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.Pull
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
     outputWriter.writeLineSource("set_property(jsrt::property_id::create(L\"" + field.name + "\"), value);");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
-
-    outputWriter.writeLineSource("jsrt::property_descriptor<" + typeName + "> " + field.name + "_descriptor()");
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
-    outputWriter.writeLineSource("return get_own_property_descriptor<" + typeName + ">(jsrt::property_id::create(L\"" + field.name + "\"));");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
-
-    outputWriter.writeLineSource("bool set_" + field.name + "_descriptor(jsrt::property_descriptor<" + typeName + "> descriptor);");
-    outputWriter.indentSource();
-    outputWriter.writeLineSource("return define_property(jsrt::property_id::create(L\"" + field.name + "\"), descriptor);");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 }

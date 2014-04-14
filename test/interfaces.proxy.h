@@ -23,24 +23,14 @@ namespace interfaces
         explicit c_proxy(jsrt::object object);
         double x();
         void set_x(double value);
-        jsrt::property_descriptor<double> x_descriptor();
-        bool set_x_descriptor(jsrt::property_descriptor<double> descriptor);
         double y();
         void set_y(double value);
-        jsrt::property_descriptor<double> y_descriptor();
-        bool set_y_descriptor(jsrt::property_descriptor<double> descriptor);
         std::wstring abc();
         void set_abc(std::wstring value);
-        jsrt::property_descriptor<std::wstring> abc_descriptor();
-        bool set_abc_descriptor(jsrt::property_descriptor<std::wstring> descriptor);
         double 0();
         void set_0(double value);
-        jsrt::property_descriptor<double> 0_descriptor();
-        bool set_0_descriptor(jsrt::property_descriptor<double> descriptor);
         jsrt::function<double, double> b();
         void set_b(jsrt::function<double, double> value);
-        jsrt::property_descriptor<jsrt::function<double, double>> b_descriptor();
-        bool set_b_descriptor(jsrt::property_descriptor<jsrt::function<double, double>> descriptor);
     };
     class d_proxy: public jsrt::function<std::wstring, std::wstring>
     {

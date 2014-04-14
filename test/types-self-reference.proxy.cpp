@@ -20,13 +20,6 @@ namespace types-self-reference
     {
         set_property(jsrt::property_id::create(L"a"), value);
     }
-    jsrt::property_descriptor<a_proxy> a_descriptor()
-    {
-        return get_own_property_descriptor<a_proxy>(jsrt::property_id::create(L"a"));
-    }
-    bool set_a_descriptor(jsrt::property_descriptor<a_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"a"), descriptor);
-    }
     c_proxy::c_proxy() :
         jsrt::object()
     {
@@ -59,13 +52,6 @@ namespace types-self-reference
     {
         set_property(jsrt::property_id::create(L"e"), value);
     }
-    jsrt::property_descriptor<c_proxy::d_proxy::e_proxy> e_descriptor()
-    {
-        return get_own_property_descriptor<c_proxy::d_proxy::e_proxy>(jsrt::property_id::create(L"e"));
-    }
-    bool set_e_descriptor(jsrt::property_descriptor<c_proxy::d_proxy::e_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"e"), descriptor);
-    }
     c_proxy::d_proxy d()
     {
         return get_property<c_proxy::d_proxy>(jsrt::property_id::create(L"d"));
@@ -73,13 +59,6 @@ namespace types-self-reference
     void set_d(c_proxy::d_proxy value)
     {
         set_property(jsrt::property_id::create(L"d"), value);
-    }
-    jsrt::property_descriptor<c_proxy::d_proxy> d_descriptor()
-    {
-        return get_own_property_descriptor<c_proxy::d_proxy>(jsrt::property_id::create(L"d"));
-    }
-    bool set_d_descriptor(jsrt::property_descriptor<c_proxy::d_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"d"), descriptor);
     }
     c_proxy c()
     {
@@ -89,13 +68,6 @@ namespace types-self-reference
     {
         set_property(jsrt::property_id::create(L"c"), value);
     }
-    jsrt::property_descriptor<c_proxy> c_descriptor()
-    {
-        return get_own_property_descriptor<c_proxy>(jsrt::property_id::create(L"c"));
-    }
-    bool set_c_descriptor(jsrt::property_descriptor<c_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"c"), descriptor);
-    }
     a_proxy b()
     {
         return get_property<a_proxy>(jsrt::property_id::create(L"b"));
@@ -104,13 +76,6 @@ namespace types-self-reference
     {
         set_property(jsrt::property_id::create(L"b"), value);
     }
-    jsrt::property_descriptor<a_proxy> b_descriptor()
-    {
-        return get_own_property_descriptor<a_proxy>(jsrt::property_id::create(L"b"));
-    }
-    bool set_b_descriptor(jsrt::property_descriptor<a_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"b"), descriptor);
-    }
     e_proxy f()
     {
         return get_property<e_proxy>(jsrt::property_id::create(L"f"));
@@ -118,12 +83,5 @@ namespace types-self-reference
     void set_f(e_proxy value)
     {
         set_property(jsrt::property_id::create(L"f"), value);
-    }
-    jsrt::property_descriptor<e_proxy> f_descriptor()
-    {
-        return get_own_property_descriptor<e_proxy>(jsrt::property_id::create(L"f"));
-    }
-    bool set_f_descriptor(jsrt::property_descriptor<e_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"f"), descriptor);
     }
 } // namespace types-self-reference

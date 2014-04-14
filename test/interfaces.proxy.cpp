@@ -36,13 +36,6 @@ namespace interfaces
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    jsrt::property_descriptor<double> x_descriptor()
-    {
-        return get_own_property_descriptor<double>(jsrt::property_id::create(L"x"));
-    }
-    bool set_x_descriptor(jsrt::property_descriptor<double> descriptor);
-        return define_property(jsrt::property_id::create(L"x"), descriptor);
-    }
     double y()
     {
         return get_property<double>(jsrt::property_id::create(L"y"));
@@ -50,13 +43,6 @@ namespace interfaces
     void set_y(double value)
     {
         set_property(jsrt::property_id::create(L"y"), value);
-    }
-    jsrt::property_descriptor<double> y_descriptor()
-    {
-        return get_own_property_descriptor<double>(jsrt::property_id::create(L"y"));
-    }
-    bool set_y_descriptor(jsrt::property_descriptor<double> descriptor);
-        return define_property(jsrt::property_id::create(L"y"), descriptor);
     }
     std::wstring abc()
     {
@@ -66,13 +52,6 @@ namespace interfaces
     {
         set_property(jsrt::property_id::create(L"abc"), value);
     }
-    jsrt::property_descriptor<std::wstring> abc_descriptor()
-    {
-        return get_own_property_descriptor<std::wstring>(jsrt::property_id::create(L"abc"));
-    }
-    bool set_abc_descriptor(jsrt::property_descriptor<std::wstring> descriptor);
-        return define_property(jsrt::property_id::create(L"abc"), descriptor);
-    }
     double 0()
     {
         return get_property<double>(jsrt::property_id::create(L"0"));
@@ -81,13 +60,6 @@ namespace interfaces
     {
         set_property(jsrt::property_id::create(L"0"), value);
     }
-    jsrt::property_descriptor<double> 0_descriptor()
-    {
-        return get_own_property_descriptor<double>(jsrt::property_id::create(L"0"));
-    }
-    bool set_0_descriptor(jsrt::property_descriptor<double> descriptor);
-        return define_property(jsrt::property_id::create(L"0"), descriptor);
-    }
     jsrt::function<double, double> b()
     {
         return get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"b"));
@@ -95,13 +67,6 @@ namespace interfaces
     void set_b(jsrt::function<double, double> value)
     {
         set_property(jsrt::property_id::create(L"b"), value);
-    }
-    jsrt::property_descriptor<jsrt::function<double, double>> b_descriptor()
-    {
-        return get_own_property_descriptor<jsrt::function<double, double>>(jsrt::property_id::create(L"b"));
-    }
-    bool set_b_descriptor(jsrt::property_descriptor<jsrt::function<double, double>> descriptor);
-        return define_property(jsrt::property_id::create(L"b"), descriptor);
     }
     d_proxy::d_proxy() :
         jsrt::function<std::wstring, std::wstring>()

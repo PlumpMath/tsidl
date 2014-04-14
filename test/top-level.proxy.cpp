@@ -12,13 +12,6 @@ namespace top-level
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    jsrt::property_descriptor<double> x_descriptor()
-    {
-        return get_own_property_descriptor<double>(jsrt::property_id::create(L"x"));
-    }
-    bool set_x_descriptor(jsrt::property_descriptor<double> descriptor);
-        return define_property(jsrt::property_id::create(L"x"), descriptor);
-    }
     std::wstring d()
     {
         return get_property<std::wstring>(jsrt::property_id::create(L"d"));
@@ -27,13 +20,6 @@ namespace top-level
     {
         set_property(jsrt::property_id::create(L"d"), value);
     }
-    jsrt::property_descriptor<std::wstring> d_descriptor()
-    {
-        return get_own_property_descriptor<std::wstring>(jsrt::property_id::create(L"d"));
-    }
-    bool set_d_descriptor(jsrt::property_descriptor<std::wstring> descriptor);
-        return define_property(jsrt::property_id::create(L"d"), descriptor);
-    }
     jsrt::function<void, std::wstring> y()
     {
         return get_property<jsrt::function<void, std::wstring>>(jsrt::property_id::create(L"y"));
@@ -41,13 +27,6 @@ namespace top-level
     void set_y(jsrt::function<void, std::wstring> value)
     {
         set_property(jsrt::property_id::create(L"y"), value);
-    }
-    jsrt::property_descriptor<jsrt::function<void, std::wstring>> y_descriptor()
-    {
-        return get_own_property_descriptor<jsrt::function<void, std::wstring>>(jsrt::property_id::create(L"y"));
-    }
-    bool set_y_descriptor(jsrt::property_descriptor<jsrt::function<void, std::wstring>> descriptor);
-        return define_property(jsrt::property_id::create(L"y"), descriptor);
     }
     z_proxy::z_proxy() :
         jsrt::object()
@@ -73,13 +52,6 @@ namespace top-level
     {
         set_property(jsrt::property_id::create(L"a"), value);
     }
-    jsrt::property_descriptor<a_proxy> a_descriptor()
-    {
-        return get_own_property_descriptor<a_proxy>(jsrt::property_id::create(L"a"));
-    }
-    bool set_a_descriptor(jsrt::property_descriptor<a_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"a"), descriptor);
-    }
     b_proxy::b_proxy() :
         jsrt::object()
     {
@@ -95,12 +67,5 @@ namespace top-level
     void set_b(b_proxy value)
     {
         set_property(jsrt::property_id::create(L"b"), value);
-    }
-    jsrt::property_descriptor<b_proxy> b_descriptor()
-    {
-        return get_own_property_descriptor<b_proxy>(jsrt::property_id::create(L"b"));
-    }
-    bool set_b_descriptor(jsrt::property_descriptor<b_proxy> descriptor);
-        return define_property(jsrt::property_id::create(L"b"), descriptor);
     }
 } // namespace top-level

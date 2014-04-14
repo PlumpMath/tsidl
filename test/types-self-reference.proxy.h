@@ -12,8 +12,6 @@ namespace types-self-reference
     };
     a_proxy a();
     void set_a(a_proxy value);
-    jsrt::property_descriptor<a_proxy> a_descriptor();
-    bool set_a_descriptor(jsrt::property_descriptor<a_proxy> descriptor);
     class c_proxy: public jsrt::object
     {
     public:
@@ -32,24 +30,14 @@ namespace types-self-reference
             };
             c_proxy::d_proxy::e_proxy e();
             void set_e(c_proxy::d_proxy::e_proxy value);
-            jsrt::property_descriptor<c_proxy::d_proxy::e_proxy> e_descriptor();
-            bool set_e_descriptor(jsrt::property_descriptor<c_proxy::d_proxy::e_proxy> descriptor);
         }
         c_proxy::d_proxy d();
         void set_d(c_proxy::d_proxy value);
-        jsrt::property_descriptor<c_proxy::d_proxy> d_descriptor();
-        bool set_d_descriptor(jsrt::property_descriptor<c_proxy::d_proxy> descriptor);
     }
     c_proxy c();
     void set_c(c_proxy value);
-    jsrt::property_descriptor<c_proxy> c_descriptor();
-    bool set_c_descriptor(jsrt::property_descriptor<c_proxy> descriptor);
     a_proxy b();
     void set_b(a_proxy value);
-    jsrt::property_descriptor<a_proxy> b_descriptor();
-    bool set_b_descriptor(jsrt::property_descriptor<a_proxy> descriptor);
     e_proxy f();
     void set_f(e_proxy value);
-    jsrt::property_descriptor<e_proxy> f_descriptor();
-    bool set_f_descriptor(jsrt::property_descriptor<e_proxy> descriptor);
 } // namespace types-self-reference
