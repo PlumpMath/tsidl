@@ -30,11 +30,11 @@ namespace ambient-classes
     }
     a a()
     {
-        return get_property<a>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<a>(jsrt::property_id::create(L"a"));
     }
     void set_a(a value)
     {
-        set_property(jsrt::property_id::create(L"a"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
     b::b() :
         jsrt::object()
@@ -78,11 +78,11 @@ namespace ambient-classes
     }
     c c()
     {
-        return get_property<c>(jsrt::property_id::create(L"c"));
+        return jsrt::context::global().get_property<c>(jsrt::property_id::create(L"c"));
     }
     void set_c(c value)
     {
-        set_property(jsrt::property_id::create(L"c"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
     d::d() :
         c()
@@ -94,10 +94,10 @@ namespace ambient-classes
     }
     d d()
     {
-        return get_property<d>(jsrt::property_id::create(L"d"));
+        return jsrt::context::global().get_property<d>(jsrt::property_id::create(L"d"));
     }
     void set_d(d value)
     {
-        set_property(jsrt::property_id::create(L"d"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
     }
 } // namespace ambient-classes

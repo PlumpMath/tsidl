@@ -333,6 +333,7 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 
 function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.PullSymbol, outputWriter: OutputWriter): void {
     var typeName: string = typeStringNative(container, field.type);
+    var global: string = container ? "" : "jsrt::context::global().";
 
     outputWriter.writeLineHeader(typeName + " " + field.name + "();");
     outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
@@ -340,14 +341,14 @@ function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.Pull
     outputWriter.writeLineSource(typeName + " " + field.name + "()");
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
-    outputWriter.writeLineSource("return get_property<" + typeName + ">(jsrt::property_id::create(L\"" + field.name + "\"));");
+    outputWriter.writeLineSource("return " + global + "get_property<" + typeName + ">(jsrt::property_id::create(L\"" + field.name + "\"));");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 
     outputWriter.writeLineSource("void set_" + field.name + "(" + typeName + " value)");
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
-    outputWriter.writeLineSource("set_property(jsrt::property_id::create(L\"" + field.name + "\"), value);");
+    outputWriter.writeLineSource(global + "set_property(jsrt::property_id::create(L\"" + field.name + "\"), value);");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 }

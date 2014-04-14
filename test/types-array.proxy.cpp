@@ -6,43 +6,43 @@ namespace types-array
 {
     jsrt::array<double> x()
     {
-        return get_property<jsrt::array<double>>(jsrt::property_id::create(L"x"));
+        return jsrt::context::global().get_property<jsrt::array<double>>(jsrt::property_id::create(L"x"));
     }
     void set_x(jsrt::array<double> value)
     {
-        set_property(jsrt::property_id::create(L"x"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"x"), value);
     }
     jsrt::array<bool> y()
     {
-        return get_property<jsrt::array<bool>>(jsrt::property_id::create(L"y"));
+        return jsrt::context::global().get_property<jsrt::array<bool>>(jsrt::property_id::create(L"y"));
     }
     void set_y(jsrt::array<bool> value)
     {
-        set_property(jsrt::property_id::create(L"y"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"y"), value);
     }
     jsrt::array<std::wstring> z()
     {
-        return get_property<jsrt::array<std::wstring>>(jsrt::property_id::create(L"z"));
+        return jsrt::context::global().get_property<jsrt::array<std::wstring>>(jsrt::property_id::create(L"z"));
     }
     void set_z(jsrt::array<std::wstring> value)
     {
-        set_property(jsrt::property_id::create(L"z"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"z"), value);
     }
     jsrt::array<jsrt::object> a()
     {
-        return get_property<jsrt::array<jsrt::object>>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<jsrt::array<jsrt::object>>(jsrt::property_id::create(L"a"));
     }
     void set_a(jsrt::array<jsrt::object> value)
     {
-        set_property(jsrt::property_id::create(L"a"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
     jsrt::array<c> b()
     {
-        return get_property<jsrt::array<c>>(jsrt::property_id::create(L"b"));
+        return jsrt::context::global().get_property<jsrt::array<c>>(jsrt::property_id::create(L"b"));
     }
     void set_b(jsrt::array<c> value)
     {
-        set_property(jsrt::property_id::create(L"b"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
     c::c() :
         jsrt::object()
@@ -54,10 +54,10 @@ namespace types-array
     }
     c c()
     {
-        return get_property<c>(jsrt::property_id::create(L"c"));
+        return jsrt::context::global().get_property<c>(jsrt::property_id::create(L"c"));
     }
     void set_c(c value)
     {
-        set_property(jsrt::property_id::create(L"c"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
 } // namespace types-array

@@ -6,83 +6,83 @@ namespace ambient-variables
 {
     bool a()
     {
-        return get_property<bool>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<bool>(jsrt::property_id::create(L"a"));
     }
     void set_a(bool value)
     {
-        set_property(jsrt::property_id::create(L"a"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
     double b()
     {
-        return get_property<double>(jsrt::property_id::create(L"b"));
+        return jsrt::context::global().get_property<double>(jsrt::property_id::create(L"b"));
     }
     void set_b(double value)
     {
-        set_property(jsrt::property_id::create(L"b"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
     std::wstring c()
     {
-        return get_property<std::wstring>(jsrt::property_id::create(L"c"));
+        return jsrt::context::global().get_property<std::wstring>(jsrt::property_id::create(L"c"));
     }
     void set_c(std::wstring value)
     {
-        set_property(jsrt::property_id::create(L"c"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
     jsrt::object d()
     {
-        return get_property<jsrt::object>(jsrt::property_id::create(L"d"));
+        return jsrt::context::global().get_property<jsrt::object>(jsrt::property_id::create(L"d"));
     }
     void set_d(jsrt::object value)
     {
-        set_property(jsrt::property_id::create(L"d"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
     }
     jsrt::object e()
     {
-        return get_property<jsrt::object>(jsrt::property_id::create(L"e"));
+        return jsrt::context::global().get_property<jsrt::object>(jsrt::property_id::create(L"e"));
     }
     void set_e(jsrt::object value)
     {
-        set_property(jsrt::property_id::create(L"e"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"e"), value);
     }
     x f()
     {
-        return get_property<x>(jsrt::property_id::create(L"f"));
+        return jsrt::context::global().get_property<x>(jsrt::property_id::create(L"f"));
     }
     void set_f(x value)
     {
-        set_property(jsrt::property_id::create(L"f"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"f"), value);
     }
     y g()
     {
-        return get_property<y>(jsrt::property_id::create(L"g"));
+        return jsrt::context::global().get_property<y>(jsrt::property_id::create(L"g"));
     }
     void set_g(y value)
     {
-        set_property(jsrt::property_id::create(L"g"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"g"), value);
     }
     jsrt::function<double, double> h()
     {
-        return get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"h"));
+        return jsrt::context::global().get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"h"));
     }
     void set_h(jsrt::function<double, double> value)
     {
-        set_property(jsrt::property_id::create(L"h"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"h"), value);
     }
     jsrt::function<double, double> i()
     {
-        return get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"i"));
+        return jsrt::context::global().get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"i"));
     }
     void set_i(jsrt::function<double, double> value)
     {
-        set_property(jsrt::property_id::create(L"i"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"i"), value);
     }
     z j()
     {
-        return get_property<z>(jsrt::property_id::create(L"j"));
+        return jsrt::context::global().get_property<z>(jsrt::property_id::create(L"j"));
     }
     void set_j(z value)
     {
-        set_property(jsrt::property_id::create(L"j"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"j"), value);
     }
     x::x() :
         jsrt::object()
@@ -94,11 +94,11 @@ namespace ambient-variables
     }
     x x()
     {
-        return get_property<x>(jsrt::property_id::create(L"x"));
+        return jsrt::context::global().get_property<x>(jsrt::property_id::create(L"x"));
     }
     void set_x(x value)
     {
-        set_property(jsrt::property_id::create(L"x"), value);
+        jsrt::context::global().set_property(jsrt::property_id::create(L"x"), value);
     }
     z::z() :
         jsrt::object()
