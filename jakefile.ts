@@ -84,7 +84,7 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
 
         var outputHeader: string = singleTestDirectoryBase + ".proxy.h";
         var outputSource: string = singleTestDirectoryBase + ".proxy.cpp";
-        var outputOutput: string = singleTestDirectoryBase + ".output";
+        var outputOutput: string = singleTestDirectoryBase + ".tsidl.output";
 
         var outputHeaderBaseline: string = singleTestDirectory + outputHeader;
         var outputHeaderBuilt: string = singleTestBuiltDirectory + outputHeader;
@@ -149,7 +149,7 @@ task("update-baselines", ["test"], () => {
 
             var outputHeader: string = outputBase + ".proxy.h";
             var outputSource: string = outputBase + ".proxy.cpp";
-            var outputOutput: string = outputBase + ".output";
+            var outputOutput: string = outputBase + ".tsidl.output";
 
             var outputHeaderBaseline: string = singleTestDirectory + outputHeader;
             var outputHeaderBuilt: string = singleTestBuiltDirectory + outputHeader;
