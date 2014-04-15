@@ -1,5 +1,8 @@
 # Various output
 jakefile.js
+*.sdf
+*.suo
 built/
+debug/
 node_modules/
 vs/
