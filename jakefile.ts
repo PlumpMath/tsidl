@@ -102,7 +102,7 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
             dependencies.push(outputHeaderBaseline, outputSourceBaseline);
         }
 
-        desc("Test " + filename);
+        desc("Build " + test);
         file(outputOutputBuilt, dependencies, () => {
             var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --header " + outputHeaderBuilt + " --source " + outputSourceBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
 
@@ -124,7 +124,10 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
             }, { windowsVerbatimArguments: true, breakOnError: false });
         }, { async: true });
 
-        tests.push(outputOutputBuilt);
+        desc("Test " + filename);
+        var testTaskName: string = "test-" + filename;
+        var testTask: jake.Task = task(testTaskName, [outputOutputBuilt]);
+        tests.push(testTaskName);
     }
 });
 
