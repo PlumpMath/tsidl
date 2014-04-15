@@ -75,16 +75,69 @@ task("debug", ["emitSourceMaps", "release"]);
 var tests: string[] = [];
 fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
     var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
+    var filename: string = singleTestDirectoryBase + ".d.ts";
+    var test: string = singleTestDirectory + filename;
     var stats: fs.Stats = fs.statSync(singleTestDirectory);
     
-    if (stats.isDirectory()) {
-        fs.readdirSync(singleTestDirectory).forEach((filename: string) => {
-            if (!ts.isTsFile(filename)) {
-                return;
-            }
+    if (stats.isDirectory() && fs.existsSync(test)) {
+        var singleTestBuiltDirectory = testBuiltDirectory + singleTestDirectoryBase + "/";
 
+        var outputHeader: string = singleTestDirectoryBase + ".proxy.h";
+        var outputSource: string = singleTestDirectoryBase + ".proxy.cpp";
+        var outputOutput: string = singleTestDirectoryBase + ".output";
+
+        var outputHeaderBaseline: string = singleTestDirectory + outputHeader;
+        var outputHeaderBuilt: string = singleTestBuiltDirectory + outputHeader;
+        var outputSourceBaseline: string = singleTestDirectory + outputSource;
+        var outputSourceBuilt: string = singleTestBuiltDirectory + outputSource;
+        var outputOutputBaseline: string = singleTestDirectory + outputOutput;
+        var outputOutputBuilt: string = singleTestBuiltDirectory + outputOutput;
+
+        directory(singleTestBuiltDirectory);
+
+        var dependencies: string[] = [testBuiltDirectory, singleTestBuiltDirectory, test, outputOutputBaseline, tsidlCliTarget];
+        var fails: boolean = !fs.existsSync(outputHeaderBaseline);
+
+        if (!fails) {
+            dependencies.push(outputHeaderBaseline, outputSourceBaseline);
+        }
+
+        desc("Test " + filename);
+        file(outputOutputBuilt, dependencies, () => {
+            var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --header " + outputHeaderBuilt + " --source " + outputSourceBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
+
+            jake.exec([command], () => {
+                var outputBaseline: string = <any>fs.readFileSync(outputOutputBaseline, { encoding: "utf8" });
+                var outputBuilt: string = <any>fs.readFileSync(outputOutputBuilt, { encoding: "utf8" });
+
+                if (outputBaseline != outputBuilt) {
+                    testResult(singleTestDirectoryBase, false);
+                } else if (!fails) {
+                    var baselineHeader: string = <any>fs.readFileSync(outputHeaderBaseline, { encoding: "utf8" });
+                    var resultHeader: string = <any>fs.readFileSync(outputHeaderBuilt, { encoding: "utf8" });
+                    var baselineSource: string = <any>fs.readFileSync(outputSourceBaseline, { encoding: "utf8" });
+                    var resultSource: string = <any>fs.readFileSync(outputSourceBuilt, { encoding: "utf8" });
+                    testResult(singleTestDirectoryBase, (baselineHeader === resultHeader) && (baselineSource === resultSource));
+                } else {
+                    testResult(singleTestDirectoryBase, !fs.existsSync(outputHeaderBuilt));
+                }
+            }, { windowsVerbatimArguments: true, breakOnError: false });
+        }, { async: true });
+
+        tests.push(outputOutputBuilt);
+    }
+});
+
+desc("Updates the test baselines.");
+task("update-baselines", ["test"], () => {
+    fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
+        var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
+        var filename: string = singleTestDirectoryBase + ".d.ts";
+        var test: string = singleTestDirectory + filename;
+        var stats: fs.Stats = fs.statSync(singleTestDirectory);
+
+        if (stats.isDirectory() && fs.existsSync(test)) {
             var singleTestBuiltDirectory = testBuiltDirectory + singleTestDirectoryBase + "/";
-            var test: string = singleTestDirectory + filename;
             var outputBase: string = filename.substr(0, filename.length - 3);
 
             if ((/\.d$/i).test(outputBase)) {
@@ -102,81 +155,14 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
             var outputOutputBaseline: string = singleTestDirectory + outputOutput;
             var outputOutputBuilt: string = singleTestBuiltDirectory + outputOutput;
 
-            directory(singleTestBuiltDirectory);
-
-            var dependencies: string[] = [testBuiltDirectory, singleTestBuiltDirectory, test, outputOutputBaseline, tsidlCliTarget];
             var fails: boolean = !fs.existsSync(outputHeaderBaseline);
 
+            jake.cpR(outputOutputBuilt, outputOutputBaseline);
+
             if (!fails) {
-                dependencies.push(outputHeaderBaseline, outputSourceBaseline);
+                jake.cpR(outputHeaderBuilt, outputHeaderBaseline);
+                jake.cpR(outputSourceBuilt, outputSourceBaseline);
             }
-
-            desc("Test " + filename);
-            file(outputOutputBuilt, dependencies, () => {
-                var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --header " + outputHeaderBuilt + " --source " + outputSourceBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
-
-                jake.exec([command], () => {
-                    var outputBaseline: string = <any>fs.readFileSync(outputOutputBaseline, { encoding: "utf8" });
-                    var outputBuilt: string = <any>fs.readFileSync(outputOutputBuilt, { encoding: "utf8" });
-
-                    if (outputBaseline != outputBuilt) {
-                        testResult(singleTestDirectoryBase, false);
-                    } else if (!fails) {
-                        var baselineHeader: string = <any>fs.readFileSync(outputHeaderBaseline, { encoding: "utf8" });
-                        var resultHeader: string = <any>fs.readFileSync(outputHeaderBuilt, { encoding: "utf8" });
-                        var baselineSource: string = <any>fs.readFileSync(outputSourceBaseline, { encoding: "utf8" });
-                        var resultSource: string = <any>fs.readFileSync(outputSourceBuilt, { encoding: "utf8" });
-                        testResult(singleTestDirectoryBase, (baselineHeader === resultHeader) && (baselineSource === resultSource));
-                    } else {
-                        testResult(singleTestDirectoryBase, !fs.existsSync(outputHeaderBuilt));
-                    }
-                }, { windowsVerbatimArguments: true, breakOnError: false });
-            }, { async: true });
-
-            tests.push(outputOutputBuilt);
-        });
-    }
-});
-
-desc("Updates the test baselines.");
-task("update-baselines", ["test"], () => {
-    fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
-        var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
-        var stats: fs.Stats = fs.statSync(singleTestDirectory);
-
-        if (stats.isDirectory()) {
-            fs.readdirSync(singleTestDirectory).forEach((filename: string) => {
-                if (!ts.isTsFile(filename)) {
-                    return;
-                }
-
-                var singleTestBuiltDirectory = testBuiltDirectory + singleTestDirectoryBase + "/";
-                var outputBase: string = filename.substr(0, filename.length - 3);
-
-                if ((/\.d$/i).test(outputBase)) {
-                    outputBase = outputBase.substring(0, outputBase.length - 2);
-                }
-
-                var outputHeader: string = outputBase + ".proxy.h";
-                var outputSource: string = outputBase + ".proxy.cpp";
-                var outputOutput: string = outputBase + ".output";
-
-                var outputHeaderBaseline: string = singleTestDirectory + outputHeader;
-                var outputHeaderBuilt: string = singleTestBuiltDirectory + outputHeader;
-                var outputSourceBaseline: string = singleTestDirectory + outputSource;
-                var outputSourceBuilt: string = singleTestBuiltDirectory + outputSource;
-                var outputOutputBaseline: string = singleTestDirectory + outputOutput;
-                var outputOutputBuilt: string = singleTestBuiltDirectory + outputOutput;
-
-                var fails: boolean = !fs.existsSync(outputHeaderBaseline);
-
-                jake.cpR(outputOutputBuilt, outputOutputBaseline);
-
-                if (!fails) {
-                    jake.cpR(outputHeaderBuilt, outputHeaderBaseline);
-                    jake.cpR(outputSourceBuilt, outputSourceBaseline);
-                }
-            });
         }
     });
 });
