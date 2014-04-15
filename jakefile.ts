@@ -35,6 +35,11 @@ function compileOptions(): ts.BatchCompileOptions {
     return options;
 }
 
+var switchToBackwardSlashesRegEx = /\//g;
+function switchToBackwardSlashes(path: string): string {
+    return path.replace(switchToBackwardSlashesRegEx, "\\");
+}
+
 function testResult(filename: string, value: boolean): void {
     console.log("test " + filename + ": " + (value ? "PASSED".green : "FAILED".red));
     complete(value);
@@ -131,6 +136,67 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
     }
 });
 
+desc("Tests the output.");
+task("test", tests, () => {
+    (tests.every(t => {
+        var task: jake.Task = jake.Task[t];
+        return task.value === undefined || task.value === true;
+    })) ? complete() : fail();
+});
+
+var integrationTests: string[] = [];
+fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
+    var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
+    var filename: string = singleTestDirectoryBase + ".sln";
+    var test: string = singleTestDirectory + filename;
+    var stats: fs.Stats = fs.statSync(singleTestDirectory);
+
+    if (stats.isDirectory() && fs.existsSync(test)) {
+        var singleTestBuiltDirectory = testBuiltDirectory + singleTestDirectoryBase + "/";
+
+        var testScript: string = singleTestDirectory + singleTestDirectoryBase + ".js";
+
+        var outputBuild: string = singleTestDirectoryBase + ".msbuild.output";
+        var outputRun: string = singleTestDirectoryBase + ".harness.output";
+
+        var outputBuildBaseline: string = singleTestDirectory + outputBuild;
+        var outputBuildBuilt: string = singleTestBuiltDirectory + outputBuild;
+        var outputRunBaseline: string = singleTestDirectory + outputRun;
+        var outputRunBuilt: string = singleTestBuiltDirectory + outputRun;
+
+        directory(singleTestBuiltDirectory);
+
+        var dependencies: string[] = [testBuiltDirectory, singleTestBuiltDirectory, test, outputBuildBaseline, outputRunBaseline];
+
+        desc("Build " + test);
+        file(outputBuildBuilt, dependencies, () => {
+            var buildCommand: string = "cmd /c \"cd " + process.cwd() + " && msbuild " + test + " /p:Configuration=Release /verbosity:m 1> " + outputBuildBuilt + " 2>&1\"";
+            var runCommand: string = "cmd /c \"cd " + process.cwd() + " && " + switchToBackwardSlashes(singleTestBuiltDirectory) + "Release\\" + singleTestDirectoryBase + " " + testScript + " 1> " + outputRunBuilt + " 2>&1\"";
+
+            jake.exec([buildCommand, runCommand], () => {
+                var baselineBuild: string = <any>fs.readFileSync(outputBuildBaseline, { encoding: "utf8" });
+                var resultBuild: string = <any>fs.readFileSync(outputBuildBuilt, { encoding: "utf8" });
+                var baselineRun: string = <any>fs.readFileSync(outputRunBaseline, { encoding: "utf8" });
+                var resultRun: string = <any>fs.readFileSync(outputRunBuilt, { encoding: "utf8" });
+                testResult(singleTestDirectoryBase, (baselineBuild === resultBuild) && (baselineRun === resultRun));
+            }, { windowsVerbatimArguments: true, breakOnError: false });
+        }, { async: true });
+
+        desc("Test " + filename);
+        var testTaskName: string = "test-integration-" + filename;
+        task(testTaskName, [outputBuildBuilt]);
+        integrationTests.push(testTaskName);
+    }
+});
+
+desc("Tests integration with C++.");
+task("test-integration", integrationTests, () => {
+    (integrationTests.every(t => {
+        var task: jake.Task = jake.Task[t];
+        return task.value === undefined || task.value === true;
+    })) ? complete() : fail();
+});
+
 desc("Updates the test baselines.");
 task("update-baselines", ["test"], () => {
     fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
@@ -168,14 +234,6 @@ task("update-baselines", ["test"], () => {
             }
         }
     });
-});
-
-desc("Tests the output.");
-task("test", tests, () => {
-    (tests.every(t => {
-        var task: jake.Task = jake.Task[t];
-        return task.value === undefined || task.value === true;
-    })) ? complete() : fail();
 });
 
 task("default", ["release", "test"]);
