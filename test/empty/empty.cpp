@@ -1,5 +1,9 @@
-int wmain(int argc, const wchar_t *argv[])
-{
-	return 0;
-}
+#include <sdkddkver.h>
+#include <windows.h>
+#include <jsrt.h>
+#include "empty.proxy.h"
 
+JsErrorCode DefineGlobals()
+{
+    return JsNoError;
+}

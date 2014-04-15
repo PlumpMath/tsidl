@@ -1,6 +1,7 @@
 # Various output
 jakefile.js
 *.sdf
+*.opensdf
 *.suo
 built/
 debug/

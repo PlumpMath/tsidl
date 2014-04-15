@@ -126,7 +126,7 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
 
         desc("Test " + filename);
         var testTaskName: string = "test-" + filename;
-        var testTask: jake.Task = task(testTaskName, [outputOutputBuilt]);
+        task(testTaskName, [outputOutputBuilt]);
         tests.push(testTaskName);
     }
 });
