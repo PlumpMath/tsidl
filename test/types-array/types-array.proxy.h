@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace types-array
+namespace types_array
 {
     jsrt::array<double> x();
     void set_x(jsrt::array<double> value);
@@ -22,4 +22,4 @@ namespace types-array
     };
     c c();
     void set_c(c value);
-} // namespace types-array
+} // namespace types_array

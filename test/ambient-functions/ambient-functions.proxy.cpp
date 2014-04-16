@@ -1,8 +1,8 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "ambient-functions_proxy.h"
+#include "ambient_functions_proxy.h"
 
-namespace ambient-functions
+namespace ambient_functions
 {
     jsrt::function<jsrt::object> a()
     {
@@ -44,4 +44,4 @@ namespace ambient-functions
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"e"), value);
     }
-} // namespace ambient-functions
+} // namespace ambient_functions

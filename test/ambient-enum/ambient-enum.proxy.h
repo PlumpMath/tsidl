@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace ambient-enum
+namespace ambient_enum
 {
     enum a
     {
@@ -13,4 +13,4 @@ namespace ambient-enum
         b = 5,
         c,
     }
-} // namespace ambient-enum
+} // namespace ambient_enum

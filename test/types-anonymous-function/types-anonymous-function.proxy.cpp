@@ -1,8 +1,8 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types-anonymous-function_proxy.h"
+#include "types_anonymous_function_proxy.h"
 
-namespace types-anonymous-function
+namespace types_anonymous_function
 {
     jsrt::function<bool, double> x()
     {
@@ -36,4 +36,4 @@ namespace types-anonymous-function
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
-} // namespace types-anonymous-function
+} // namespace types_anonymous_function

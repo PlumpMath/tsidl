@@ -1,8 +1,8 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types-primitive_proxy.h"
+#include "types_primitive_proxy.h"
 
-namespace types-primitive
+namespace types_primitive
 {
     bool x()
     {
@@ -44,4 +44,4 @@ namespace types-primitive
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
-} // namespace types-primitive
+} // namespace types_primitive

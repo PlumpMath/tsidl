@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace top-level
+namespace top_level
 {
     double x();
     void set_x(double value);
@@ -35,4 +35,4 @@ namespace top-level
     enum c
     {
     }
-} // namespace top-level
+} // namespace top_level

@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace types-self-reference
+namespace types_self_reference
 {
     class a: public jsrt::object
     {
@@ -40,4 +40,4 @@ namespace types-self-reference
     void set_b(a value);
     e f();
     void set_f(e value);
-} // namespace types-self-reference
+} // namespace types_self_reference

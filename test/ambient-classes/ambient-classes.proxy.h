@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace ambient-classes
+namespace ambient_classes
 {
     class a: public jsrt::object
     {
@@ -44,4 +44,4 @@ namespace ambient-classes
     };
     d d();
     void set_d(d value);
-} // namespace ambient-classes
+} // namespace ambient_classes

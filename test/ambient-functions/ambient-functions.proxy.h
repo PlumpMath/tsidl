@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace ambient-functions
+namespace ambient_functions
 {
     jsrt::function<jsrt::object> a();
     void set_a(jsrt::function<jsrt::object> value);
@@ -14,4 +14,4 @@ namespace ambient-functions
     void set_d(jsrt::function<double, double, jsrt::optional<jsrt::array<double>>> value);
     jsrt::function<void> e();
     void set_e(jsrt::function<void> value);
-} // namespace ambient-functions
+} // namespace ambient_functions

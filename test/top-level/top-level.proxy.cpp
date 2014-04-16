@@ -1,8 +1,8 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "top-level_proxy.h"
+#include "top_level_proxy.h"
 
-namespace top-level
+namespace top_level
 {
     double x()
     {
@@ -68,4 +68,4 @@ namespace top-level
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
-} // namespace top-level
+} // namespace top_level

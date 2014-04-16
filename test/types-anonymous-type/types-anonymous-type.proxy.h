@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace types-anonymous-type
+namespace types_anonymous_type
 {
     jsrt::object x();
     void set_x(jsrt::object value);
@@ -10,4 +10,4 @@ namespace types-anonymous-type
     void set_z(jsrt::function<void> value);
     jsrt::function<double> a();
     void set_a(jsrt::function<double> value);
-} // namespace types-anonymous-type
+} // namespace types_anonymous_type

@@ -1,8 +1,8 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types-array_proxy.h"
+#include "types_array_proxy.h"
 
-namespace types-array
+namespace types_array
 {
     jsrt::array<double> x()
     {
@@ -60,4 +60,4 @@ namespace types-array
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
-} // namespace types-array
+} // namespace types_array

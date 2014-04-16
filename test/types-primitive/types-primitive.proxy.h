@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace types-primitive
+namespace types_primitive
 {
     bool x();
     void set_x(bool value);
@@ -14,4 +14,4 @@ namespace types-primitive
     void set_a(jsrt::object value);
     jsrt::object b();
     void set_b(jsrt::object value);
-} // namespace types-primitive
+} // namespace types_primitive

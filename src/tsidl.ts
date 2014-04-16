@@ -930,6 +930,8 @@ function main(): void {
         baseName = baseName.substring(0, baseName.length - 2);
     }
 
+    baseName = baseName.replace(/-/g, "_");
+
     var headerFileName: string = cmdLine.header || baseName + ".proxy.h";
     var sourceFileName: string = cmdLine.source || baseName + ".proxy.cpp";
 

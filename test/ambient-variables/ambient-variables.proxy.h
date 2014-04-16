@@ -2,7 +2,7 @@
 
 #include "jsrt.wrappers.h"
 
-namespace ambient-variables
+namespace ambient_variables
 {
     bool a();
     void set_a(bool value);
@@ -41,4 +41,4 @@ namespace ambient-variables
         z();
         explicit z(jsrt::object object);
     };
-} // namespace ambient-variables
+} // namespace ambient_variables

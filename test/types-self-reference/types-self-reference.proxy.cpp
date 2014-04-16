@@ -1,8 +1,8 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types-self-reference_proxy.h"
+#include "types_self_reference_proxy.h"
 
-namespace types-self-reference
+namespace types_self_reference
 {
     a::a() :
         jsrt::object()
@@ -84,4 +84,4 @@ namespace types-self-reference
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"f"), value);
     }
-} // namespace types-self-reference
+} // namespace types_self_reference

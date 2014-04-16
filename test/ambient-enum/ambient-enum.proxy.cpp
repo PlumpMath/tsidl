@@ -1,7 +1,7 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "ambient-enum_proxy.h"
+#include "ambient_enum_proxy.h"
 
-namespace ambient-enum
+namespace ambient_enum
 {
-} // namespace ambient-enum
+} // namespace ambient_enum
