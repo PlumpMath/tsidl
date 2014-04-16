@@ -12,11 +12,11 @@ namespace types_self_reference
         jsrt::object(object.handle())
     {
     }
-    a_proxy a()
+    jsrt::function<a_proxy> a()
     {
-        return jsrt::context::global().get_property<a_proxy>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<jsrt::function<a_proxy>>(jsrt::property_id::create(L"a"));
     }
-    void set_a(a_proxy value)
+    void set_a(jsrt::function<a_proxy> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
@@ -44,11 +44,11 @@ namespace types_self_reference
         jsrt::object(object.handle())
     {
     }
-    c_proxy::d_proxy::e_proxy e()
+    jsrt::function<c_proxy::d_proxy::e_proxy> e()
     {
-        return get_property<c_proxy::d_proxy::e_proxy>(jsrt::property_id::create(L"e"));
+        return get_property<jsrt::function<c_proxy::d_proxy::e_proxy>>(jsrt::property_id::create(L"e"));
     }
-    void set_e(c_proxy::d_proxy::e_proxy value)
+    void set_e(jsrt::function<c_proxy::d_proxy::e_proxy> value)
     {
         set_property(jsrt::property_id::create(L"e"), value);
     }

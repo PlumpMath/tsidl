@@ -52,11 +52,11 @@ namespace types_array
         jsrt::object(object.handle())
     {
     }
-    c_proxy c()
+    jsrt::function<c_proxy> c()
     {
-        return jsrt::context::global().get_property<c_proxy>(jsrt::property_id::create(L"c"));
+        return jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c"));
     }
-    void set_c(c_proxy value)
+    void set_c(jsrt::function<c_proxy> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }

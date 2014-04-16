@@ -331,24 +331,24 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     return typeString;
 }
 
-function writeField(container: TypeScript.PullTypeSymbol, field: TypeScript.PullSymbol, outputWriter: OutputWriter): void {
-    var typeName: string = typeStringNative(container, field.type);
+function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
+    var typeName: string = typeStringNative(container, type);
     var global: string = container ? "" : "jsrt::context::global().";
 
-    outputWriter.writeLineHeader(typeName + " " + field.name + "();");
-    outputWriter.writeLineHeader("void set_" + field.name + "(" + typeName + " value);");
+    outputWriter.writeLineHeader(typeName + " " + name + "();");
+    outputWriter.writeLineHeader("void set_" + name + "(" + typeName + " value);");
 
-    outputWriter.writeLineSource(typeName + " " + field.name + "()");
+    outputWriter.writeLineSource(typeName + " " + name + "()");
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
-    outputWriter.writeLineSource("return " + global + "get_property<" + typeName + ">(jsrt::property_id::create(L\"" + field.name + "\"));");
+    outputWriter.writeLineSource("return " + global + "get_property<" + typeName + ">(jsrt::property_id::create(L\"" + name + "\"));");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 
-    outputWriter.writeLineSource("void set_" + field.name + "(" + typeName + " value)");
+    outputWriter.writeLineSource("void set_" + name + "(" + typeName + " value)");
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
-    outputWriter.writeLineSource(global + "set_property(jsrt::property_id::create(L\"" + field.name + "\"), value);");
+    outputWriter.writeLineSource(global + "set_property(jsrt::property_id::create(L\"" + name + "\"), value);");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 }
@@ -445,7 +445,7 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
         case TypeScript.PullElementKind.Variable:
         case TypeScript.PullElementKind.Property:
         case TypeScript.PullElementKind.Method:
-            writeField(container, member, outputWriter);
+            writeField(container, member.name, member.type, outputWriter);
             break;
 
         case TypeScript.PullElementKind.Interface:
@@ -458,12 +458,12 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
 
         case TypeScript.PullElementKind.Class:
             writeType(member.type, outputWriter);
-            writeField(container, member, outputWriter);
+            writeField(container, member.name, member.type.getConstructorMethod().type, outputWriter);
             break;
 
         case TypeScript.PullElementKind.Container:
             writeContainer(member.getDeclarations()[0], outputWriter);
-            writeField(container, member, outputWriter);
+            writeField(container, member.name, member.type, outputWriter);
             break;
 
         case TypeScript.PullElementKind.EnumMember:

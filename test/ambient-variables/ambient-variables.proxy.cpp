@@ -92,11 +92,11 @@ namespace ambient_variables
         jsrt::object(object.handle())
     {
     }
-    x_proxy x()
+    jsrt::function<x_proxy> x()
     {
-        return jsrt::context::global().get_property<x_proxy>(jsrt::property_id::create(L"x"));
+        return jsrt::context::global().get_property<jsrt::function<x_proxy>>(jsrt::property_id::create(L"x"));
     }
-    void set_x(x_proxy value)
+    void set_x(jsrt::function<x_proxy> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"x"), value);
     }

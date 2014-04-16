@@ -20,6 +20,6 @@ namespace types_array
         c_proxy();
         explicit c_proxy(jsrt::object object);
     };
-    c_proxy c();
-    void set_c(c_proxy value);
+    jsrt::function<c_proxy> c();
+    void set_c(jsrt::function<c_proxy> value);
 } // namespace types_array

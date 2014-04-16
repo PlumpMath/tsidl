@@ -10,8 +10,8 @@ namespace types_self_reference
         a_proxy();
         explicit a_proxy(jsrt::object object);
     };
-    a_proxy a();
-    void set_a(a_proxy value);
+    jsrt::function<a_proxy> a();
+    void set_a(jsrt::function<a_proxy> value);
     class c_proxy: public jsrt::object
     {
     public:
@@ -28,8 +28,8 @@ namespace types_self_reference
                 e_proxy();
                 explicit e_proxy(jsrt::object object);
             };
-            c_proxy::d_proxy::e_proxy e();
-            void set_e(c_proxy::d_proxy::e_proxy value);
+            jsrt::function<c_proxy::d_proxy::e_proxy> e();
+            void set_e(jsrt::function<c_proxy::d_proxy::e_proxy> value);
         }
         c_proxy::d_proxy d();
         void set_d(c_proxy::d_proxy value);

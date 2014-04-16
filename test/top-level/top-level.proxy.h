@@ -22,8 +22,8 @@ namespace top_level
         a_proxy();
         explicit a_proxy(jsrt::object object);
     };
-    a_proxy a();
-    void set_a(a_proxy value);
+    jsrt::function<a_proxy> a();
+    void set_a(jsrt::function<a_proxy> value);
     class b_proxy: public jsrt::object
     {
     public:

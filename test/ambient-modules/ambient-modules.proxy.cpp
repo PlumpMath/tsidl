@@ -20,11 +20,11 @@ namespace ambient_modules
         jsrt::object(object.handle())
     {
     }
-    a_proxy::g_proxy g()
+    jsrt::function<a_proxy::g_proxy> g()
     {
-        return get_property<a_proxy::g_proxy>(jsrt::property_id::create(L"g"));
+        return get_property<jsrt::function<a_proxy::g_proxy>>(jsrt::property_id::create(L"g"));
     }
-    void set_g(a_proxy::g_proxy value)
+    void set_g(jsrt::function<a_proxy::g_proxy> value)
     {
         set_property(jsrt::property_id::create(L"g"), value);
     }
@@ -84,11 +84,11 @@ namespace ambient_modules
         jsrt::object(object.handle())
     {
     }
-    b_proxy::c_proxy::d_proxy::z_proxy z()
+    jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> z()
     {
-        return get_property<b_proxy::c_proxy::d_proxy::z_proxy>(jsrt::property_id::create(L"z"));
+        return get_property<jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy>>(jsrt::property_id::create(L"z"));
     }
-    void set_z(b_proxy::c_proxy::d_proxy::z_proxy value)
+    void set_z(jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> value)
     {
         set_property(jsrt::property_id::create(L"z"), value);
     }
@@ -116,11 +116,11 @@ namespace ambient_modules
         jsrt::object(object.handle())
     {
     }
-    b_proxy::c_proxy::d_proxy::c_proxy::d_proxy d()
+    jsrt::function<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> d()
     {
-        return get_property<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy>(jsrt::property_id::create(L"d"));
+        return get_property<jsrt::function<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy>>(jsrt::property_id::create(L"d"));
     }
-    void set_d(b_proxy::c_proxy::d_proxy::c_proxy::d_proxy value)
+    void set_d(jsrt::function<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> value)
     {
         set_property(jsrt::property_id::create(L"d"), value);
     }
