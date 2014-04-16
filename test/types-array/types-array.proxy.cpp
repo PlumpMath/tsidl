@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types_array_proxy.h"
+#include "types_array.proxy.h"
 
 namespace types_array
 {

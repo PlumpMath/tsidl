@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "ambient_modules_proxy.h"
+#include "ambient_modules.proxy.h"
 
 namespace ambient_modules
 {

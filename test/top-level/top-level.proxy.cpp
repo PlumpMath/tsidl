@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "top_level_proxy.h"
+#include "top_level.proxy.h"
 
 namespace top_level
 {

@@ -4,6 +4,7 @@
 #include <string>
 
 extern JsErrorCode DefineGlobals();
+extern void ProcessResult(JsValueRef result);
 
 #define IfFailError(v, e) \
     { \
@@ -119,6 +120,7 @@ int _cdecl wmain(int argc, wchar_t *argv[])
         else
         {
             IfFailError(errorCode, L"failed to run script.");
+            ProcessResult(result);
         }
 
         IfFailError(JsSetCurrentContext(JS_INVALID_REFERENCE), L"failed to cleanup current context.");

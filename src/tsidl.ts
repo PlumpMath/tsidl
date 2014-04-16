@@ -539,6 +539,7 @@ function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter
 function writePrologue(baseName: string, outputWriter: OutputWriter): void {
     outputWriter.writeLineHeader("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineHeader();
+    outputWriter.writeLineHeader("#include <jsrt.h>");
     outputWriter.writeLineHeader("#include \"jsrt.wrappers.h\"");
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("namespace " + baseName);
@@ -547,7 +548,7 @@ function writePrologue(baseName: string, outputWriter: OutputWriter): void {
 
     outputWriter.writeLineSource("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineSource();
-    outputWriter.writeLineSource("#include \"" + baseName + "_proxy.h\"");
+    outputWriter.writeLineSource("#include \"" + baseName + ".proxy.h\"");
     outputWriter.writeLineSource();
     outputWriter.writeLineSource("namespace " + baseName);
     outputWriter.writeLineSource("{");

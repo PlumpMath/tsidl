@@ -959,7 +959,7 @@ namespace jsrt
         template<class T>
         static JsErrorCode to_native(JsValueRef value, T *result)
         {
-            *result = T(value);
+            *result = T(object(value));
             return JsNoError;
         }
 

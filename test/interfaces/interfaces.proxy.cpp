@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "interfaces_proxy.h"
+#include "interfaces.proxy.h"
 
 namespace interfaces
 {

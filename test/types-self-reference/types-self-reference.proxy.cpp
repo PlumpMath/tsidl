@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types_self_reference_proxy.h"
+#include "types_self_reference.proxy.h"
 
 namespace types_self_reference
 {

@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "empty_proxy.h"
+#include "empty.proxy.h"
 
 namespace empty
 {
