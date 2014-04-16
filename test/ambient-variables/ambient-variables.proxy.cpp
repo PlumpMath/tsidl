@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "ambient_variables.proxy.h"
+#include "ambient-variables.proxy.h"
 
 namespace ambient_variables
 {
@@ -89,7 +89,7 @@ namespace ambient_variables
     {
     }
     x_proxy::x_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     jsrt::function<x_proxy> x()
@@ -105,7 +105,7 @@ namespace ambient_variables
     {
     }
     z_proxy::z_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
 } // namespace ambient_variables

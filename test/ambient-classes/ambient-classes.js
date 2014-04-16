@@ -1,3 +1,5 @@
+// Test script
+
 a = function(a) {
     this.x = a;
 }

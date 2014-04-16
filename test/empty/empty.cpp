@@ -8,7 +8,7 @@ JsErrorCode DefineGlobals()
     return JsNoError;
 }
 
-void ProcessResult(JsValueRef result)
+bool ProcessResult(JsValueRef result)
 {
-
+    return true;
 }

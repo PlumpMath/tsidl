@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types_anonymous_type.proxy.h"
+#include "types-anonymous-type.proxy.h"
 
 namespace types_anonymous_type
 {

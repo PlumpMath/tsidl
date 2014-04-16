@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types_array.proxy.h"
+#include "types-array.proxy.h"
 
 namespace types_array
 {
@@ -49,7 +49,7 @@ namespace types_array
     {
     }
     c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     jsrt::function<c_proxy> c()

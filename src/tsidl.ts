@@ -332,20 +332,21 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 }
 
 function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
-    var typeName: string = typeStringNative(container, type);
+    var fieldType: string = typeStringNative(container, type);
+    var classQualifier: string = container ? container.name + "_proxy::" : "";
     var global: string = container ? "" : "jsrt::context::global().";
 
-    outputWriter.writeLineHeader(typeName + " " + name + "();");
-    outputWriter.writeLineHeader("void set_" + name + "(" + typeName + " value);");
+    outputWriter.writeLineHeader(fieldType + " " + name + "();");
+    outputWriter.writeLineHeader("void set_" + name + "(" + fieldType + " value);");
 
-    outputWriter.writeLineSource(typeName + " " + name + "()");
+    outputWriter.writeLineSource(fieldType + " " + classQualifier + name + "()");
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
-    outputWriter.writeLineSource("return " + global + "get_property<" + typeName + ">(jsrt::property_id::create(L\"" + name + "\"));");
+    outputWriter.writeLineSource("return " + global + "get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\"));");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 
-    outputWriter.writeLineSource("void set_" + name + "(" + typeName + " value)");
+    outputWriter.writeLineSource("void " + classQualifier + "set_" + name + "(" + fieldType + " value)");
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
     outputWriter.writeLineSource(global + "set_property(jsrt::property_id::create(L\"" + name + "\"), value);");
@@ -364,11 +365,11 @@ function writeTypeImplements(typeName: string, baseName: string, implementsList:
 
         outputWriter.writeLineSource(typeName + "::" + typeName + "(" + implementedTypeName + " value) :");
         outputWriter.indentSource();
-        outputWriter.writeLineSource("" + baseName + "(value.handle()) {");
+        outputWriter.writeLineSource("" + baseName + "(value)");
         outputWriter.outdentSource();
         outputWriter.writeLineSource("{");
         outputWriter.writeLineSource("}");
-        outputWriter.writeLineSource("operator " + implementedTypeName + "()");
+        outputWriter.writeLineSource(typeName + "::" + "operator " + implementedTypeName + "()");
         outputWriter.writeLineSource("{");
         outputWriter.indentSource();
         outputWriter.writeLineSource("return " + implementedTypeName + "(*this);");
@@ -493,7 +494,7 @@ function writeClass(typeName: string, baseName: string, outputWriter: OutputWrit
 
     outputWriter.writeLineSource(typeName + "::" + typeName + "(" + baseName + " object) :");
     outputWriter.indentSource();
-    outputWriter.writeLineSource("" + baseName + "(object.handle())");
+    outputWriter.writeLineSource("" + baseName + "(object)");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("{");
     outputWriter.writeLineSource("}");
@@ -536,13 +537,19 @@ function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter
     writeContainer(document.topLevelDecl(), outputWriter);
 }
 
+function cleanName(name: string): string {
+    return name.replace(/-/g, "_");
+}
+
 function writePrologue(baseName: string, outputWriter: OutputWriter): void {
+    var namespaceName: string = cleanName(baseName);
+
     outputWriter.writeLineHeader("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("#include <jsrt.h>");
     outputWriter.writeLineHeader("#include \"jsrt.wrappers.h\"");
     outputWriter.writeLineHeader();
-    outputWriter.writeLineHeader("namespace " + baseName);
+    outputWriter.writeLineHeader("namespace " + namespaceName);
     outputWriter.writeLineHeader("{");
     outputWriter.indentHeader();
 
@@ -550,17 +557,19 @@ function writePrologue(baseName: string, outputWriter: OutputWriter): void {
     outputWriter.writeLineSource();
     outputWriter.writeLineSource("#include \"" + baseName + ".proxy.h\"");
     outputWriter.writeLineSource();
-    outputWriter.writeLineSource("namespace " + baseName);
+    outputWriter.writeLineSource("namespace " + namespaceName);
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
 }
 
 function writeEpilogue(baseName: string, outputWriter: OutputWriter): void {
+    var namespaceName: string = cleanName(baseName);
+
     outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("} // namespace " + baseName);
+    outputWriter.writeLineHeader("} // namespace " + namespaceName);
 
     outputWriter.outdentSource();
-    outputWriter.writeLineSource("} // namespace " + baseName);
+    outputWriter.writeLineSource("} // namespace " + namespaceName);
 }
 
 function checkTypeReference(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
@@ -930,8 +939,6 @@ function main(): void {
     if ((/\.d$/i).test(baseName)) {
         baseName = baseName.substring(0, baseName.length - 2);
     }
-
-    baseName = baseName.replace(/-/g, "_");
 
     var headerFileName: string = cmdLine.header || baseName + ".proxy.h";
     var sourceFileName: string = cmdLine.source || baseName + ".proxy.cpp";

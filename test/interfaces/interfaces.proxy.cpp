@@ -9,7 +9,7 @@ namespace interfaces
     {
     }
     a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     b_proxy::b_proxy() :
@@ -17,7 +17,7 @@ namespace interfaces
     {
     }
     b_proxy::b_proxy(a_proxy object) :
-        a_proxy(object.handle())
+        a_proxy(object)
     {
     }
     c_proxy::c_proxy() :
@@ -25,46 +25,46 @@ namespace interfaces
     {
     }
     c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
-    double x()
+    double c_proxy::x()
     {
         return get_property<double>(jsrt::property_id::create(L"x"));
     }
-    void set_x(double value)
+    void c_proxy::set_x(double value)
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    double y()
+    double c_proxy::y()
     {
         return get_property<double>(jsrt::property_id::create(L"y"));
     }
-    void set_y(double value)
+    void c_proxy::set_y(double value)
     {
         set_property(jsrt::property_id::create(L"y"), value);
     }
-    std::wstring abc()
+    std::wstring c_proxy::abc()
     {
         return get_property<std::wstring>(jsrt::property_id::create(L"abc"));
     }
-    void set_abc(std::wstring value)
+    void c_proxy::set_abc(std::wstring value)
     {
         set_property(jsrt::property_id::create(L"abc"), value);
     }
-    double 0()
+    double c_proxy::0()
     {
         return get_property<double>(jsrt::property_id::create(L"0"));
     }
-    void set_0(double value)
+    void c_proxy::set_0(double value)
     {
         set_property(jsrt::property_id::create(L"0"), value);
     }
-    jsrt::function<double, double> b()
+    jsrt::function<double, double> c_proxy::b()
     {
         return get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"b"));
     }
-    void set_b(jsrt::function<double, double> value)
+    void c_proxy::set_b(jsrt::function<double, double> value)
     {
         set_property(jsrt::property_id::create(L"b"), value);
     }
@@ -73,7 +73,7 @@ namespace interfaces
     {
     }
     d_proxy::d_proxy(jsrt::function<std::wstring, std::wstring> object) :
-        jsrt::function<std::wstring, std::wstring>(object.handle())
+        jsrt::function<std::wstring, std::wstring>(object)
     {
     }
     d_proxy::d_proxy(Signature signature) :
@@ -85,7 +85,7 @@ namespace interfaces
     {
     }
     e_proxy::e_proxy(jsrt::function<std::wstring, std::wstring> object) :
-        jsrt::function<std::wstring, std::wstring>(object.handle())
+        jsrt::function<std::wstring, std::wstring>(object)
     {
     }
     e_proxy::e_proxy(Signature signature) :
@@ -97,7 +97,7 @@ namespace interfaces
     {
     }
     f_proxy::f_proxy(d_proxy object) :
-        d_proxy(object.handle())
+        d_proxy(object)
     {
     }
 } // namespace interfaces

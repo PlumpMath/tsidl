@@ -169,9 +169,9 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
         var dependencies: string[] = [testBuiltDirectory, singleTestBuiltDirectory, test, outputBuildBaseline, outputRunBaseline];
 
         desc("Build " + test);
-        file(outputBuildBuilt, dependencies, () => {
-            var buildCommand: string = "cmd /c \"cd " + process.cwd() + " && msbuild " + test + " /p:Configuration=Release /verbosity:m 1> " + outputBuildBuilt + " 2>&1\"";
-            var runCommand: string = "cmd /c \"cd " + process.cwd() + " && " + switchToBackwardSlashes(singleTestBuiltDirectory) + "Release\\" + singleTestDirectoryBase + " " + testScript + " 1> " + outputRunBuilt + " 2>&1\"";
+        task(outputBuildBuilt, dependencies, () => {
+            var buildCommand: string = "cmd /c \"cd " + process.cwd() + " && msbuild " + test + " /p:Configuration=Release /p:Platform=x64 /verbosity:m 1> " + outputBuildBuilt + " 2>&1\"";
+            var runCommand: string = "cmd /c \"cd " + process.cwd() + " && " + switchToBackwardSlashes(singleTestBuiltDirectory) + "\\x64\\Release\\" + singleTestDirectoryBase + " " + testScript + " 1> " + outputRunBuilt + " 2>&1\"";
 
             jake.exec([buildCommand, runCommand], () => {
                 var baselineBuild: string = <any>fs.readFileSync(outputBuildBaseline, { encoding: "utf8" });

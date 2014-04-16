@@ -3,6 +3,7 @@ jakefile.js
 *.sdf
 *.opensdf
 *.suo
+*.user
 built/
 debug/
 release/

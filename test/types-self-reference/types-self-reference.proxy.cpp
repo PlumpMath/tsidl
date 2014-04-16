@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types_self_reference.proxy.h"
+#include "types-self-reference.proxy.h"
 
 namespace types_self_reference
 {
@@ -9,7 +9,7 @@ namespace types_self_reference
     {
     }
     a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     jsrt::function<a_proxy> a()
@@ -25,7 +25,7 @@ namespace types_self_reference
     {
     }
     c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     d_proxy::d_proxy() :
@@ -33,7 +33,7 @@ namespace types_self_reference
     {
     }
     d_proxy::d_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     e_proxy::e_proxy() :
@@ -41,22 +41,22 @@ namespace types_self_reference
     {
     }
     e_proxy::e_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
-    jsrt::function<c_proxy::d_proxy::e_proxy> e()
+    jsrt::function<c_proxy::d_proxy::e_proxy> d_proxy::e()
     {
         return get_property<jsrt::function<c_proxy::d_proxy::e_proxy>>(jsrt::property_id::create(L"e"));
     }
-    void set_e(jsrt::function<c_proxy::d_proxy::e_proxy> value)
+    void d_proxy::set_e(jsrt::function<c_proxy::d_proxy::e_proxy> value)
     {
         set_property(jsrt::property_id::create(L"e"), value);
     }
-    c_proxy::d_proxy d()
+    c_proxy::d_proxy c_proxy::d()
     {
         return get_property<c_proxy::d_proxy>(jsrt::property_id::create(L"d"));
     }
-    void set_d(c_proxy::d_proxy value)
+    void c_proxy::set_d(c_proxy::d_proxy value)
     {
         set_property(jsrt::property_id::create(L"d"), value);
     }

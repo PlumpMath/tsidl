@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "ambient_classes.proxy.h"
+#include "ambient-classes.proxy.h"
 
 namespace ambient_classes
 {
@@ -9,22 +9,22 @@ namespace ambient_classes
     {
     }
     a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
-    double x()
+    double a_proxy::x()
     {
         return get_property<double>(jsrt::property_id::create(L"x"));
     }
-    void set_x(double value)
+    void a_proxy::set_x(double value)
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    jsrt::function<double, double> y()
+    jsrt::function<double, double> a_proxy::y()
     {
         return get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"y"));
     }
-    void set_y(jsrt::function<double, double> value)
+    void a_proxy::set_y(jsrt::function<double, double> value)
     {
         set_property(jsrt::property_id::create(L"y"), value);
     }
@@ -41,14 +41,14 @@ namespace ambient_classes
     {
     }
     b_proxy::b_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
-    double x()
+    double b_proxy::x()
     {
         return get_property<double>(jsrt::property_id::create(L"x"));
     }
-    void set_x(double value)
+    void b_proxy::set_x(double value)
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
@@ -57,22 +57,22 @@ namespace ambient_classes
     {
     }
     c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     c_proxy::c_proxy(b_proxy value) :
-        jsrt::object(value.handle()) {
+        jsrt::object(value)
     {
     }
-    operator b_proxy()
+    c_proxy::operator b_proxy()
     {
         return b_proxy(*this);
     }
-    double x()
+    double c_proxy::x()
     {
         return get_property<double>(jsrt::property_id::create(L"x"));
     }
-    void set_x(double value)
+    void c_proxy::set_x(double value)
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
@@ -89,7 +89,7 @@ namespace ambient_classes
     {
     }
     d_proxy::d_proxy(c_proxy object) :
-        c_proxy(object.handle())
+        c_proxy(object)
     {
     }
     jsrt::function<d_proxy> d()

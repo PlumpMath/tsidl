@@ -4,6 +4,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
   Harness.cpp
   empty.cpp
+  empty.proxy.cpp
   Generating code
   Finished generating code
-  empty.vcxproj -> C:\Users\paulv\source\repos\tsidl\test\empty\\..\..\built\test\empty\Release\empty.exe
+  empty.vcxproj -> C:\Users\paulv\source\repos\tsidl\test\empty\\..\..\built\test\empty\x64\Release\empty.exe

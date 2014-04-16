@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "top_level.proxy.h"
+#include "top-level.proxy.h"
 
 namespace top_level
 {
@@ -33,7 +33,7 @@ namespace top_level
     {
     }
     z_proxy::z_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     a_proxy::a_proxy() :
@@ -41,7 +41,7 @@ namespace top_level
     {
     }
     a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     jsrt::function<a_proxy> a()
@@ -57,7 +57,7 @@ namespace top_level
     {
     }
     b_proxy::b_proxy(jsrt::object object) :
-        jsrt::object(object.handle())
+        jsrt::object(object)
     {
     }
     b_proxy b()

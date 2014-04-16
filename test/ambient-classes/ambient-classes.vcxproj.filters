@@ -21,5 +21,8 @@
     <ClCompile Include="..\Harness.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ambient-classes.proxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

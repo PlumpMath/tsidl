@@ -1,6 +1,6 @@
 // This file contains automatically generated proxies for JavaScript.
 
-#include "types_primitive.proxy.h"
+#include "types-primitive.proxy.h"
 
 namespace types_primitive
 {

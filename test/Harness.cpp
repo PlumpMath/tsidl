@@ -4,14 +4,14 @@
 #include <string>
 
 extern JsErrorCode DefineGlobals();
-extern void ProcessResult(JsValueRef result);
+extern bool ProcessResult(JsValueRef result);
 
 #define IfFailError(v, e) \
     { \
     JsErrorCode error = (v); \
     if (error != JsNoError) \
         { \
-        fwprintf(stderr, L"fatal error: %s.\n", (e)); \
+        wprintf(L"fatal error: %s.\n", (e)); \
         goto error; \
         } \
     }
@@ -32,7 +32,7 @@ wstring LoadScript(wstring fileName)
     FILE *file;
     if (_wfopen_s(&file, fileName.c_str(), L"rb"))
     {
-        fwprintf(stderr, L"unable to open file: %s.\n", fileName.c_str());
+        wprintf(L"unable to open file: %s.\n", fileName.c_str());
         return wstring();
     }
 
@@ -45,7 +45,7 @@ wstring LoadScript(wstring fileName)
 
     if (rawBytes == nullptr)
     {
-        fwprintf(stderr, L"fatal error.\n");
+        wprintf(L"fatal error.\n");
         return wstring();
     }
 
@@ -55,7 +55,7 @@ wstring LoadScript(wstring fileName)
     if (contents == nullptr)
     {
         free(rawBytes);
-        fwprintf(stderr, L"fatal error.\n");
+        wprintf(L"fatal error.\n");
         return wstring();
     }
 
@@ -63,7 +63,7 @@ wstring LoadScript(wstring fileName)
     {
         free(rawBytes);
         free(contents);
-        fwprintf(stderr, L"fatal error.\n");
+        wprintf(L"fatal error.\n");
         return wstring();
     }
 
@@ -84,15 +84,18 @@ JsErrorCode PrintScriptException()
     const wchar_t *message;
     size_t length;
     IfFailRet(JsStringToPointer(messageValue, &message, &length));
-    fwprintf(stderr, L"exception: %s\n", message);
+    wprintf(L"exception: %s\n", message);
     return JsNoError;
 }
 
 int _cdecl wmain(int argc, wchar_t *argv[])
 {
-    int returnValue = EXIT_FAILURE;
+    wprintf(L"TsIDL Test Harness\n");
 
-    fwprintf(stdout, L"TsIDL Test Harness\n");
+    if (argc != 2) {
+        wprintf(L"wrong number of arguments\n");
+        goto error;
+    }
 
     try
     {
@@ -112,15 +115,27 @@ int _cdecl wmain(int argc, wchar_t *argv[])
         JsValueRef result;
         JsErrorCode errorCode = JsRunScript(script.c_str(), 0, argv[1], &result);
 
-        if (errorCode == JsErrorScriptException)
+        if (errorCode != JsNoError)
         {
-            IfFailError(PrintScriptException(), L"failed to print exception");
-            return EXIT_FAILURE;
+            if (errorCode == JsErrorScriptException)
+            {
+                IfFailError(PrintScriptException(), L"failed to print exception");
+            }
+            goto error;
         }
         else
         {
-            IfFailError(errorCode, L"failed to run script.");
-            ProcessResult(result);
+            try
+            {
+                if (!ProcessResult(result))
+                {
+                    goto error;
+                }
+            }
+            catch (...)
+            {
+                goto error;
+            }
         }
 
         IfFailError(JsSetCurrentContext(JS_INVALID_REFERENCE), L"failed to cleanup current context.");
@@ -128,9 +143,14 @@ int _cdecl wmain(int argc, wchar_t *argv[])
     }
     catch (...)
     {
-        fwprintf(stderr, L"fatal error: internal error.\n");
+        wprintf(L"fatal error: internal error.\n");
+        goto error;
     }
 
+    wprintf(L"SUCCESS\n");
+    return EXIT_SUCCESS;
+
 error:
-    return returnValue;
+    wprintf(L"FAILED\n");
+    return EXIT_FAILURE;
 }
