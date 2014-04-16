@@ -12,14 +12,14 @@ namespace types_array
     void set_z(jsrt::array<std::wstring> value);
     jsrt::array<jsrt::object> a();
     void set_a(jsrt::array<jsrt::object> value);
-    jsrt::array<c> b();
-    void set_b(jsrt::array<c> value);
-    class c: public jsrt::object
+    jsrt::array<c_proxy> b();
+    void set_b(jsrt::array<c_proxy> value);
+    class c_proxy: public jsrt::object
     {
     public:
-        c();
-        explicit c(jsrt::object object);
+        c_proxy();
+        explicit c_proxy(jsrt::object object);
     };
-    c c();
-    void set_c(c value);
+    c_proxy c();
+    void set_c(c_proxy value);
 } // namespace types_array

@@ -10,28 +10,28 @@ namespace top_level
     void set_d(std::wstring value);
     jsrt::function<void, std::wstring> y();
     void set_y(jsrt::function<void, std::wstring> value);
-    class z: public jsrt::object
+    class z_proxy: public jsrt::object
     {
     public:
-        z();
-        explicit z(jsrt::object object);
+        z_proxy();
+        explicit z_proxy(jsrt::object object);
     };
-    class a: public jsrt::object
+    class a_proxy: public jsrt::object
     {
     public:
-        a();
-        explicit a(jsrt::object object);
+        a_proxy();
+        explicit a_proxy(jsrt::object object);
     };
-    a a();
-    void set_a(a value);
-    class b: public jsrt::object
+    a_proxy a();
+    void set_a(a_proxy value);
+    class b_proxy: public jsrt::object
     {
     public:
-        b();
-        explicit b(jsrt::object object);
+        b_proxy();
+        explicit b_proxy(jsrt::object object);
     }
-    b b();
-    void set_b(b value);
+    b_proxy b();
+    void set_b(b_proxy value);
     enum c
     {
     }

@@ -36,27 +36,27 @@ namespace types_array
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
-    jsrt::array<c> b()
+    jsrt::array<c_proxy> b()
     {
-        return jsrt::context::global().get_property<jsrt::array<c>>(jsrt::property_id::create(L"b"));
+        return jsrt::context::global().get_property<jsrt::array<c_proxy>>(jsrt::property_id::create(L"b"));
     }
-    void set_b(jsrt::array<c> value)
+    void set_b(jsrt::array<c_proxy> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
-    c::c() :
+    c_proxy::c_proxy() :
         jsrt::object()
     {
     }
-    c::c(jsrt::object object) :
+    c_proxy::c_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    c c()
+    c_proxy c()
     {
-        return jsrt::context::global().get_property<c>(jsrt::property_id::create(L"c"));
+        return jsrt::context::global().get_property<c_proxy>(jsrt::property_id::create(L"c"));
     }
-    void set_c(c value)
+    void set_c(c_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }

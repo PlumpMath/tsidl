@@ -4,11 +4,11 @@
 
 namespace ambient_classes
 {
-    a::a() :
+    a_proxy::a_proxy() :
         jsrt::object()
     {
     }
-    a::a(jsrt::object object) :
+    a_proxy::a_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
@@ -28,19 +28,19 @@ namespace ambient_classes
     {
         set_property(jsrt::property_id::create(L"y"), value);
     }
-    a a()
+    a_proxy a()
     {
-        return jsrt::context::global().get_property<a>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<a_proxy>(jsrt::property_id::create(L"a"));
     }
-    void set_a(a value)
+    void set_a(a_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
-    b::b() :
+    b_proxy::b_proxy() :
         jsrt::object()
     {
     }
-    b::b(jsrt::object object) :
+    b_proxy::b_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
@@ -52,21 +52,21 @@ namespace ambient_classes
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    c::c() :
+    c_proxy::c_proxy() :
         jsrt::object()
     {
     }
-    c::c(jsrt::object object) :
+    c_proxy::c_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    c::c(b value) :
+    c_proxy::c_proxy(b_proxy value) :
         jsrt::object(value.handle()) {
     {
     }
-    operator b()
+    operator b_proxy()
     {
-        return b(*this);
+        return b_proxy(*this);
     }
     double x()
     {
@@ -76,27 +76,27 @@ namespace ambient_classes
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    c c()
+    c_proxy c()
     {
-        return jsrt::context::global().get_property<c>(jsrt::property_id::create(L"c"));
+        return jsrt::context::global().get_property<c_proxy>(jsrt::property_id::create(L"c"));
     }
-    void set_c(c value)
+    void set_c(c_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
-    d::d() :
-        c()
+    d_proxy::d_proxy() :
+        c_proxy()
     {
     }
-    d::d(c object) :
-        c(object.handle())
+    d_proxy::d_proxy(c_proxy object) :
+        c_proxy(object.handle())
     {
     }
-    d d()
+    d_proxy d()
     {
-        return jsrt::context::global().get_property<d>(jsrt::property_id::create(L"d"));
+        return jsrt::context::global().get_property<d_proxy>(jsrt::property_id::create(L"d"));
     }
-    void set_d(d value)
+    void set_d(d_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
     }

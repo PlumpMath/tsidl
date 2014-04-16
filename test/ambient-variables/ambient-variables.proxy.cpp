@@ -44,19 +44,19 @@ namespace ambient_variables
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"e"), value);
     }
-    x f()
+    x_proxy f()
     {
-        return jsrt::context::global().get_property<x>(jsrt::property_id::create(L"f"));
+        return jsrt::context::global().get_property<x_proxy>(jsrt::property_id::create(L"f"));
     }
-    void set_f(x value)
+    void set_f(x_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"f"), value);
     }
-    y g()
+    y_proxy g()
     {
-        return jsrt::context::global().get_property<y>(jsrt::property_id::create(L"g"));
+        return jsrt::context::global().get_property<y_proxy>(jsrt::property_id::create(L"g"));
     }
-    void set_g(y value)
+    void set_g(y_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"g"), value);
     }
@@ -76,35 +76,35 @@ namespace ambient_variables
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"i"), value);
     }
-    z j()
+    z_proxy j()
     {
-        return jsrt::context::global().get_property<z>(jsrt::property_id::create(L"j"));
+        return jsrt::context::global().get_property<z_proxy>(jsrt::property_id::create(L"j"));
     }
-    void set_j(z value)
+    void set_j(z_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"j"), value);
     }
-    x::x() :
+    x_proxy::x_proxy() :
         jsrt::object()
     {
     }
-    x::x(jsrt::object object) :
+    x_proxy::x_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    x x()
+    x_proxy x()
     {
-        return jsrt::context::global().get_property<x>(jsrt::property_id::create(L"x"));
+        return jsrt::context::global().get_property<x_proxy>(jsrt::property_id::create(L"x"));
     }
-    void set_x(x value)
+    void set_x(x_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"x"), value);
     }
-    z::z() :
+    z_proxy::z_proxy() :
         jsrt::object()
     {
     }
-    z::z(jsrt::object object) :
+    z_proxy::z_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }

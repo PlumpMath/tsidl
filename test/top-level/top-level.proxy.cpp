@@ -28,43 +28,43 @@ namespace top_level
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"y"), value);
     }
-    z::z() :
+    z_proxy::z_proxy() :
         jsrt::object()
     {
     }
-    z::z(jsrt::object object) :
+    z_proxy::z_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    a::a() :
+    a_proxy::a_proxy() :
         jsrt::object()
     {
     }
-    a::a(jsrt::object object) :
+    a_proxy::a_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    a a()
+    a_proxy a()
     {
-        return jsrt::context::global().get_property<a>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<a_proxy>(jsrt::property_id::create(L"a"));
     }
-    void set_a(a value)
+    void set_a(a_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
-    b::b() :
+    b_proxy::b_proxy() :
         jsrt::object()
     {
     }
-    b::b(jsrt::object object) :
+    b_proxy::b_proxy(jsrt::object object) :
         jsrt::object(object.handle())
     {
     }
-    b b()
+    b_proxy b()
     {
-        return jsrt::context::global().get_property<b>(jsrt::property_id::create(L"b"));
+        return jsrt::context::global().get_property<b_proxy>(jsrt::property_id::create(L"b"));
     }
-    void set_b(b value)
+    void set_b(b_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }

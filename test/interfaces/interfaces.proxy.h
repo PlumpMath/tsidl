@@ -4,23 +4,23 @@
 
 namespace interfaces
 {
-    class a: public jsrt::object
+    class a_proxy: public jsrt::object
     {
     public:
-        a();
-        explicit a(jsrt::object object);
+        a_proxy();
+        explicit a_proxy(jsrt::object object);
     };
-    class b: public a
+    class b_proxy: public a_proxy
     {
     public:
-        b();
-        explicit b(a object);
+        b_proxy();
+        explicit b_proxy(a_proxy object);
     };
-    class c: public jsrt::object
+    class c_proxy: public jsrt::object
     {
     public:
-        c();
-        explicit c(jsrt::object object);
+        c_proxy();
+        explicit c_proxy(jsrt::object object);
         double x();
         void set_x(double value);
         double y();
@@ -32,24 +32,24 @@ namespace interfaces
         jsrt::function<double, double> b();
         void set_b(jsrt::function<double, double> value);
     };
-    class d: public jsrt::function<std::wstring, std::wstring>
+    class d_proxy: public jsrt::function<std::wstring, std::wstring>
     {
     public:
-        d();
-        explicit d(jsrt::function<std::wstring, std::wstring> object);
-        d(Signature signature);
+        d_proxy();
+        explicit d_proxy(jsrt::function<std::wstring, std::wstring> object);
+        d_proxy(Signature signature);
     };
-    class e: public jsrt::function<std::wstring, std::wstring>
+    class e_proxy: public jsrt::function<std::wstring, std::wstring>
     {
     public:
-        e();
-        explicit e(jsrt::function<std::wstring, std::wstring> object);
-        e(Signature signature);
+        e_proxy();
+        explicit e_proxy(jsrt::function<std::wstring, std::wstring> object);
+        e_proxy(Signature signature);
     };
-    class f: public d
+    class f_proxy: public d_proxy
     {
     public:
-        f();
-        explicit f(d object);
+        f_proxy();
+        explicit f_proxy(d_proxy object);
     };
 } // namespace interfaces

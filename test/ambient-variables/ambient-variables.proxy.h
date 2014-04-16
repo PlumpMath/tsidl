@@ -14,31 +14,31 @@ namespace ambient_variables
     void set_d(jsrt::object value);
     jsrt::object e();
     void set_e(jsrt::object value);
-    x f();
-    void set_f(x value);
-    y g();
-    void set_g(y value);
+    x_proxy f();
+    void set_f(x_proxy value);
+    y_proxy g();
+    void set_g(y_proxy value);
     jsrt::function<double, double> h();
     void set_h(jsrt::function<double, double> value);
     jsrt::function<double, double> i();
     void set_i(jsrt::function<double, double> value);
-    z j();
-    void set_j(z value);
-    class x: public jsrt::object
+    z_proxy j();
+    void set_j(z_proxy value);
+    class x_proxy: public jsrt::object
     {
     public:
-        x();
-        explicit x(jsrt::object object);
+        x_proxy();
+        explicit x_proxy(jsrt::object object);
     };
-    x x();
-    void set_x(x value);
+    x_proxy x();
+    void set_x(x_proxy value);
     enum y
     {
     }
-    class z: public jsrt::object
+    class z_proxy: public jsrt::object
     {
     public:
-        z();
-        explicit z(jsrt::object object);
+        z_proxy();
+        explicit z_proxy(jsrt::object object);
     };
 } // namespace ambient_variables

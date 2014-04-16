@@ -4,44 +4,44 @@
 
 namespace ambient_classes
 {
-    class a: public jsrt::object
+    class a_proxy: public jsrt::object
     {
     public:
-        a();
-        explicit a(jsrt::object object);
+        a_proxy();
+        explicit a_proxy(jsrt::object object);
         double x();
         void set_x(double value);
         jsrt::function<double, double> y();
         void set_y(jsrt::function<double, double> value);
     };
-    a a();
-    void set_a(a value);
-    class b: public jsrt::object
+    a_proxy a();
+    void set_a(a_proxy value);
+    class b_proxy: public jsrt::object
     {
     public:
-        b();
-        explicit b(jsrt::object object);
+        b_proxy();
+        explicit b_proxy(jsrt::object object);
         double x();
         void set_x(double value);
     };
-    class c: public jsrt::object
+    class c_proxy: public jsrt::object
     {
     public:
-        c();
-        explicit c(jsrt::object object);
-        explicit c(b value);
-        operator b();
+        c_proxy();
+        explicit c_proxy(jsrt::object object);
+        explicit c_proxy(b_proxy value);
+        operator b_proxy();
         double x();
         void set_x(double value);
     };
-    c c();
-    void set_c(c value);
-    class d: public c
+    c_proxy c();
+    void set_c(c_proxy value);
+    class d_proxy: public c_proxy
     {
     public:
-        d();
-        explicit d(c object);
+        d_proxy();
+        explicit d_proxy(c_proxy object);
     };
-    d d();
-    void set_d(d value);
+    d_proxy d();
+    void set_d(d_proxy value);
 } // namespace ambient_classes

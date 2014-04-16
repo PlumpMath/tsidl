@@ -4,40 +4,40 @@
 
 namespace types_self_reference
 {
-    class a: public jsrt::object
+    class a_proxy: public jsrt::object
     {
     public:
-        a();
-        explicit a(jsrt::object object);
+        a_proxy();
+        explicit a_proxy(jsrt::object object);
     };
-    a a();
-    void set_a(a value);
-    class c: public jsrt::object
+    a_proxy a();
+    void set_a(a_proxy value);
+    class c_proxy: public jsrt::object
     {
     public:
-        c();
-        explicit c(jsrt::object object);
-        class d: public jsrt::object
+        c_proxy();
+        explicit c_proxy(jsrt::object object);
+        class d_proxy: public jsrt::object
         {
         public:
-            d();
-            explicit d(jsrt::object object);
-            class e: public jsrt::object
+            d_proxy();
+            explicit d_proxy(jsrt::object object);
+            class e_proxy: public jsrt::object
             {
             public:
-                e();
-                explicit e(jsrt::object object);
+                e_proxy();
+                explicit e_proxy(jsrt::object object);
             };
-            c::d::e e();
-            void set_e(c::d::e value);
+            c_proxy::d_proxy::e_proxy e();
+            void set_e(c_proxy::d_proxy::e_proxy value);
         }
-        c::d d();
-        void set_d(c::d value);
+        c_proxy::d_proxy d();
+        void set_d(c_proxy::d_proxy value);
     }
-    c c();
-    void set_c(c value);
-    a b();
-    void set_b(a value);
-    e f();
-    void set_f(e value);
+    c_proxy c();
+    void set_c(c_proxy value);
+    a_proxy b();
+    void set_b(a_proxy value);
+    e_proxy f();
+    void set_f(e_proxy value);
 } // namespace types_self_reference
