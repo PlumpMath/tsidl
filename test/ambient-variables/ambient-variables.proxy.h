@@ -32,7 +32,6 @@ namespace ambient_variables
         explicit x_proxy(jsrt::object object);
     };
     jsrt::function<x_proxy> x();
-    void set_x(jsrt::function<x_proxy> value);
     enum y
     {
     }

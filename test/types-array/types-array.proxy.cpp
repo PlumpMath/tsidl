@@ -56,8 +56,4 @@ namespace types_array
     {
         return jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c"));
     }
-    void set_c(jsrt::function<c_proxy> value)
-    {
-        jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
-    }
 } // namespace types_array

@@ -15,6 +15,7 @@ namespace interfaces
     {
     public:
         b_proxy();
+        explicit b_proxy(jsrt::object object);
         explicit b_proxy(a_proxy object);
     };
     class c_proxy: public jsrt::object
@@ -37,6 +38,7 @@ namespace interfaces
     {
     public:
         d_proxy();
+        explicit d_proxy(jsrt::object object);
         explicit d_proxy(jsrt::function<std::wstring, std::wstring> object);
         d_proxy(Signature signature);
     };
@@ -44,6 +46,7 @@ namespace interfaces
     {
     public:
         e_proxy();
+        explicit e_proxy(jsrt::object object);
         explicit e_proxy(jsrt::function<std::wstring, std::wstring> object);
         e_proxy(Signature signature);
     };
@@ -51,6 +54,7 @@ namespace interfaces
     {
     public:
         f_proxy();
+        explicit f_proxy(jsrt::object object);
         explicit f_proxy(d_proxy object);
     };
 } // namespace interfaces

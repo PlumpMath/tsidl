@@ -16,6 +16,10 @@ namespace interfaces
         a_proxy()
     {
     }
+    b_proxy::b_proxy(jsrt::object object) :
+        a_proxy(object)
+    {
+    }
     b_proxy::b_proxy(a_proxy object) :
         a_proxy(object)
     {
@@ -72,6 +76,10 @@ namespace interfaces
         jsrt::function<std::wstring, std::wstring>()
     {
     }
+    d_proxy::d_proxy(jsrt::object object) :
+        jsrt::function<std::wstring, std::wstring>(object)
+    {
+    }
     d_proxy::d_proxy(jsrt::function<std::wstring, std::wstring> object) :
         jsrt::function<std::wstring, std::wstring>(object)
     {
@@ -84,6 +92,10 @@ namespace interfaces
         jsrt::function<std::wstring, std::wstring>()
     {
     }
+    e_proxy::e_proxy(jsrt::object object) :
+        jsrt::function<std::wstring, std::wstring>(object)
+    {
+    }
     e_proxy::e_proxy(jsrt::function<std::wstring, std::wstring> object) :
         jsrt::function<std::wstring, std::wstring>(object)
     {
@@ -94,6 +106,10 @@ namespace interfaces
     }
     f_proxy::f_proxy() :
         d_proxy()
+    {
+    }
+    f_proxy::f_proxy(jsrt::object object) :
+        d_proxy(object)
     {
     }
     f_proxy::f_proxy(d_proxy object) :

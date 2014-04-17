@@ -333,7 +333,7 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     return typeString;
 }
 
-function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
+function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter, readOnly: boolean = false): void {
     var global: string = container ? "" : "jsrt::context::global().";
     var fieldIsBound: boolean = !global && (container.kind === TypeScript.PullElementKind.Class);
     var fieldType: string = typeStringNative(container, type);
@@ -341,7 +341,9 @@ function writeField(container: TypeScript.PullTypeSymbol, name: string, type: Ty
     var classQualifier: string = container ? container.name + "_proxy::" : "";
 
     outputWriter.writeLineHeader(boundFieldType + " " + name + "();");
-    outputWriter.writeLineHeader("void set_" + name + "(" + fieldType + " value);");
+    if (!readOnly) {
+        outputWriter.writeLineHeader("void set_" + name + "(" + fieldType + " value);");
+    }
 
     outputWriter.writeLineSource(boundFieldType + " " + classQualifier + name + "()");
     outputWriter.writeLineSource("{");
@@ -354,12 +356,14 @@ function writeField(container: TypeScript.PullTypeSymbol, name: string, type: Ty
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 
-    outputWriter.writeLineSource("void " + classQualifier + "set_" + name + "(" + fieldType + " value)");
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
-    outputWriter.writeLineSource(global + "set_property(jsrt::property_id::create(L\"" + name + "\"), value);");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
+    if (!readOnly) {
+        outputWriter.writeLineSource("void " + classQualifier + "set_" + name + "(" + fieldType + " value)");
+        outputWriter.writeLineSource("{");
+        outputWriter.indentSource();
+        outputWriter.writeLineSource(global + "set_property(jsrt::property_id::create(L\"" + name + "\"), value);");
+        outputWriter.outdentSource();
+        outputWriter.writeLineSource("}");
+    }
 }
 
 function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void {
@@ -465,12 +469,12 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
 
         case TypeScript.PullElementKind.Class:
             writeType(member.type, outputWriter);
-            writeField(container, member.name, member.type.getConstructorMethod().type, outputWriter);
+            writeField(container, member.name, member.type.getConstructorMethod().type, outputWriter, true);
             break;
 
         case TypeScript.PullElementKind.Container:
             writeContainer(member.getDeclarations()[0], outputWriter);
-            writeField(container, member.name, member.type, outputWriter);
+            writeField(container, member.name, member.type, outputWriter, true);
             break;
 
         case TypeScript.PullElementKind.EnumMember:
@@ -489,7 +493,10 @@ function writeClass(typeName: string, baseName: string, outputWriter: OutputWrit
     outputWriter.writeLineHeader("public:");
     outputWriter.indentHeader();
     outputWriter.writeLineHeader(typeName + "();");
-    outputWriter.writeLineHeader("explicit " + typeName + "(" + baseName + " object);");
+    outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::object object);");
+    if (baseName !== "jsrt::object") {
+        outputWriter.writeLineHeader("explicit " + typeName + "(" + baseName + " object);");
+    }
 
     outputWriter.writeLineSource(typeName + "::" + typeName + "() :");
     outputWriter.indentSource();
@@ -498,12 +505,21 @@ function writeClass(typeName: string, baseName: string, outputWriter: OutputWrit
     outputWriter.writeLineSource("{");
     outputWriter.writeLineSource("}");
 
-    outputWriter.writeLineSource(typeName + "::" + typeName + "(" + baseName + " object) :");
+    outputWriter.writeLineSource(typeName + "::" + typeName + "(jsrt::object object) :");
     outputWriter.indentSource();
-    outputWriter.writeLineSource("" + baseName + "(object)");
+    outputWriter.writeLineSource(baseName + "(object)");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("{");
     outputWriter.writeLineSource("}");
+
+    if (baseName !== "jsrt::object") {
+        outputWriter.writeLineSource(typeName + "::" + typeName + "(" + baseName + " object) :");
+        outputWriter.indentSource();
+        outputWriter.writeLineSource(baseName + "(object)");
+        outputWriter.outdentSource();
+        outputWriter.writeLineSource("{");
+        outputWriter.writeLineSource("}");
+    }
 }
 
 function writeContainer(container: TypeScript.PullDecl, outputWriter: OutputWriter): void {

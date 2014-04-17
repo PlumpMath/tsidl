@@ -24,7 +24,6 @@ namespace top_level
         explicit a_proxy(jsrt::object object);
     };
     jsrt::function<a_proxy> a();
-    void set_a(jsrt::function<a_proxy> value);
     class b_proxy: public jsrt::object
     {
     public:
@@ -32,7 +31,6 @@ namespace top_level
         explicit b_proxy(jsrt::object object);
     }
     b_proxy b();
-    void set_b(b_proxy value);
     enum c
     {
     }
