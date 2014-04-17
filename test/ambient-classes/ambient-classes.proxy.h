@@ -12,7 +12,7 @@ namespace ambient_classes
         explicit a_proxy(jsrt::object object);
         double x();
         void set_x(double value);
-        jsrt::function<double, double> y();
+        jsrt::bound_function<a_proxy, double, double> y();
         void set_y(jsrt::function<double, double> value);
     };
     jsrt::function<a_proxy, double> a();

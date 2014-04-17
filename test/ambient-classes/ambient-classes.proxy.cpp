@@ -20,9 +20,9 @@ namespace ambient_classes
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    jsrt::function<double, double> a_proxy::y()
+    jsrt::bound_function<a_proxy, double, double> a_proxy::y()
     {
-        return get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"y"));
+        return jsrt::bound_function<a_proxy, double, double>(*this, get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"y")));
     }
     void a_proxy::set_y(jsrt::function<double, double> value)
     {

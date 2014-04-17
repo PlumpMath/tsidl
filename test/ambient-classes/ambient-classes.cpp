@@ -15,6 +15,10 @@ bool ProcessResult(JsValueRef result)
     {
         return false;
     }
+    if (a.y()(10) != 20.0)
+    {
+        return false;
+    }
 
     return true;
 }

@@ -193,7 +193,7 @@ class OutputWriter {
         this.headerAtLineStart = false;
     }
 
-    public writeLineHeader(s? : string): void {
+    public writeLineHeader(s?: string): void {
         this.checkHeaderComplete();
         this.checkHeaderIndent();
         if (s) {
@@ -257,11 +257,18 @@ class OutputWriter {
     }
 }
 
-function javaScriptFunctionType(container: TypeScript.PullTypeSymbol, signature: TypeScript.PullSignatureSymbol): string
-{
-    var result: string = "jsrt::function<" + typeStringNative(container, signature.returnType.type);
-    for (var index: number = 0; index < signature.parameters.length; index++)
-    {
+function javaScriptFunctionType(container: TypeScript.PullTypeSymbol, signature: TypeScript.PullSignatureSymbol, isBound: boolean = false): string {
+    var result: string;
+
+    if (isBound) {
+        result = "jsrt::bound_function<" + container.name + "_proxy, ";
+    } else {
+        result = "jsrt::function<";
+    }
+
+    result += typeStringNative(container, signature.returnType.type);
+
+    for (var index: number = 0; index < signature.parameters.length; index++) {
         result += ", ";
         var parameter: TypeScript.PullSymbol = signature.parameters[index];
 
@@ -271,8 +278,7 @@ function javaScriptFunctionType(container: TypeScript.PullTypeSymbol, signature:
     return result;
 }
 
-function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTypeSymbol, isOptional: boolean = false, isRest: boolean = false): string
-{
+function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTypeSymbol, isOptional: boolean = false, isRest: boolean = false, isBound: boolean = false): string {
     var typeString: string = "<unknown>";
 
     if (type.isPrimitive()) {
@@ -298,11 +304,10 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     else if (type.kind == TypeScript.PullElementKind.ObjectType ||
         type.kind == TypeScript.PullElementKind.FunctionType ||
         type.kind == TypeScript.PullElementKind.ConstructorType) {
-        if (type.hasOwnCallSignatures())
-        {
-            typeString = javaScriptFunctionType(container, type.getCallSignatures()[0]);
+        if (type.hasOwnCallSignatures()) {
+            typeString = javaScriptFunctionType(container, type.getCallSignatures()[0], isBound);
         } else if (type.hasOwnConstructSignatures()) {
-            typeString = javaScriptFunctionType(container, type.getConstructSignatures()[0]);
+            typeString = javaScriptFunctionType(container, type.getConstructSignatures()[0], isBound);
         } else {
             typeString = "jsrt::object";
         }
@@ -310,8 +315,7 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     else if (type.isNamedTypeSymbol()) {
         var name: string = type.name + "_proxy";
 
-        while (container)
-        {
+        while (container) {
             name = container.name + "_proxy::" + name;
             container = container.getContainer();
         }
@@ -319,12 +323,10 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
         typeString = name;
     }
 
-    if (isOptional)
-    {
+    if (isOptional) {
         typeString = "jsrt::optional<" + typeString + ">";
     }
-    else if (isRest)
-    {
+    else if (isRest) {
         typeString = "jsrt::rest<" + typeString + ">";
     }
 
@@ -332,17 +334,23 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 }
 
 function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
-    var fieldType: string = typeStringNative(container, type);
-    var classQualifier: string = container ? container.name + "_proxy::" : "";
     var global: string = container ? "" : "jsrt::context::global().";
+    var fieldIsBound: boolean = !global && (container.kind === TypeScript.PullElementKind.Class);
+    var fieldType: string = typeStringNative(container, type);
+    var boundFieldType: string = fieldIsBound ? typeStringNative(container, type, false, false, true) : fieldType;
+    var classQualifier: string = container ? container.name + "_proxy::" : "";
 
-    outputWriter.writeLineHeader(fieldType + " " + name + "();");
+    outputWriter.writeLineHeader(boundFieldType + " " + name + "();");
     outputWriter.writeLineHeader("void set_" + name + "(" + fieldType + " value);");
 
-    outputWriter.writeLineSource(fieldType + " " + classQualifier + name + "()");
+    outputWriter.writeLineSource(boundFieldType + " " + classQualifier + name + "()");
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
-    outputWriter.writeLineSource("return " + global + "get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\"));");
+    if (fieldType !== boundFieldType) {
+        outputWriter.writeLineSource("return " + boundFieldType + "(*this, get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\")));");
+    } else {
+        outputWriter.writeLineSource("return " + global + "get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\"));");
+    }
     outputWriter.outdentSource();
     outputWriter.writeLineSource("}");
 
@@ -354,8 +362,7 @@ function writeField(container: TypeScript.PullTypeSymbol, name: string, type: Ty
     outputWriter.writeLineSource("}");
 }
 
-function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void
-{
+function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void {
     for (var index = 0; index < implementsList.length; index++) {
         var implementedType: TypeScript.PullTypeSymbol = implementsList[index];
         var implementedTypeName: string = implementedType.name + "_proxy";
@@ -409,8 +416,7 @@ function writeType(type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter):
     }
 
     var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
-    if (implementedTypes && implementedTypes.length > 0)
-    {
+    if (implementedTypes && implementedTypes.length > 0) {
         writeTypeImplements(typeName, baseName, implementedTypes, outputWriter);
     }
 
