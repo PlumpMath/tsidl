@@ -1,0 +1,11 @@
+Microsoft (R) Build Engine version 12.0.30110.0
+[Microsoft .NET Framework, version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Harness.cpp
+  ambient-enum.cpp
+ambient-enum.cpp(13): warning C4101: 'x' : unreferenced local variable [C:\Users\paulv\source\repos\tsidl\test\ambient-enum\ambient-enum.vcxproj]
+  ambient-enum.proxy.cpp
+  Generating code
+  Finished generating code
+  ambient-enum.vcxproj -> C:\Users\paulv\source\repos\tsidl\test\ambient-enum\\..\..\built\test\ambient-enum\x64\Release\ambient-enum.exe

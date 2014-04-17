@@ -34,7 +34,7 @@ namespace ambient_variables
     jsrt::function<x_proxy> x();
     enum y
     {
-    }
+    };
     class z_proxy: public jsrt::object
     {
     public:

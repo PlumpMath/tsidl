@@ -1,8 +1,8 @@
-declare enum a {
+declare enum aValues {
 	
 }
 
-declare enum b {
+declare enum bValues {
 	a,
 	b = 5,
 	c

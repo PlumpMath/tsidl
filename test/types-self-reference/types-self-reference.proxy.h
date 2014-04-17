@@ -29,9 +29,9 @@ namespace types_self_reference
                 explicit e_proxy(jsrt::object object);
             };
             jsrt::function<c_proxy::d_proxy::e_proxy> e();
-        }
+        };
         c_proxy::d_proxy d();
-    }
+    };
     c_proxy c();
     a_proxy b();
     void set_b(a_proxy value);

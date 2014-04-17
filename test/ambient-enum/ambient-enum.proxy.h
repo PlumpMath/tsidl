@@ -5,13 +5,13 @@
 
 namespace ambient_enum
 {
-    enum a
+    enum aValues
     {
-    }
-    enum b
+    };
+    enum bValues
     {
         a,
         b = 5,
         c,
-    }
+    };
 } // namespace ambient_enum

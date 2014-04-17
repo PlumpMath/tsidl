@@ -17,7 +17,7 @@ namespace ambient_modules
             explicit g_proxy(jsrt::object object);
         };
         jsrt::function<a_proxy::g_proxy> g();
-    }
+    };
     a_proxy a();
     class b_proxy: public jsrt::object
     {
@@ -53,7 +53,7 @@ namespace ambient_modules
                 };
                 enum b
                 {
-                }
+                };
                 class c_proxy: public jsrt::object
                 {
                 public:
@@ -66,13 +66,13 @@ namespace ambient_modules
                         explicit d_proxy(jsrt::object object);
                     };
                     jsrt::function<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> d();
-                }
+                };
                 b_proxy::c_proxy::d_proxy::c_proxy c();
-            }
+            };
             b_proxy::c_proxy::d_proxy d();
-        }
+        };
         b_proxy::c_proxy c();
-    }
+    };
     b_proxy b();
     d_proxy z();
     void set_z(d_proxy value);

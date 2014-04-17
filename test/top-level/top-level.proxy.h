@@ -29,9 +29,9 @@ namespace top_level
     public:
         b_proxy();
         explicit b_proxy(jsrt::object object);
-    }
+    };
     b_proxy b();
     enum c
     {
-    }
+    };
 } // namespace top_level

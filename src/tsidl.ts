@@ -551,7 +551,7 @@ function writeContainer(container: TypeScript.PullDecl, outputWriter: OutputWrit
 
     if (containerSymbol) {
         outputWriter.outdentHeader();
-        outputWriter.writeLineHeader("}");
+        outputWriter.writeLineHeader("};");
     }
 }
 
