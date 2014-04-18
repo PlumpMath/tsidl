@@ -2414,7 +2414,7 @@ namespace jsrt
                 }
                 catch (const exception &)
                 {
-                    context::set_exception(error::create("Unknown error."));
+                    context::set_exception(error::create(L"Unknown error."));
                     return false;
                 }
 

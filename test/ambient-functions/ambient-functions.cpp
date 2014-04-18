@@ -5,22 +5,37 @@
 
 jsrt::object a(const jsrt::call_info &info)
 {
-    return jsrt::object();
+    return (jsrt::object)jsrt::context::null();
 }
 
 double b(const jsrt::call_info &info, double x)
 {
-    return 0;
+    return 10 + x;
 }
 
 double c(const jsrt::call_info &info, double x, jsrt::optional<double> y)
 {
-    return 0;
+    double result = 20 + x;
+    if (y.has_value())
+    {
+        result += y.value();
+    }
+    return result;
 }
 
-double d(const jsrt::call_info &info, double x, jsrt::optional<jsrt::array<double>> y)
+double d(const jsrt::call_info &info, double x, jsrt::rest<double> y)
 {
-    return 0;
+    double result = 30 + x;
+
+    if (y.has_value())
+    {
+        auto values = y.value();
+        for (int index = 0; index < values.length(); index++)
+        {
+            result += values[index];
+        }
+    }
+    return result;
 }
 
 void e(const jsrt::call_info &info)

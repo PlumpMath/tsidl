@@ -299,7 +299,11 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
         }
     }
     else if (type.isArrayNamedTypeReference()) {
-        typeString = "jsrt::array<" + typeStringNative(container, type.getElementType()) + ">";
+        if (isRest) {
+            typeString = typeStringNative(container, type.getElementType());
+        } else {
+            typeString = "jsrt::array<" + typeStringNative(container, type.getElementType()) + ">";
+        }
     }
     else if (type.kind == TypeScript.PullElementKind.ObjectType ||
         type.kind == TypeScript.PullElementKind.FunctionType ||
@@ -323,11 +327,10 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
         typeString = name;
     }
 
-    if (isOptional) {
-        typeString = "jsrt::optional<" + typeString + ">";
-    }
-    else if (isRest) {
+    if (isRest) {
         typeString = "jsrt::rest<" + typeString + ">";
+    } else if (isOptional) {
+        typeString = "jsrt::optional<" + typeString + ">";
     }
 
     return typeString;
