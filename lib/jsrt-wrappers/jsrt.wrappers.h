@@ -25,6 +25,8 @@
 
 namespace jsrt
 {
+    struct notdefined {};
+
     class value;
     template<class T>
     class property_descriptor;
@@ -34,6 +36,8 @@ namespace jsrt
     class number;
     class string;
     class object;
+    template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
+    class function;
 
     /// <summary>
     ///     A class that wraps a handle to a Chakra runtime.
@@ -2255,8 +2259,6 @@ namespace jsrt
         }
     };
 
-    struct notdefined {};
-
     /// <summary>
     ///     Represents a variable number of values.
     /// </summary>
@@ -2978,13 +2980,27 @@ namespace jsrt
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
-        /// <param name="function">The method to call when the function is invoked.</param>
+        /// <param name="signature">The method to call when the function is invoked.</param>
         /// <returns>The new function object.</returns>
-        static function_base create(Signature function)
+        static function_base create(Signature signature)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            runtime::translate_error_code(JsCreateFunction(thunk, signature, &ref));
             return function_base(ref);
+        }
+
+        /// <summary>
+        ///     Creates a new JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="signature">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        template<class R, class... Parameters>
+        static function<R, Parameters...> create(R(*signature)(const jsrt::call_info &info, Parameters...))
+        {
+            return function<R, Parameters...>::create(signature);
         }
     };
 
@@ -3134,7 +3150,7 @@ namespace jsrt
     };
 
 #pragma region Arity 8
-    template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
+    template<class R, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
     class function : public constructor_function<R>
     {
         friend class value;
