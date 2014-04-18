@@ -20,9 +20,9 @@ namespace ambient_modules
         jsrt::object(object)
     {
     }
-    jsrt::function<a_proxy::g_proxy> a_proxy::g()
+    jsrt::bound_function<a_proxy, a_proxy::g_proxy> a_proxy::g()
     {
-        return get_property<jsrt::function<a_proxy::g_proxy>>(jsrt::property_id::create(L"g"));
+        return jsrt::bound_function<a_proxy, a_proxy::g_proxy>(*this, get_property<jsrt::function<a_proxy::g_proxy>>(jsrt::property_id::create(L"g")));
     }
     a_proxy a()
     {
@@ -60,9 +60,9 @@ namespace ambient_modules
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    jsrt::function<double> d_proxy::y()
+    jsrt::bound_function<d_proxy, double> d_proxy::y()
     {
-        return get_property<jsrt::function<double>>(jsrt::property_id::create(L"y"));
+        return jsrt::bound_function<d_proxy, double>(*this, get_property<jsrt::function<double>>(jsrt::property_id::create(L"y")));
     }
     void d_proxy::set_y(jsrt::function<double> value)
     {
@@ -76,9 +76,9 @@ namespace ambient_modules
         jsrt::object(object)
     {
     }
-    jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> d_proxy::z()
+    jsrt::bound_function<d_proxy, b_proxy::c_proxy::d_proxy::z_proxy> d_proxy::z()
     {
-        return get_property<jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy>>(jsrt::property_id::create(L"z"));
+        return jsrt::bound_function<d_proxy, b_proxy::c_proxy::d_proxy::z_proxy>(*this, get_property<jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy>>(jsrt::property_id::create(L"z")));
     }
     a_proxy::a_proxy() :
         jsrt::object()
@@ -104,9 +104,9 @@ namespace ambient_modules
         jsrt::object(object)
     {
     }
-    jsrt::function<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> c_proxy::d()
+    jsrt::bound_function<c_proxy, b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> c_proxy::d()
     {
-        return get_property<jsrt::function<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy>>(jsrt::property_id::create(L"d"));
+        return jsrt::bound_function<c_proxy, b_proxy::c_proxy::d_proxy::c_proxy::d_proxy>(*this, get_property<jsrt::function<b_proxy::c_proxy::d_proxy::c_proxy::d_proxy>>(jsrt::property_id::create(L"d")));
     }
     b_proxy::c_proxy::d_proxy::c_proxy d_proxy::c()
     {

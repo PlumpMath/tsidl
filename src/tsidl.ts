@@ -261,7 +261,7 @@ function javaScriptFunctionType(container: TypeScript.PullTypeSymbol, signature:
     var result: string;
 
     if (isBound) {
-        result = "jsrt::bound_function<" + container.name + "_proxy, ";
+        result = "jsrt::bound_function<" + (container ? container.name + "_proxy" : "jsrt::object") + ", ";
     } else {
         result = "jsrt::function<";
     }
@@ -335,9 +335,8 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
 
 function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter, readOnly: boolean = false): void {
     var global: string = container ? "" : "jsrt::context::global().";
-    var fieldIsBound: boolean = !global && (container.kind === TypeScript.PullElementKind.Class);
     var fieldType: string = typeStringNative(container, type);
-    var boundFieldType: string = fieldIsBound ? typeStringNative(container, type, false, false, true) : fieldType;
+    var boundFieldType: string = typeStringNative(container, type, false, false, true);
     var classQualifier: string = container ? container.name + "_proxy::" : "";
 
     outputWriter.writeLineHeader(boundFieldType + " " + name + "();");
@@ -349,7 +348,7 @@ function writeField(container: TypeScript.PullTypeSymbol, name: string, type: Ty
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
     if (fieldType !== boundFieldType) {
-        outputWriter.writeLineSource("return " + boundFieldType + "(*this, get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\")));");
+        outputWriter.writeLineSource("return " + boundFieldType + "(" + (global ? "jsrt::context::global()" : "*this") + ", " + global + "get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\")));");
     } else {
         outputWriter.writeLineSource("return " + global + "get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\"));");
     }

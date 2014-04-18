@@ -15,7 +15,7 @@ namespace ambient_classes
         jsrt::bound_function<a_proxy, double, double> y();
         void set_y(jsrt::function<double, double> value);
     };
-    jsrt::function<a_proxy, double> a();
+    jsrt::bound_function<jsrt::object, a_proxy, double> a();
     class b_proxy: public jsrt::object
     {
     public:
@@ -34,7 +34,7 @@ namespace ambient_classes
         double x();
         void set_x(double value);
     };
-    jsrt::function<c_proxy> c();
+    jsrt::bound_function<jsrt::object, c_proxy> c();
     class d_proxy: public c_proxy
     {
     public:
@@ -42,5 +42,5 @@ namespace ambient_classes
         explicit d_proxy(jsrt::object object);
         explicit d_proxy(c_proxy object);
     };
-    jsrt::function<d_proxy> d();
+    jsrt::bound_function<jsrt::object, d_proxy> d();
 } // namespace ambient_classes

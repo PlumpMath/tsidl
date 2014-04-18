@@ -52,8 +52,8 @@ namespace types_array
         jsrt::object(object)
     {
     }
-    jsrt::function<c_proxy> c()
+    jsrt::bound_function<jsrt::object, c_proxy> c()
     {
-        return jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c"));
+        return jsrt::bound_function<jsrt::object, c_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c")));
     }
 } // namespace types_array

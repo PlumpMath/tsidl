@@ -19,9 +19,9 @@ namespace ambient_variables
     void set_f(x_proxy value);
     y_proxy g();
     void set_g(y_proxy value);
-    jsrt::function<double, double> h();
+    jsrt::bound_function<jsrt::object, double, double> h();
     void set_h(jsrt::function<double, double> value);
-    jsrt::function<double, double> i();
+    jsrt::bound_function<jsrt::object, double, double> i();
     void set_i(jsrt::function<double, double> value);
     z_proxy j();
     void set_j(z_proxy value);
@@ -31,7 +31,7 @@ namespace ambient_variables
         x_proxy();
         explicit x_proxy(jsrt::object object);
     };
-    jsrt::function<x_proxy> x();
+    jsrt::bound_function<jsrt::object, x_proxy> x();
     enum y
     {
     };

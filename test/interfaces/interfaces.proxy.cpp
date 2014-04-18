@@ -64,9 +64,9 @@ namespace interfaces
     {
         set_property(jsrt::property_id::create(L"0"), value);
     }
-    jsrt::function<double, double> c_proxy::b()
+    jsrt::bound_function<c_proxy, double, double> c_proxy::b()
     {
-        return get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"b"));
+        return jsrt::bound_function<c_proxy, double, double>(*this, get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"b")));
     }
     void c_proxy::set_b(jsrt::function<double, double> value)
     {

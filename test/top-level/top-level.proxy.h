@@ -9,7 +9,7 @@ namespace top_level
     void set_x(double value);
     std::wstring d();
     void set_d(std::wstring value);
-    jsrt::function<void, std::wstring> y();
+    jsrt::bound_function<jsrt::object, void, std::wstring> y();
     void set_y(jsrt::function<void, std::wstring> value);
     class z_proxy: public jsrt::object
     {
@@ -23,7 +23,7 @@ namespace top_level
         a_proxy();
         explicit a_proxy(jsrt::object object);
     };
-    jsrt::function<a_proxy> a();
+    jsrt::bound_function<jsrt::object, a_proxy> a();
     class b_proxy: public jsrt::object
     {
     public:

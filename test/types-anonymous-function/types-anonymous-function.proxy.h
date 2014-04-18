@@ -5,12 +5,12 @@
 
 namespace types_anonymous_function
 {
-    jsrt::function<bool, double> x();
+    jsrt::bound_function<jsrt::object, bool, double> x();
     void set_x(jsrt::function<bool, double> value);
-    jsrt::function<bool> y();
+    jsrt::bound_function<jsrt::object, bool> y();
     void set_y(jsrt::function<bool> value);
-    jsrt::function<void> z();
+    jsrt::bound_function<jsrt::object, void> z();
     void set_z(jsrt::function<void> value);
-    jsrt::function<double, double> a();
+    jsrt::bound_function<jsrt::object, double, double> a();
     void set_a(jsrt::function<double, double> value);
 } // namespace types_anonymous_function

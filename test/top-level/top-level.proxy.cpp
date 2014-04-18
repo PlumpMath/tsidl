@@ -20,9 +20,9 @@ namespace top_level
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
     }
-    jsrt::function<void, std::wstring> y()
+    jsrt::bound_function<jsrt::object, void, std::wstring> y()
     {
-        return jsrt::context::global().get_property<jsrt::function<void, std::wstring>>(jsrt::property_id::create(L"y"));
+        return jsrt::bound_function<jsrt::object, void, std::wstring>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<void, std::wstring>>(jsrt::property_id::create(L"y")));
     }
     void set_y(jsrt::function<void, std::wstring> value)
     {
@@ -44,9 +44,9 @@ namespace top_level
         jsrt::object(object)
     {
     }
-    jsrt::function<a_proxy> a()
+    jsrt::bound_function<jsrt::object, a_proxy> a()
     {
-        return jsrt::context::global().get_property<jsrt::function<a_proxy>>(jsrt::property_id::create(L"a"));
+        return jsrt::bound_function<jsrt::object, a_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<a_proxy>>(jsrt::property_id::create(L"a")));
     }
     b_proxy::b_proxy() :
         jsrt::object()

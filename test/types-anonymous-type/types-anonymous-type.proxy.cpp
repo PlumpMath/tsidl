@@ -12,17 +12,17 @@ namespace types_anonymous_type
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"x"), value);
     }
-    jsrt::function<void> z()
+    jsrt::bound_function<jsrt::object, void> z()
     {
-        return jsrt::context::global().get_property<jsrt::function<void>>(jsrt::property_id::create(L"z"));
+        return jsrt::bound_function<jsrt::object, void>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<void>>(jsrt::property_id::create(L"z")));
     }
     void set_z(jsrt::function<void> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"z"), value);
     }
-    jsrt::function<double> a()
+    jsrt::bound_function<jsrt::object, double> a()
     {
-        return jsrt::context::global().get_property<jsrt::function<double>>(jsrt::property_id::create(L"a"));
+        return jsrt::bound_function<jsrt::object, double>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<double>>(jsrt::property_id::create(L"a")));
     }
     void set_a(jsrt::function<double> value)
     {

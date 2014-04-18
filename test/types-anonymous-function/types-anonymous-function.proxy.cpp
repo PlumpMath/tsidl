@@ -4,33 +4,33 @@
 
 namespace types_anonymous_function
 {
-    jsrt::function<bool, double> x()
+    jsrt::bound_function<jsrt::object, bool, double> x()
     {
-        return jsrt::context::global().get_property<jsrt::function<bool, double>>(jsrt::property_id::create(L"x"));
+        return jsrt::bound_function<jsrt::object, bool, double>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<bool, double>>(jsrt::property_id::create(L"x")));
     }
     void set_x(jsrt::function<bool, double> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"x"), value);
     }
-    jsrt::function<bool> y()
+    jsrt::bound_function<jsrt::object, bool> y()
     {
-        return jsrt::context::global().get_property<jsrt::function<bool>>(jsrt::property_id::create(L"y"));
+        return jsrt::bound_function<jsrt::object, bool>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<bool>>(jsrt::property_id::create(L"y")));
     }
     void set_y(jsrt::function<bool> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"y"), value);
     }
-    jsrt::function<void> z()
+    jsrt::bound_function<jsrt::object, void> z()
     {
-        return jsrt::context::global().get_property<jsrt::function<void>>(jsrt::property_id::create(L"z"));
+        return jsrt::bound_function<jsrt::object, void>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<void>>(jsrt::property_id::create(L"z")));
     }
     void set_z(jsrt::function<void> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"z"), value);
     }
-    jsrt::function<double, double> a()
+    jsrt::bound_function<jsrt::object, double, double> a()
     {
-        return jsrt::context::global().get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"a"));
+        return jsrt::bound_function<jsrt::object, double, double>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"a")));
     }
     void set_a(jsrt::function<double, double> value)
     {
