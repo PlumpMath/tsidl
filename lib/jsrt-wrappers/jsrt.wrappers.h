@@ -323,6 +323,16 @@ namespace jsrt
             runtime::translate_error_code(JsRelease(_ref, &count));
             return count;
         }
+
+        bool operator ==(const reference &other)
+        {
+            return this->handle() == other.handle();
+        }
+
+        bool operator !=(const reference &other)
+        {
+            return this->handle() != other.handle();
+        }
     };
 
     /// <summary>

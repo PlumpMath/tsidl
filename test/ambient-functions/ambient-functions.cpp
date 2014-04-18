@@ -55,5 +55,20 @@ JsErrorCode DefineGlobals()
 
 bool ProcessResult(JsValueRef result)
 {
+    if ((jsrt::value)ambient_functions::a()() != jsrt::context::null())
+    {
+        return false;
+    }
+
+    if (ambient_functions::b()(10) != 110.0)
+    {
+        return false;
+    }
+
+    //if (ambient_functions::c()(10) != 210.0)
+    //{
+    //    return false;
+    //}
+
     return true;
 }

@@ -20,3 +20,32 @@ if (d(10, 10, 10) !== 60) {
 }
 e();
 
+a = function() {
+    return null;
+}
+
+b = function(x) {
+    return x + 100;
+}
+
+c = function(x, y) {
+    var r = x + 200;
+    if (y !== undefined) {
+        r += y;
+    }
+    return r;
+}
+
+d = function(x, y) {
+    var r = x + 300;
+    if (y !== undefined) {
+        for (var i = 0; i < y.length; i++) {
+            r += y[i];
+        }
+    }
+    return r;
+}
+
+e = function() {
+    
+}
