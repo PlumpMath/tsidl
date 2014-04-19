@@ -65,10 +65,27 @@ bool ProcessResult(JsValueRef result)
         return false;
     }
 
-    //if (ambient_functions::c()(10) != 210.0)
-    //{
-    //    return false;
-    //}
+    if (ambient_functions::c()(10, jsrt::missing()) != 210.0)
+    {
+        return false;
+    }
+
+    if (ambient_functions::c()(10, 10) != 220.0)
+    {
+        return false;
+    }
+
+    if (ambient_functions::d()(10, jsrt::missing()) != 310.0)
+    {
+        return false;
+    }
+
+    if (ambient_functions::d()(10, jsrt::array<double>::create({ 10, 10 })) != 330.0)
+    {
+        return false;
+    }
+
+    ambient_functions::e()();
 
     return true;
 }

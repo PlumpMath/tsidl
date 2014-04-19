@@ -36,12 +36,13 @@ c = function(x, y) {
     return r;
 }
 
-d = function(x, y) {
+d = function(x, y, z) {
     var r = x + 300;
     if (y !== undefined) {
-        for (var i = 0; i < y.length; i++) {
-            r += y[i];
-        }
+        r += y;
+    }
+    if (z !== undefined) {
+        r += z;
     }
     return r;
 }
