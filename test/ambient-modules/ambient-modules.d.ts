@@ -15,11 +15,11 @@ declare module b.c.d {
 	export enum b {
 
 	}
-	export module c {
-		export class d {
+	export module e {
+		export class f {
 
 		}
 	}
 }
 
-declare var z: b.c.d.c.d;
+declare var z: b.c.d.e.f;

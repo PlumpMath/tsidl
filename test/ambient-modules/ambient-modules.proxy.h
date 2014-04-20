@@ -54,26 +54,26 @@ namespace ambient_modules
                 enum b
                 {
                 };
-                class c_proxy: public jsrt::object
+                class e_proxy: public jsrt::object
                 {
                 public:
-                    c_proxy();
-                    explicit c_proxy(jsrt::object object);
-                    class d_proxy: public jsrt::object
+                    e_proxy();
+                    explicit e_proxy(jsrt::object object);
+                    class f_proxy: public jsrt::object
                     {
                     public:
-                        d_proxy();
-                        explicit d_proxy(jsrt::object object);
+                        f_proxy();
+                        explicit f_proxy(jsrt::object object);
                     };
-                    jsrt::bound_function<b_proxy::c_proxy::d_proxy::c_proxy, b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> d();
+                    jsrt::bound_function<b_proxy::c_proxy::d_proxy::e_proxy, b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> f();
                 };
-                b_proxy::c_proxy::d_proxy::c_proxy c();
+                b_proxy::c_proxy::d_proxy::e_proxy e();
             };
             b_proxy::c_proxy::d_proxy d();
         };
         b_proxy::c_proxy c();
     };
     b_proxy b();
-    b_proxy::c_proxy::d_proxy::c_proxy::d_proxy z();
-    void set_z(b_proxy::c_proxy::d_proxy::c_proxy::d_proxy value);
+    b_proxy::c_proxy::d_proxy::e_proxy::f_proxy z();
+    void set_z(b_proxy::c_proxy::d_proxy::e_proxy::f_proxy value);
 } // namespace ambient_modules
