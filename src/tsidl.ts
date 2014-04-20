@@ -282,7 +282,7 @@ function getFullyQualifiedName(symbol: TypeScript.PullSymbol, qualify: boolean =
     var name: string = "";
 
     while (symbol) {
-        name = symbol.name + "_proxy" + (qualify ? "::" : "") + name;
+        name = symbol.name + (symbol.kind !== TypeScript.PullElementKind.Enum ? "_proxy" : "") + (qualify ? "::" : "") + name;
         qualify = true;
         symbol = symbol.getContainer();
     }
