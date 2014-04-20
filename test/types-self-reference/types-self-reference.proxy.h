@@ -28,13 +28,13 @@ namespace types_self_reference
                 e_proxy();
                 explicit e_proxy(jsrt::object object);
             };
-            jsrt::bound_function<d_proxy, c_proxy::d_proxy::e_proxy> e();
+            jsrt::bound_function<c_proxy::d_proxy, c_proxy::d_proxy::e_proxy> e();
         };
         c_proxy::d_proxy d();
     };
     c_proxy c();
     a_proxy b();
     void set_b(a_proxy value);
-    e_proxy f();
-    void set_f(e_proxy value);
+    c_proxy::d_proxy::e_proxy f();
+    void set_f(c_proxy::d_proxy::e_proxy value);
 } // namespace types_self_reference

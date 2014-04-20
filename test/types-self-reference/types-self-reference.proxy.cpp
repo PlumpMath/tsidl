@@ -24,25 +24,25 @@ namespace types_self_reference
         jsrt::object(object)
     {
     }
-    d_proxy::d_proxy() :
+    c_proxy::d_proxy::d_proxy() :
         jsrt::object()
     {
     }
-    d_proxy::d_proxy(jsrt::object object) :
+    c_proxy::d_proxy::d_proxy(jsrt::object object) :
         jsrt::object(object)
     {
     }
-    e_proxy::e_proxy() :
+    c_proxy::d_proxy::e_proxy::e_proxy() :
         jsrt::object()
     {
     }
-    e_proxy::e_proxy(jsrt::object object) :
+    c_proxy::d_proxy::e_proxy::e_proxy(jsrt::object object) :
         jsrt::object(object)
     {
     }
-    jsrt::bound_function<d_proxy, c_proxy::d_proxy::e_proxy> d_proxy::e()
+    jsrt::bound_function<c_proxy::d_proxy, c_proxy::d_proxy::e_proxy> c_proxy::d_proxy::e()
     {
-        return jsrt::bound_function<d_proxy, c_proxy::d_proxy::e_proxy>(*this, get_property<jsrt::function<c_proxy::d_proxy::e_proxy>>(jsrt::property_id::create(L"e")));
+        return jsrt::bound_function<c_proxy::d_proxy, c_proxy::d_proxy::e_proxy>(*this, get_property<jsrt::function<c_proxy::d_proxy::e_proxy>>(jsrt::property_id::create(L"e")));
     }
     c_proxy::d_proxy c_proxy::d()
     {
@@ -60,11 +60,11 @@ namespace types_self_reference
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
-    e_proxy f()
+    c_proxy::d_proxy::e_proxy f()
     {
-        return jsrt::context::global().get_property<e_proxy>(jsrt::property_id::create(L"f"));
+        return jsrt::context::global().get_property<c_proxy::d_proxy::e_proxy>(jsrt::property_id::create(L"f"));
     }
-    void set_f(e_proxy value)
+    void set_f(c_proxy::d_proxy::e_proxy value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"f"), value);
     }

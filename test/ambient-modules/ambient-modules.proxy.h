@@ -36,7 +36,7 @@ namespace ambient_modules
                 explicit d_proxy(jsrt::object object);
                 double x();
                 void set_x(double value);
-                jsrt::bound_function<d_proxy, double> y();
+                jsrt::bound_function<b_proxy::c_proxy::d_proxy, double> y();
                 void set_y(jsrt::function<double> value);
                 class z_proxy: public jsrt::object
                 {
@@ -44,7 +44,7 @@ namespace ambient_modules
                     z_proxy();
                     explicit z_proxy(jsrt::object object);
                 };
-                jsrt::bound_function<d_proxy, b_proxy::c_proxy::d_proxy::z_proxy> z();
+                jsrt::bound_function<b_proxy::c_proxy::d_proxy, b_proxy::c_proxy::d_proxy::z_proxy> z();
                 class a_proxy: public jsrt::object
                 {
                 public:
@@ -65,7 +65,7 @@ namespace ambient_modules
                         d_proxy();
                         explicit d_proxy(jsrt::object object);
                     };
-                    jsrt::bound_function<c_proxy, b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> d();
+                    jsrt::bound_function<b_proxy::c_proxy::d_proxy::c_proxy, b_proxy::c_proxy::d_proxy::c_proxy::d_proxy> d();
                 };
                 b_proxy::c_proxy::d_proxy::c_proxy c();
             };
@@ -74,6 +74,6 @@ namespace ambient_modules
         b_proxy::c_proxy c();
     };
     b_proxy b();
-    d_proxy z();
-    void set_z(d_proxy value);
+    b_proxy::c_proxy::d_proxy::c_proxy::d_proxy z();
+    void set_z(b_proxy::c_proxy::d_proxy::c_proxy::d_proxy value);
 } // namespace ambient_modules
