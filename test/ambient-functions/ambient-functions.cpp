@@ -23,17 +23,13 @@ double c(const jsrt::call_info &info, double x, jsrt::optional<double> y)
     return result;
 }
 
-double d(const jsrt::call_info &info, double x, jsrt::rest<double> y)
+double d(const jsrt::call_info &info, double x, std::vector<double> y)
 {
     double result = 30 + x;
 
-    if (y.has_value())
+    for (double &v: y)
     {
-        auto values = y.value();
-        for (int index = 0; index < values.length(); index++)
-        {
-            result += values[index];
-        }
+        result += v;
     }
     return result;
 }
@@ -75,12 +71,12 @@ bool ProcessResult(JsValueRef result)
         return false;
     }
 
-    if (ambient_functions::d()(10, jsrt::missing()) != 310.0)
+    if (ambient_functions::d()(10, {}) != 310.0)
     {
         return false;
     }
 
-    if (ambient_functions::d()(10, jsrt::array<double>::create({ 10, 10 })) != 330.0)
+    if (ambient_functions::d()(10, { 10, 10 }) != 330.0)
     {
         return false;
     }

@@ -328,7 +328,7 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     }
 
     if (isRest) {
-        typeString = "jsrt::rest<" + typeString + ">";
+        typeString = "std::vector<" + typeString + ">";
     } else if (isOptional) {
         typeString = "jsrt::optional<" + typeString + ">";
     }

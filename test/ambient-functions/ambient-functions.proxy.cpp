@@ -28,11 +28,11 @@ namespace ambient_functions
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
-    jsrt::bound_function<jsrt::object, double, double, jsrt::rest<double>> d()
+    jsrt::bound_function<jsrt::object, double, double, std::vector<double>> d()
     {
-        return jsrt::bound_function<jsrt::object, double, double, jsrt::rest<double>>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<double, double, jsrt::rest<double>>>(jsrt::property_id::create(L"d")));
+        return jsrt::bound_function<jsrt::object, double, double, std::vector<double>>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<double, double, std::vector<double>>>(jsrt::property_id::create(L"d")));
     }
-    void set_d(jsrt::function<double, double, jsrt::rest<double>> value)
+    void set_d(jsrt::function<double, double, std::vector<double>> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
     }
