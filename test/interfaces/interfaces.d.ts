@@ -8,7 +8,6 @@ interface c {
 	x: number;
 	y?: number;
 	"abc": string;
-	0: number;
 	b(a: number): number;
 }
 interface d {

@@ -20,3 +20,6 @@ interface f {
 interface g extends c, f {
 
 }
+interface h {
+    0: number;
+}

@@ -29,8 +29,6 @@ namespace interfaces
         void set_y(double value);
         std::wstring abc();
         void set_abc(std::wstring value);
-        double 0();
-        void set_0(double value);
         jsrt::bound_function<c_proxy, double, double> b();
         void set_b(jsrt::function<double, double> value);
     };

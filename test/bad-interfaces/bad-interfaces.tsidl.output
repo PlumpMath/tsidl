@@ -6,3 +6,4 @@ test/bad-interfaces/bad-interfaces.d.ts(4,0): error TS1014: Indexers are not all
 test/bad-interfaces/bad-interfaces.d.ts(10,0): error TS1024: 'extends' and call signature are not allowed.
 test/bad-interfaces/bad-interfaces.d.ts(13,0): error TS1025: 'extends' and construct signature are not allowed.
 test/bad-interfaces/bad-interfaces.d.ts(19,0): error TS1026: Multiple inheritance is not allowed.
+test/bad-interfaces/bad-interfaces.d.ts(22,0): error TS1009: Numeric indexers are not allowed.

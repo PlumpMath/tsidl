@@ -17,6 +17,7 @@ enum ErrorCode {
     OverloadingNotAllowed = 1006,
     NoFiles = 1007,
     ExternalModulesNotAllowed = 1008,
+    NumericIndexersNotAllowed = 1009,
     PrivateMembersNotAllowed = 1011,
     StaticMembersNotAllowed = 1012,
     NonFunctionAnonymousTypesNotAllowed = 1013,
@@ -42,6 +43,7 @@ var errorMessage: any =
         /* OverloadingNotAllowed */ 1006: "Overloading not allowed.",
         /* NoFiles */ 1007: "An input file must be specified.",
         /* ExternalModulesNotAllowed */ 1008: "Script cannot be an external module.",
+        /* NumericIndexersNotAllowed */ 1009: "Numeric indexers are not allowed.",
         /* PrivateMembersNotAllowed */ 1011: "Private members are not allowed.",
         /* StaticMembersNotAllowed */ 1012: "Static members are not allowed.",
         /* NonFunctionAnonymousTypesNotAllowed */ 1013: "Anonymous types that are not pure function types are not allowed.",
@@ -739,6 +741,10 @@ function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, 
 
             if (!symbol.isExternallyVisible()) {
                 reportError(errors, document, decl.getSpan().start(), ErrorCode.PrivateMembersNotAllowed);
+            }
+
+            if (symbol.name[0] >= '0' && symbol.name[0] <= '9') {
+                reportError(errors, document, decl.getSpan().start(), ErrorCode.NumericIndexersNotAllowed);
             }
 
             var memberDecls: TypeScript.PullDecl[] = symbol.getDeclarations();
