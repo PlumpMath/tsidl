@@ -14,6 +14,9 @@ namespace ambient_variables
     jsrt::bound_function<jsrt::object, x_proxy> x();
     enum y
     {
+        k,
+        l,
+        m,
     };
     class z_proxy: public jsrt::object
     {
@@ -27,18 +30,18 @@ namespace ambient_variables
     void set_b(double value);
     std::wstring c();
     void set_c(std::wstring value);
-    jsrt::object d();
-    void set_d(jsrt::object value);
-    jsrt::object e();
-    void set_e(jsrt::object value);
+    jsrt::value d();
+    void set_d(jsrt::value value);
+    jsrt::value e();
+    void set_e(jsrt::value value);
     x_proxy f();
     void set_f(x_proxy value);
     y g();
     void set_g(y value);
     jsrt::bound_function<jsrt::object, double, double> h();
     void set_h(jsrt::function<double, double> value);
-    jsrt::bound_function<jsrt::object, double, double> i();
-    void set_i(jsrt::function<double, double> value);
+    jsrt::bound_function<jsrt::object, jsrt::object, double> i();
+    void set_i(jsrt::function<jsrt::object, double> value);
     z_proxy j();
     void set_j(z_proxy value);
 } // namespace ambient_variables

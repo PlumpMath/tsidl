@@ -5,8 +5,8 @@
 
 namespace ambient_functions
 {
-    jsrt::bound_function<jsrt::object, jsrt::object> a();
-    void set_a(jsrt::function<jsrt::object> value);
+    jsrt::bound_function<jsrt::object, jsrt::value> a();
+    void set_a(jsrt::function<jsrt::value> value);
     jsrt::bound_function<jsrt::object, double, double> b();
     void set_b(jsrt::function<double, double> value);
     jsrt::bound_function<jsrt::object, double, double, jsrt::optional<double>> c();

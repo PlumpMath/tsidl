@@ -11,8 +11,8 @@ namespace types_primitive
     void set_y(double value);
     std::wstring z();
     void set_z(std::wstring value);
-    jsrt::object a();
-    void set_a(jsrt::object value);
-    jsrt::object b();
-    void set_b(jsrt::object value);
+    jsrt::value a();
+    void set_a(jsrt::value value);
+    jsrt::value b();
+    void set_b(jsrt::value value);
 } // namespace types_primitive

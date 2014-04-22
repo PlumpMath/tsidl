@@ -28,11 +28,11 @@ namespace types_array
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"z"), value);
     }
-    jsrt::array<jsrt::object> a()
+    jsrt::array<jsrt::value> a()
     {
-        return jsrt::context::global().get_property<jsrt::array<jsrt::object>>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<jsrt::array<jsrt::value>>(jsrt::property_id::create(L"a"));
     }
-    void set_a(jsrt::array<jsrt::object> value)
+    void set_a(jsrt::array<jsrt::value> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }

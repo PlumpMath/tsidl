@@ -3,9 +3,9 @@
 #include <jsrt.h>
 #include "ambient-functions.proxy.h"
 
-jsrt::object a(const jsrt::call_info &info)
+jsrt::value a(const jsrt::call_info &info)
 {
-    return (jsrt::object)jsrt::context::null();
+    return jsrt::context::null();
 }
 
 double b(const jsrt::call_info &info, double x)

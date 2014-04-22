@@ -11,8 +11,8 @@ namespace types_array
     void set_y(jsrt::array<bool> value);
     jsrt::array<std::wstring> z();
     void set_z(jsrt::array<std::wstring> value);
-    jsrt::array<jsrt::object> a();
-    void set_a(jsrt::array<jsrt::object> value);
+    jsrt::array<jsrt::value> a();
+    void set_a(jsrt::array<jsrt::value> value);
     jsrt::array<c_proxy> b();
     void set_b(jsrt::array<c_proxy> value);
     class c_proxy: public jsrt::object

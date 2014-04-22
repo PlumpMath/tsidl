@@ -64,19 +64,19 @@ namespace ambient_variables
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
-    jsrt::object d()
+    jsrt::value d()
     {
-        return jsrt::context::global().get_property<jsrt::object>(jsrt::property_id::create(L"d"));
+        return jsrt::context::global().get_property<jsrt::value>(jsrt::property_id::create(L"d"));
     }
-    void set_d(jsrt::object value)
+    void set_d(jsrt::value value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
     }
-    jsrt::object e()
+    jsrt::value e()
     {
-        return jsrt::context::global().get_property<jsrt::object>(jsrt::property_id::create(L"e"));
+        return jsrt::context::global().get_property<jsrt::value>(jsrt::property_id::create(L"e"));
     }
-    void set_e(jsrt::object value)
+    void set_e(jsrt::value value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"e"), value);
     }
@@ -104,11 +104,11 @@ namespace ambient_variables
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"h"), value);
     }
-    jsrt::bound_function<jsrt::object, double, double> i()
+    jsrt::bound_function<jsrt::object, jsrt::object, double> i()
     {
-        return jsrt::bound_function<jsrt::object, double, double>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"i")));
+        return jsrt::bound_function<jsrt::object, jsrt::object, double>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<jsrt::object, double>>(jsrt::property_id::create(L"i")));
     }
-    void set_i(jsrt::function<double, double> value)
+    void set_i(jsrt::function<jsrt::object, double> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"i"), value);
     }

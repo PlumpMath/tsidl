@@ -4,11 +4,11 @@
 
 namespace ambient_functions
 {
-    jsrt::bound_function<jsrt::object, jsrt::object> a()
+    jsrt::bound_function<jsrt::object, jsrt::value> a()
     {
-        return jsrt::bound_function<jsrt::object, jsrt::object>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<jsrt::object>>(jsrt::property_id::create(L"a")));
+        return jsrt::bound_function<jsrt::object, jsrt::value>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<jsrt::value>>(jsrt::property_id::create(L"a")));
     }
-    void set_a(jsrt::function<jsrt::object> value)
+    void set_a(jsrt::function<jsrt::value> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }

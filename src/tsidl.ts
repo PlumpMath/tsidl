@@ -323,7 +323,7 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
             typeString = "void";
         }
         else if (type.name === "any") {
-            typeString = "jsrt::object";
+            typeString = "jsrt::value";
         }
     }
     else if (type.isArrayNamedTypeReference()) {

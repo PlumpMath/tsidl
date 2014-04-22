@@ -28,19 +28,19 @@ namespace types_primitive
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"z"), value);
     }
-    jsrt::object a()
+    jsrt::value a()
     {
-        return jsrt::context::global().get_property<jsrt::object>(jsrt::property_id::create(L"a"));
+        return jsrt::context::global().get_property<jsrt::value>(jsrt::property_id::create(L"a"));
     }
-    void set_a(jsrt::object value)
+    void set_a(jsrt::value value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
-    jsrt::object b()
+    jsrt::value b()
     {
-        return jsrt::context::global().get_property<jsrt::object>(jsrt::property_id::create(L"b"));
+        return jsrt::context::global().get_property<jsrt::value>(jsrt::property_id::create(L"b"));
     }
-    void set_b(jsrt::object value)
+    void set_b(jsrt::value value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
