@@ -25,7 +25,7 @@ var tsidlTarget: string = srcBuiltDirectory + "tsidl.js";
 var tsidlCliTarget: string = srcBuiltDirectory + "tsidl-cli.js";
 
 function compileOptions(): ts.BatchCompileOptions {
-    var options: ts.BatchCompileOptions = { noImplicitAny: true, removeComments: true, moduleKind: ts.ModuleKind.commonjs };
+    var options: ts.BatchCompileOptions = { noImplicitAny: true, removeComments: true, moduleKind: ts.ModuleKind.commonjs, targetVersion: ts.ESVersion.ES5 };
     if (emitSourceMaps) {
         options.generateSourceMap = true;
         options.mapRoot = "file:///" + path.resolve(srcBuiltDirectory);

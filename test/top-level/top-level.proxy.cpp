@@ -60,4 +60,20 @@ namespace top_level
     {
         return jsrt::context::global().get_property<b_proxy>(jsrt::property_id::create(L"b"));
     }
+}
+template<>
+JsErrorCode jsrt::value::to_native<top_level::c>(JsValueRef value, top_level::c *result)
+{
+    double doubleResult = 0;
+    JsErrorCode code = JsNumberToDouble(value, &doubleResult);
+    *result = (top_level::c)(int) doubleResult;
+    return code;
+}
+template<>
+JsErrorCode jsrt::value::from_native(top_level::c value, JsValueRef *result)
+{
+    return JsIntToNumber(value, result);
+}
+namespace top_level
+{
 } // namespace top_level

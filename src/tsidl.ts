@@ -141,117 +141,133 @@ function getFileNameWithoutExtension(path: string): string {
     }
 }
 
-class OutputWriter {
-    private headerFile: string;
-    private headerComplete: boolean;
-    private headerIndent: number;
-    private headerAtLineStart: boolean;
-    private sourceFile: string;
-    private sourceComplete: boolean;
-    private sourceIndent: number;
-    private sourceAtLineStart: boolean;
+function cleanName(name: string): string {
+    return name.replace(/-/g, "_");
+}
 
-    constructor() {
-        this.headerFile = "";
-        this.headerComplete = false;
-        this.headerIndent = 0;
-        this.headerAtLineStart = true;
-        this.sourceFile = "";
-        this.sourceComplete = false;
-        this.sourceIndent = 0;
-        this.sourceAtLineStart = true;
+class OutputWriter {
+    private _baseName: string;
+    private _namespaceName: string;
+    private _headerFile: string;
+    private _headerComplete: boolean;
+    private _headerIndent: number;
+    private _headerAtLineStart: boolean;
+    private _sourceFile: string;
+    private _sourceComplete: boolean;
+    private _sourceIndent: number;
+    private _sourceAtLineStart: boolean;
+
+    constructor(baseName: string) {
+        this._baseName = baseName;
+        this._namespaceName = cleanName(baseName);
+        this._headerFile = "";
+        this._headerComplete = false;
+        this._headerIndent = 0;
+        this._headerAtLineStart = true;
+        this._sourceFile = "";
+        this._sourceComplete = false;
+        this._sourceIndent = 0;
+        this._sourceAtLineStart = true;
+    }
+
+    public get baseName(): string {
+        return this._baseName;
+    }
+
+    public get namespaceName(): string {
+        return this._namespaceName;
     }
 
     public completeHeader(): string {
-        this.headerComplete = true;
-        return this.headerFile;
+        this._headerComplete = true;
+        return this._headerFile;
     }
 
     public completeSource(): string {
-        this.sourceComplete = true;
-        return this.sourceFile;
+        this._sourceComplete = true;
+        return this._sourceFile;
     }
 
     private checkHeaderComplete(): void {
-        if (this.headerComplete) {
+        if (this._headerComplete) {
             throw new Error("invalid header write");
         }
     }
 
     private checkSourceComplete(): void {
-        if (this.sourceComplete) {
+        if (this._sourceComplete) {
             throw new Error("invalid source write");
         }
     }
 
     private checkHeaderIndent(): void {
-        if (this.headerAtLineStart) {
-            for (var index: number = 0; index < this.headerIndent; index++) {
-                this.headerFile += "    ";
+        if (this._headerAtLineStart) {
+            for (var index: number = 0; index < this._headerIndent; index++) {
+                this._headerFile += "    ";
             }
         }
-        this.headerAtLineStart = false;
+        this._headerAtLineStart = false;
     }
 
     public writeLineHeader(s?: string): void {
         this.checkHeaderComplete();
         this.checkHeaderIndent();
         if (s) {
-            this.headerFile += s;
+            this._headerFile += s;
         }
-        this.headerFile += "\r\n";
-        this.headerAtLineStart = true;
+        this._headerFile += "\r\n";
+        this._headerAtLineStart = true;
     }
 
     public writeHeader(s: string): void {
         this.checkHeaderComplete();
         this.checkHeaderIndent();
-        this.headerFile += s;
+        this._headerFile += s;
     }
 
     public indentHeader(): void {
-        this.headerIndent += 1;
+        this._headerIndent += 1;
     }
 
     public outdentHeader(): void {
-        this.headerIndent -= 1;
-        if (this.headerIndent < 0) {
+        this._headerIndent -= 1;
+        if (this._headerIndent < 0) {
             throw new Error("unbalanced indent");
         }
     }
 
     private checkSourceIndent(): void {
-        if (this.sourceAtLineStart) {
-            for (var index: number = 0; index < this.sourceIndent; index++) {
-                this.sourceFile += "    ";
+        if (this._sourceAtLineStart) {
+            for (var index: number = 0; index < this._sourceIndent; index++) {
+                this._sourceFile += "    ";
             }
         }
-        this.sourceAtLineStart = false;
+        this._sourceAtLineStart = false;
     }
 
     public writeLineSource(s?: string): void {
         this.checkSourceComplete();
         this.checkSourceIndent();
         if (s) {
-            this.sourceFile += s;
+            this._sourceFile += s;
         }
-        this.sourceFile += "\r\n";
-        this.sourceAtLineStart = true;
+        this._sourceFile += "\r\n";
+        this._sourceAtLineStart = true;
     }
 
     public writeSource(s: string): void {
         this.checkSourceComplete();
         this.checkSourceIndent();
-        this.sourceFile += s;
+        this._sourceFile += s;
     }
 
     public indentSource(): void {
-        this.sourceIndent += 1;
+        this._sourceIndent += 1;
     }
 
     public outdentSource(): void {
-        this.sourceIndent -= 1;
-        if (this.sourceIndent < 0) {
+        this._sourceIndent -= 1;
+        if (this._sourceIndent < 0) {
             throw new Error("unbalanced indent");
         }
     }
@@ -452,6 +468,83 @@ function writeEnumMember(member: TypeScript.PullEnumElementDecl, outputWriter: O
     outputWriter.writeLineHeader(",");
 }
 
+function writeEnum(outerContainer: TypeScript.PullTypeSymbol, enumDecl: TypeScript.PullDecl, outputWriter: OutputWriter): void {
+    var containerSymbol: TypeScript.PullSymbol = enumDecl.getSymbol();
+    var namespaceFullyQualifiedName: string = outputWriter.namespaceName + "::" + getFullyQualifiedName(containerSymbol);
+
+    outputWriter.writeLineHeader("enum " + enumDecl.name);
+    outputWriter.writeLineHeader("{");
+    outputWriter.indentHeader();
+
+    var childDecls: TypeScript.PullDecl[] = enumDecl.getChildDecls();
+
+    if (childDecls) {
+        var seen: any = {};
+
+        childDecls.forEach(childDecl => {
+            var s: TypeScript.PullSymbol = childDecl.getSymbol();
+            if (s && !seen[s]) {
+                writeMember(containerSymbol ? containerSymbol.type : null, s, outputWriter);
+                seen[s] = true;
+            }
+        });
+    }
+
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("};");
+
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource("template<>");
+    outputWriter.writeLineSource("JsErrorCode jsrt::value::to_native<" + namespaceFullyQualifiedName + ">(JsValueRef value, " + namespaceFullyQualifiedName + " *result)");
+    outputWriter.writeLineSource("{");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("double doubleResult = 0;");
+    outputWriter.writeLineSource("JsErrorCode code = JsNumberToDouble(value, &doubleResult);");
+    outputWriter.writeLineSource("*result = (" + namespaceFullyQualifiedName + ")(int) doubleResult;");
+    outputWriter.writeLineSource("return code;");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource("template<>");
+    outputWriter.writeLineSource("JsErrorCode jsrt::value::from_native(" + namespaceFullyQualifiedName + " value, JsValueRef *result)");
+    outputWriter.writeLineSource("{");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("return JsIntToNumber(value, result);");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource("namespace " + outputWriter.namespaceName);
+    outputWriter.writeLineSource("{");
+    outputWriter.indentSource();
+}
+
+function writeModule(outerContainer: TypeScript.PullTypeSymbol, moduleDecl: TypeScript.PullDecl, outputWriter: OutputWriter): void {
+    var containerSymbol: TypeScript.PullSymbol = moduleDecl.getSymbol();
+    var typeName: string = moduleDecl.name + "_proxy";
+    var fullyQualifiedName: string = getFullyQualifiedName(containerSymbol);
+
+    writeClass(fullyQualifiedName, typeName, "jsrt::object", outputWriter);
+
+    var childDecls: TypeScript.PullDecl[] = moduleDecl.getChildDecls();
+
+    if (childDecls) {
+        var seen: any = {};
+
+        childDecls.forEach(childDecl => {
+            var s: TypeScript.PullSymbol = childDecl.getSymbol();
+            if (s && !seen[s]) {
+                writeMember(containerSymbol ? containerSymbol.type : null, s, outputWriter);
+                seen[s] = true;
+            }
+        });
+    }
+
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("};");
+}
+
 function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.PullSymbol, outputWriter: OutputWriter): void {
     var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
 
@@ -472,7 +565,7 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
             break;
 
         case TypeScript.PullElementKind.Enum:
-            writeContainer(container, member.getDeclarations()[0], outputWriter);
+            writeEnum(container, member.getDeclarations()[0], outputWriter);
             break;
 
         case TypeScript.PullElementKind.Class:
@@ -481,7 +574,7 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
             break;
 
         case TypeScript.PullElementKind.Container:
-            writeContainer(container, member.getDeclarations()[0], outputWriter);
+            writeModule(container, member.getDeclarations()[0], outputWriter);
             writeField(container, member.name, member.type, outputWriter, true);
             break;
 
@@ -530,22 +623,10 @@ function writeClass(fullyQualifiedName: string, typeName: string, baseName: stri
     }
 }
 
-function writeContainer(outerContainer: TypeScript.PullTypeSymbol, container: TypeScript.PullDecl, outputWriter: OutputWriter): void {
-    var containerSymbol: TypeScript.PullSymbol = container.getSymbol();
-    var typeName: string = container.name + "_proxy";
-    var fullyQualifiedName: string = getFullyQualifiedName(containerSymbol);
+function writeScript(script: TypeScript.PullDecl, outputWriter: OutputWriter): void {
+    assert(!script.getSymbol());
 
-    if (containerSymbol) {
-        if (container.kind === TypeScript.PullElementKind.Container) {
-            writeClass(fullyQualifiedName, typeName, "jsrt::object", outputWriter);
-        } else {
-            outputWriter.writeLineHeader("enum " + container.name);
-            outputWriter.writeLineHeader("{");
-            outputWriter.indentHeader();
-        }
-    }
-
-    var childDecls: TypeScript.PullDecl[] = container.getChildDecls();
+    var childDecls: TypeScript.PullDecl[] = script.getChildDecls();
 
     if (childDecls) {
         var seen: any = {};
@@ -553,55 +634,42 @@ function writeContainer(outerContainer: TypeScript.PullTypeSymbol, container: Ty
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
             if (s && !seen[s]) {
-                writeMember(containerSymbol ? containerSymbol.type : null, s, outputWriter);
+                writeMember(null, s, outputWriter);
                 seen[s] = true;
             }
         });
     }
-
-    if (containerSymbol) {
-        outputWriter.outdentHeader();
-        outputWriter.writeLineHeader("};");
-    }
 }
 
 function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter): void {
-    writeContainer(null, document.topLevelDecl(), outputWriter);
+    writeScript(document.topLevelDecl(), outputWriter);
 }
 
-function cleanName(name: string): string {
-    return name.replace(/-/g, "_");
-}
-
-function writePrologue(baseName: string, outputWriter: OutputWriter): void {
-    var namespaceName: string = cleanName(baseName);
-
+function writePrologue(outputWriter: OutputWriter): void {
     outputWriter.writeLineHeader("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("#include <jsrt.h>");
     outputWriter.writeLineHeader("#include \"jsrt.wrappers.h\"");
     outputWriter.writeLineHeader();
-    outputWriter.writeLineHeader("namespace " + namespaceName);
+    outputWriter.writeLineHeader("namespace " + outputWriter.namespaceName);
     outputWriter.writeLineHeader("{");
     outputWriter.indentHeader();
 
     outputWriter.writeLineSource("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineSource();
-    outputWriter.writeLineSource("#include \"" + baseName + ".proxy.h\"");
+    outputWriter.writeLineSource("#include \"" + outputWriter.baseName + ".proxy.h\"");
     outputWriter.writeLineSource();
-    outputWriter.writeLineSource("namespace " + namespaceName);
+    outputWriter.writeLineSource("namespace " + outputWriter.namespaceName);
     outputWriter.writeLineSource("{");
     outputWriter.indentSource();
 }
 
-function writeEpilogue(baseName: string, outputWriter: OutputWriter): void {
-    var namespaceName: string = cleanName(baseName);
-
+function writeEpilogue(outputWriter: OutputWriter): void {
     outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("} // namespace " + namespaceName);
+    outputWriter.writeLineHeader("} // namespace " + outputWriter.namespaceName);
 
     outputWriter.outdentSource();
-    outputWriter.writeLineSource("} // namespace " + namespaceName);
+    outputWriter.writeLineSource("} // namespace " + outputWriter.namespaceName);
 }
 
 function checkTypeReference(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
@@ -965,19 +1033,19 @@ function main(): void {
         process.exit(1);
     }
 
-    var outputWriter: OutputWriter = new OutputWriter();
     var baseName: string = getFileNameWithoutExtension(files[0]);
 
     if ((/\.d$/i).test(baseName)) {
         baseName = baseName.substring(0, baseName.length - 2);
     }
 
+    var outputWriter: OutputWriter = new OutputWriter(baseName);
     var headerFileName: string = cmdLine.header || baseName + ".proxy.h";
     var sourceFileName: string = cmdLine.source || baseName + ".proxy.cpp";
 
-    writePrologue(baseName, outputWriter);
+    writePrologue(outputWriter);
     writeDocument(document, outputWriter);
-    writeEpilogue(baseName, outputWriter);
+    writeEpilogue(outputWriter);
 
     try {
         ioHost.writeFile(headerFileName, outputWriter.completeHeader(), false);

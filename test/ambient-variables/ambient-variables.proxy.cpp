@@ -16,6 +16,22 @@ namespace ambient_variables
     {
         return jsrt::bound_function<jsrt::object, x_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<x_proxy>>(jsrt::property_id::create(L"x")));
     }
+}
+template<>
+JsErrorCode jsrt::value::to_native<ambient_variables::y>(JsValueRef value, ambient_variables::y *result)
+{
+    double doubleResult = 0;
+    JsErrorCode code = JsNumberToDouble(value, &doubleResult);
+    *result = (ambient_variables::y)(int) doubleResult;
+    return code;
+}
+template<>
+JsErrorCode jsrt::value::from_native(ambient_variables::y value, JsValueRef *result)
+{
+    return JsIntToNumber(value, result);
+}
+namespace ambient_variables
+{
     z_proxy::z_proxy() :
         jsrt::object()
     {

@@ -88,6 +88,22 @@ namespace ambient_modules
         jsrt::object(object)
     {
     }
+}
+template<>
+JsErrorCode jsrt::value::to_native<ambient_modules::b_proxy::c_proxy::d_proxy::b>(JsValueRef value, ambient_modules::b_proxy::c_proxy::d_proxy::b *result)
+{
+    double doubleResult = 0;
+    JsErrorCode code = JsNumberToDouble(value, &doubleResult);
+    *result = (ambient_modules::b_proxy::c_proxy::d_proxy::b)(int) doubleResult;
+    return code;
+}
+template<>
+JsErrorCode jsrt::value::from_native(ambient_modules::b_proxy::c_proxy::d_proxy::b value, JsValueRef *result)
+{
+    return JsIntToNumber(value, result);
+}
+namespace ambient_modules
+{
     b_proxy::c_proxy::d_proxy::e_proxy::e_proxy() :
         jsrt::object()
     {
