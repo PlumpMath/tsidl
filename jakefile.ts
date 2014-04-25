@@ -7,7 +7,7 @@ import ts = require("jake-typescript");
 require("colors");
 
 var srcDirectory: string = "src/";
-var libDirectory: string = "lib/";
+var libDirectory: string = "lib/typescript/";
 var testDirectory: string = "test/";
 var builtDirectory: string = "built/";
 var srcBuiltDirectory: string = builtDirectory + srcDirectory;

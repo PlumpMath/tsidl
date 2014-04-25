@@ -1,6 +1,6 @@
 ///<reference path='../typings/node/node.d.ts'/>
 ///<reference path='../typings/nomnom/nomnom.d.ts'/>
-///<reference path='../lib/ts.d.ts'/>
+///<reference path='../lib/typescript/ts.d.ts'/>
 
 import nomnom = require('nomnom');
 import assert = require('assert');
