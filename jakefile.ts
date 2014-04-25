@@ -109,7 +109,7 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
 
         desc("Build " + test);
         file(outputOutputBuilt, dependencies, () => {
-            var command: string = "cmd /c \"cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --header " + outputHeaderBuilt + " --source " + outputSourceBuilt + " 1> " + outputOutputBuilt + " 2>&1\"";
+            var command: string = "cd " + process.cwd() + " && node " + tsidlCliTarget + " " + test + " --header " + outputHeaderBuilt + " --source " + outputSourceBuilt + " 1> " + outputOutputBuilt + " 2>&1";
 
             jake.exec([command], () => {
                 var outputBaseline: string = <any>fs.readFileSync(outputOutputBaseline, { encoding: "utf8" });
@@ -170,8 +170,8 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
 
         desc("Build " + test);
         task(outputBuildBuilt, dependencies, () => {
-            var buildCommand: string = "cmd /c \"cd " + process.cwd() + " && msbuild " + test + " /p:Configuration=Release /p:Platform=x64 /verbosity:m 1> " + outputBuildBuilt + " 2>&1\"";
-            var runCommand: string = "cmd /c \"cd " + process.cwd() + " && " + switchToBackwardSlashes(singleTestBuiltDirectory) + "\\x64\\Release\\" + singleTestDirectoryBase + " " + testScript + " 1> " + outputRunBuilt + " 2>&1\"";
+            var buildCommand: string = "cd " + process.cwd() + " && msbuild " + test + " /p:Configuration=Release /p:Platform=x64 /verbosity:m 1> " + outputBuildBuilt + " 2>&1";
+            var runCommand: string = "cd " + process.cwd() + " && " + switchToBackwardSlashes(singleTestBuiltDirectory) + "\\x64\\Release\\" + singleTestDirectoryBase + " " + testScript + " 1> " + outputRunBuilt + " 2>&1";
 
             jake.exec([buildCommand, runCommand], () => {
                 var baselineBuild: string = <any>fs.readFileSync(outputBuildBaseline, { encoding: "utf8" });

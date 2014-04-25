@@ -359,11 +359,16 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
     return typeString;
 }
 
-function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter, readOnly: boolean = false): void {
+function writeField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter, readOnly: boolean = false, isOptional: boolean = false): void {
     var global: string = container ? "" : "jsrt::context::global().";
     var fieldType: string = typeStringNative(container, type);
     var boundFieldType: string = typeStringNative(container, type, false, false, true);
     var classQualifier: string = getFullyQualifiedName(container, true);
+
+    if (isOptional) {
+        fieldType = "jsrt::optional<" + fieldType + ">";
+        boundFieldType = "jsrt::optional<" + boundFieldType + ">";
+    }
 
     outputWriter.writeLineHeader(boundFieldType + " " + name + "();");
     if (!readOnly) {
@@ -416,32 +421,37 @@ function writeTypeImplements(typeName: string, baseName: string, implementsList:
 
 function writeType(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
     var baseName: string;
-    var emitSignatureConstructor: boolean = false;
+    var emitCreate: boolean = false;
     var typeName: string = type.name + "_proxy";
     var fullyQualifiedName: string = getFullyQualifiedName(type);
 
     if (type.hasOwnCallSignatures()) {
         baseName = javaScriptFunctionType(type, type.getCallSignatures()[0]);
-        emitSignatureConstructor = true;
+        emitCreate = true;
     } else if (type.hasOwnConstructSignatures()) {
         baseName = javaScriptFunctionType(type, type.getConstructSignatures()[0]);
-        emitSignatureConstructor = true;
+        emitCreate = true;
     } else if (type.getExtendedTypes().length > 0) {
-        baseName = type.getExtendedTypes()[0].name + "_proxy";
+        var baseType: TypeScript.PullTypeSymbol = type.getExtendedTypes()[0];
+        baseName = baseType.name + "_proxy";
+        while (baseType && !emitCreate) {
+            emitCreate = baseType.hasOwnCallSignatures() || baseType.hasOwnConstructSignatures();
+            baseType = (baseType.getExtendedTypes().length > 0) ? baseType.getExtendedTypes()[0] : null;
+        }
     } else {
         baseName = "jsrt::object";
     }
 
     writeClass(fullyQualifiedName, typeName, baseName, outputWriter);
 
-    if (emitSignatureConstructor) {
-        outputWriter.writeLineHeader(typeName + "(Signature signature);");
+    if (emitCreate) {
+        outputWriter.writeLineHeader("static " + typeName + " create(Signature signature);");
 
-        outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "(Signature signature) :");
-        outputWriter.indentSource();
-        outputWriter.writeLineSource("" + baseName + "(signature)");
-        outputWriter.outdentSource();
+        outputWriter.writeLineSource(typeName + " " + fullyQualifiedName + "::create(Signature signature)");
         outputWriter.writeLineSource("{");
+        outputWriter.indentSource();
+        outputWriter.writeLineSource("return (" + typeName + ")" + baseName + "::create(signature);");
+        outputWriter.outdentSource();
         outputWriter.writeLineSource("}");
     }
 
@@ -559,7 +569,7 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
         case TypeScript.PullElementKind.Variable:
         case TypeScript.PullElementKind.Property:
         case TypeScript.PullElementKind.Method:
-            writeField(container, member.name, member.type, outputWriter);
+            writeField(container, member.name, member.type, outputWriter, false, member.isOptional);
             break;
 
         case TypeScript.PullElementKind.Interface:
@@ -572,12 +582,12 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
 
         case TypeScript.PullElementKind.Class:
             writeType(container, member.type, outputWriter);
-            writeField(container, member.name, member.type.getConstructorMethod().type, outputWriter, true);
+            writeField(container, member.name, member.type.getConstructorMethod().type, outputWriter, true, member.isOptional);
             break;
 
         case TypeScript.PullElementKind.Container:
             writeModule(container, member.getDeclarations()[0], outputWriter);
-            writeField(container, member.name, member.type, outputWriter, true);
+            writeField(container, member.name, member.type, outputWriter, true, member.isOptional);
             break;
 
         case TypeScript.PullElementKind.EnumMember:

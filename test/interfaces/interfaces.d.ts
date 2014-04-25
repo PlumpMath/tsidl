@@ -14,7 +14,7 @@ interface d {
 	(a: string): string;
 }
 interface e {
-	new (a: string): string;
+	new (a: string): {};
 }
 interface f extends d {
 	

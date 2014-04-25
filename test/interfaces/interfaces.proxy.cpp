@@ -40,11 +40,11 @@ namespace interfaces
     {
         set_property(jsrt::property_id::create(L"x"), value);
     }
-    double c_proxy::y()
+    jsrt::optional<double> c_proxy::y()
     {
-        return get_property<double>(jsrt::property_id::create(L"y"));
+        return get_property<jsrt::optional<double>>(jsrt::property_id::create(L"y"));
     }
-    void c_proxy::set_y(double value)
+    void c_proxy::set_y(jsrt::optional<double> value)
     {
         set_property(jsrt::property_id::create(L"y"), value);
     }
@@ -76,25 +76,25 @@ namespace interfaces
         jsrt::function<std::wstring, std::wstring>(object)
     {
     }
-    d_proxy::d_proxy(Signature signature) :
-        jsrt::function<std::wstring, std::wstring>(signature)
+    d_proxy d_proxy::create(Signature signature)
     {
+        return (d_proxy)jsrt::function<std::wstring, std::wstring>::create(signature);
     }
     e_proxy::e_proxy() :
-        jsrt::function<std::wstring, std::wstring>()
+        jsrt::function<jsrt::object, std::wstring>()
     {
     }
     e_proxy::e_proxy(jsrt::object object) :
-        jsrt::function<std::wstring, std::wstring>(object)
+        jsrt::function<jsrt::object, std::wstring>(object)
     {
     }
-    e_proxy::e_proxy(jsrt::function<std::wstring, std::wstring> object) :
-        jsrt::function<std::wstring, std::wstring>(object)
+    e_proxy::e_proxy(jsrt::function<jsrt::object, std::wstring> object) :
+        jsrt::function<jsrt::object, std::wstring>(object)
     {
     }
-    e_proxy::e_proxy(Signature signature) :
-        jsrt::function<std::wstring, std::wstring>(signature)
+    e_proxy e_proxy::create(Signature signature)
     {
+        return (e_proxy)jsrt::function<jsrt::object, std::wstring>::create(signature);
     }
     f_proxy::f_proxy() :
         d_proxy()
@@ -107,5 +107,9 @@ namespace interfaces
     f_proxy::f_proxy(d_proxy object) :
         d_proxy(object)
     {
+    }
+    f_proxy f_proxy::create(Signature signature)
+    {
+        return (f_proxy)d_proxy::create(signature);
     }
 } // namespace interfaces
