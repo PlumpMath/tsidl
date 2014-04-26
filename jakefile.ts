@@ -204,7 +204,6 @@ task("update-baselines", ["test"], () => {
         var filename: string = singleTestDirectoryBase + ".d.ts";
         var test: string = singleTestDirectory + filename;
         var solutionFilename: string = singleTestDirectoryBase + ".sln";
-        var integrationTest: string = singleTestDirectory + solutionFilename;
         var stats: fs.Stats = fs.statSync(singleTestDirectory);
 
         if (stats.isDirectory()) {
@@ -237,6 +236,20 @@ task("update-baselines", ["test"], () => {
                     jake.cpR(outputSourceBuilt, outputSourceBaseline);
                 }
             }
+        }
+    });
+});
+
+desc("Updates the integration test baselines.");
+task("update-integration-baselines", ["test-integration"], () => {
+    fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
+        var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
+        var solutionFilename: string = singleTestDirectoryBase + ".sln";
+        var integrationTest: string = singleTestDirectory + solutionFilename;
+        var stats: fs.Stats = fs.statSync(singleTestDirectory);
+
+        if (stats.isDirectory()) {
+            var singleTestBuiltDirectory = testBuiltDirectory + singleTestDirectoryBase + "/";
 
             if (fs.existsSync(integrationTest)) {
                 var outputBuild: string = singleTestDirectoryBase + ".msbuild.output";
