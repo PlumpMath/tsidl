@@ -7,6 +7,4 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   ambient-modules.proxy.cpp
   Generating code
   Finished generating code
-jsrt.wrappers.lib(jsrt_wrappers.obj) : warning LNK4204: 'C:\Users\paulv\source\repos\tsidl\built\test\ambient-modules\x64\Release\vc120.pdb' is missing debugging information for referencing module; linking object as if no debug info [C:\Users\paulv\source\repos\tsidl\test\ambient-modules\ambient-modules.vcxproj]
-jsrt.wrappers.lib(stdafx.obj) : warning LNK4204: 'C:\Users\paulv\source\repos\tsidl\built\test\ambient-modules\x64\Release\vc120.pdb' is missing debugging information for referencing module; linking object as if no debug info [C:\Users\paulv\source\repos\tsidl\test\ambient-modules\ambient-modules.vcxproj]
   ambient-modules.vcxproj -> C:\Users\paulv\source\repos\tsidl\test\ambient-modules\\..\..\built\test\ambient-modules\x64\Release\ambient-modules.exe

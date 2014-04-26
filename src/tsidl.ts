@@ -661,7 +661,7 @@ function writePrologue(outputWriter: OutputWriter): void {
     outputWriter.writeLineHeader("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("#include <jsrt.h>");
-    outputWriter.writeLineHeader("#include \"jsrt.wrappers.h\"");
+    outputWriter.writeLineHeader("#include \"jsrt-wrappers.h\"");
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("namespace " + outputWriter.namespaceName);
     outputWriter.writeLineHeader("{");

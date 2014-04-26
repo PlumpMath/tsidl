@@ -203,34 +203,52 @@ task("update-baselines", ["test"], () => {
         var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
         var filename: string = singleTestDirectoryBase + ".d.ts";
         var test: string = singleTestDirectory + filename;
+        var solutionFilename: string = singleTestDirectoryBase + ".sln";
+        var integrationTest: string = singleTestDirectory + solutionFilename;
         var stats: fs.Stats = fs.statSync(singleTestDirectory);
 
-        if (stats.isDirectory() && fs.existsSync(test)) {
+        if (stats.isDirectory()) {
             var singleTestBuiltDirectory = testBuiltDirectory + singleTestDirectoryBase + "/";
-            var outputBase: string = filename.substr(0, filename.length - 3);
 
-            if ((/\.d$/i).test(outputBase)) {
-                outputBase = outputBase.substring(0, outputBase.length - 2);
+            if (fs.existsSync(test)) {
+                var outputBase: string = filename.substr(0, filename.length - 3);
+
+                if ((/\.d$/i).test(outputBase)) {
+                    outputBase = outputBase.substring(0, outputBase.length - 2);
+                }
+
+                var outputHeader: string = outputBase + ".proxy.h";
+                var outputSource: string = outputBase + ".proxy.cpp";
+                var outputOutput: string = outputBase + ".tsidl.output";
+
+                var outputHeaderBaseline: string = singleTestDirectory + outputHeader;
+                var outputHeaderBuilt: string = singleTestBuiltDirectory + outputHeader;
+                var outputSourceBaseline: string = singleTestDirectory + outputSource;
+                var outputSourceBuilt: string = singleTestBuiltDirectory + outputSource;
+                var outputOutputBaseline: string = singleTestDirectory + outputOutput;
+                var outputOutputBuilt: string = singleTestBuiltDirectory + outputOutput;
+
+                var fails: boolean = !fs.existsSync(outputHeaderBaseline);
+
+                jake.cpR(outputOutputBuilt, outputOutputBaseline);
+
+                if (!fails) {
+                    jake.cpR(outputHeaderBuilt, outputHeaderBaseline);
+                    jake.cpR(outputSourceBuilt, outputSourceBaseline);
+                }
             }
 
-            var outputHeader: string = outputBase + ".proxy.h";
-            var outputSource: string = outputBase + ".proxy.cpp";
-            var outputOutput: string = outputBase + ".tsidl.output";
+            if (fs.existsSync(integrationTest)) {
+                var outputBuild: string = singleTestDirectoryBase + ".msbuild.output";
+                var outputRun: string = singleTestDirectoryBase + ".harness.output";
 
-            var outputHeaderBaseline: string = singleTestDirectory + outputHeader;
-            var outputHeaderBuilt: string = singleTestBuiltDirectory + outputHeader;
-            var outputSourceBaseline: string = singleTestDirectory + outputSource;
-            var outputSourceBuilt: string = singleTestBuiltDirectory + outputSource;
-            var outputOutputBaseline: string = singleTestDirectory + outputOutput;
-            var outputOutputBuilt: string = singleTestBuiltDirectory + outputOutput;
+                var outputBuildBaseline: string = singleTestDirectory + outputBuild;
+                var outputBuildBuilt: string = singleTestBuiltDirectory + outputBuild;
+                var outputRunBaseline: string = singleTestDirectory + outputRun;
+                var outputRunBuilt: string = singleTestBuiltDirectory + outputRun;
 
-            var fails: boolean = !fs.existsSync(outputHeaderBaseline);
-
-            jake.cpR(outputOutputBuilt, outputOutputBaseline);
-
-            if (!fails) {
-                jake.cpR(outputHeaderBuilt, outputHeaderBaseline);
-                jake.cpR(outputSourceBuilt, outputSourceBaseline);
+                jake.cpR(outputBuildBuilt, outputBuildBaseline);
+                jake.cpR(outputRunBuilt, outputRunBaseline);
             }
         }
     });
