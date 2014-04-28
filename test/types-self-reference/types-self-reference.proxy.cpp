@@ -8,8 +8,8 @@ namespace types_self_reference
         jsrt::object()
     {
     }
-    a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object)
+    a_proxy::a_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     jsrt::bound_function<jsrt::object, a_proxy> a()
@@ -20,24 +20,24 @@ namespace types_self_reference
         jsrt::object()
     {
     }
-    c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object)
+    c_proxy::c_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     c_proxy::d_proxy::d_proxy() :
         jsrt::object()
     {
     }
-    c_proxy::d_proxy::d_proxy(jsrt::object object) :
-        jsrt::object(object)
+    c_proxy::d_proxy::d_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     c_proxy::d_proxy::e_proxy::e_proxy() :
         jsrt::object()
     {
     }
-    c_proxy::d_proxy::e_proxy::e_proxy(jsrt::object object) :
-        jsrt::object(object)
+    c_proxy::d_proxy::e_proxy::e_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     jsrt::bound_function<c_proxy::d_proxy, c_proxy::d_proxy::e_proxy> c_proxy::d_proxy::e()

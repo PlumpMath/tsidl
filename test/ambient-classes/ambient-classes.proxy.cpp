@@ -8,8 +8,8 @@ namespace ambient_classes
         jsrt::object()
     {
     }
-    a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object)
+    a_proxy::a_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     double a_proxy::x()
@@ -36,8 +36,8 @@ namespace ambient_classes
         jsrt::object()
     {
     }
-    b_proxy::b_proxy(jsrt::object object) :
-        jsrt::object(object)
+    b_proxy::b_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     double b_proxy::x()
@@ -52,8 +52,8 @@ namespace ambient_classes
         jsrt::object()
     {
     }
-    c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object)
+    c_proxy::c_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     c_proxy::c_proxy(b_proxy value) :
@@ -80,12 +80,8 @@ namespace ambient_classes
         c_proxy()
     {
     }
-    d_proxy::d_proxy(jsrt::object object) :
-        c_proxy(object)
-    {
-    }
-    d_proxy::d_proxy(c_proxy object) :
-        c_proxy(object)
+    d_proxy::d_proxy(jsrt::value value) :
+        c_proxy(value)
     {
     }
     jsrt::bound_function<jsrt::object, d_proxy> d()

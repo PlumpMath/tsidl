@@ -8,28 +8,24 @@ namespace interfaces
         jsrt::object()
     {
     }
-    a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object)
+    a_proxy::a_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     b_proxy::b_proxy() :
         a_proxy()
     {
     }
-    b_proxy::b_proxy(jsrt::object object) :
-        a_proxy(object)
-    {
-    }
-    b_proxy::b_proxy(a_proxy object) :
-        a_proxy(object)
+    b_proxy::b_proxy(jsrt::value value) :
+        a_proxy(value)
     {
     }
     c_proxy::c_proxy() :
         jsrt::object()
     {
     }
-    c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object)
+    c_proxy::c_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     double c_proxy::x()
@@ -68,12 +64,8 @@ namespace interfaces
         jsrt::function<std::wstring, std::wstring>()
     {
     }
-    d_proxy::d_proxy(jsrt::object object) :
-        jsrt::function<std::wstring, std::wstring>(object)
-    {
-    }
-    d_proxy::d_proxy(jsrt::function<std::wstring, std::wstring> object) :
-        jsrt::function<std::wstring, std::wstring>(object)
+    d_proxy::d_proxy(jsrt::value value) :
+        jsrt::function<std::wstring, std::wstring>(value)
     {
     }
     d_proxy d_proxy::create(Signature signature)
@@ -84,12 +76,8 @@ namespace interfaces
         jsrt::function<jsrt::object, std::wstring>()
     {
     }
-    e_proxy::e_proxy(jsrt::object object) :
-        jsrt::function<jsrt::object, std::wstring>(object)
-    {
-    }
-    e_proxy::e_proxy(jsrt::function<jsrt::object, std::wstring> object) :
-        jsrt::function<jsrt::object, std::wstring>(object)
+    e_proxy::e_proxy(jsrt::value value) :
+        jsrt::function<jsrt::object, std::wstring>(value)
     {
     }
     e_proxy e_proxy::create(Signature signature)
@@ -100,12 +88,8 @@ namespace interfaces
         d_proxy()
     {
     }
-    f_proxy::f_proxy(jsrt::object object) :
-        d_proxy(object)
-    {
-    }
-    f_proxy::f_proxy(d_proxy object) :
-        d_proxy(object)
+    f_proxy::f_proxy(jsrt::value value) :
+        d_proxy(value)
     {
     }
     f_proxy f_proxy::create(Signature signature)

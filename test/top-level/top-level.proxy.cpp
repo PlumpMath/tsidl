@@ -32,16 +32,16 @@ namespace top_level
         jsrt::object()
     {
     }
-    z_proxy::z_proxy(jsrt::object object) :
-        jsrt::object(object)
+    z_proxy::z_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     a_proxy::a_proxy() :
         jsrt::object()
     {
     }
-    a_proxy::a_proxy(jsrt::object object) :
-        jsrt::object(object)
+    a_proxy::a_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     jsrt::bound_function<jsrt::object, a_proxy> a()
@@ -52,8 +52,8 @@ namespace top_level
         jsrt::object()
     {
     }
-    b_proxy::b_proxy(jsrt::object object) :
-        jsrt::object(object)
+    b_proxy::b_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     b_proxy b()

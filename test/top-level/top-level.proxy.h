@@ -15,20 +15,20 @@ namespace top_level
     {
     public:
         z_proxy();
-        explicit z_proxy(jsrt::object object);
+        explicit z_proxy(jsrt::value value);
     };
     class a_proxy: public jsrt::object
     {
     public:
         a_proxy();
-        explicit a_proxy(jsrt::object object);
+        explicit a_proxy(jsrt::value value);
     };
     jsrt::bound_function<jsrt::object, a_proxy> a();
     class b_proxy: public jsrt::object
     {
     public:
         b_proxy();
-        explicit b_proxy(jsrt::object object);
+        explicit b_proxy(jsrt::value value);
     };
     b_proxy b();
     enum c

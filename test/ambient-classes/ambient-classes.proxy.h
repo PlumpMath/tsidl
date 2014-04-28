@@ -9,7 +9,7 @@ namespace ambient_classes
     {
     public:
         a_proxy();
-        explicit a_proxy(jsrt::object object);
+        explicit a_proxy(jsrt::value value);
         double x();
         void set_x(double value);
         jsrt::bound_function<a_proxy, double, double> y();
@@ -20,7 +20,7 @@ namespace ambient_classes
     {
     public:
         b_proxy();
-        explicit b_proxy(jsrt::object object);
+        explicit b_proxy(jsrt::value value);
         double x();
         void set_x(double value);
     };
@@ -28,7 +28,7 @@ namespace ambient_classes
     {
     public:
         c_proxy();
-        explicit c_proxy(jsrt::object object);
+        explicit c_proxy(jsrt::value value);
         explicit c_proxy(b_proxy value);
         operator b_proxy();
         double x();
@@ -39,8 +39,7 @@ namespace ambient_classes
     {
     public:
         d_proxy();
-        explicit d_proxy(jsrt::object object);
-        explicit d_proxy(c_proxy object);
+        explicit d_proxy(jsrt::value value);
     };
     jsrt::bound_function<jsrt::object, d_proxy> d();
 } // namespace ambient_classes

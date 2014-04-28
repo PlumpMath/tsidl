@@ -48,8 +48,8 @@ namespace types_array
         jsrt::object()
     {
     }
-    c_proxy::c_proxy(jsrt::object object) :
-        jsrt::object(object)
+    c_proxy::c_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     jsrt::bound_function<jsrt::object, c_proxy> c()

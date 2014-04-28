@@ -8,8 +8,8 @@ namespace ambient_variables
         jsrt::object()
     {
     }
-    x_proxy::x_proxy(jsrt::object object) :
-        jsrt::object(object)
+    x_proxy::x_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     jsrt::bound_function<jsrt::object, x_proxy> x()
@@ -36,8 +36,8 @@ namespace ambient_variables
         jsrt::object()
     {
     }
-    z_proxy::z_proxy(jsrt::object object) :
-        jsrt::object(object)
+    z_proxy::z_proxy(jsrt::value value) :
+        jsrt::object(value)
     {
     }
     bool a()

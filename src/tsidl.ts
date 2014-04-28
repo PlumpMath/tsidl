@@ -606,10 +606,7 @@ function writeClass(fullyQualifiedName: string, typeName: string, baseName: stri
     outputWriter.writeLineHeader("public:");
     outputWriter.indentHeader();
     outputWriter.writeLineHeader(typeName + "();");
-    outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::object object);");
-    if (baseName !== "jsrt::object") {
-        outputWriter.writeLineHeader("explicit " + typeName + "(" + baseName + " object);");
-    }
+    outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::value value);");
 
     outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "() :");
     outputWriter.indentSource();
@@ -618,21 +615,12 @@ function writeClass(fullyQualifiedName: string, typeName: string, baseName: stri
     outputWriter.writeLineSource("{");
     outputWriter.writeLineSource("}");
 
-    outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "(jsrt::object object) :");
+    outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "(jsrt::value value) :");
     outputWriter.indentSource();
-    outputWriter.writeLineSource(baseName + "(object)");
+    outputWriter.writeLineSource(baseName + "(value)");
     outputWriter.outdentSource();
     outputWriter.writeLineSource("{");
     outputWriter.writeLineSource("}");
-
-    if (baseName !== "jsrt::object") {
-        outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "(" + baseName + " object) :");
-        outputWriter.indentSource();
-        outputWriter.writeLineSource(baseName + "(object)");
-        outputWriter.outdentSource();
-        outputWriter.writeLineSource("{");
-        outputWriter.writeLineSource("}");
-    }
 }
 
 function writeScript(script: TypeScript.PullDecl, outputWriter: OutputWriter): void {

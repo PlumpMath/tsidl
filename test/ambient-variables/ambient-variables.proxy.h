@@ -9,7 +9,7 @@ namespace ambient_variables
     {
     public:
         x_proxy();
-        explicit x_proxy(jsrt::object object);
+        explicit x_proxy(jsrt::value value);
     };
     jsrt::bound_function<jsrt::object, x_proxy> x();
     enum y
@@ -22,7 +22,7 @@ namespace ambient_variables
     {
     public:
         z_proxy();
-        explicit z_proxy(jsrt::object object);
+        explicit z_proxy(jsrt::value value);
     };
     bool a();
     void set_a(bool value);

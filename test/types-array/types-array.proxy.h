@@ -19,7 +19,7 @@ namespace types_array
     {
     public:
         c_proxy();
-        explicit c_proxy(jsrt::object object);
+        explicit c_proxy(jsrt::value value);
     };
     jsrt::bound_function<jsrt::object, c_proxy> c();
 } // namespace types_array

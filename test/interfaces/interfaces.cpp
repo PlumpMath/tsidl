@@ -43,11 +43,33 @@ JsErrorCode DefineGlobals()
 
 bool ProcessResult(JsValueRef result)
 {
-    jsrt::value x = jsrt::context::global().get_property(jsrt::property_id::create(L"a"));
-    interfaces::a_proxy a;
-    jsrt::object o;
-    jsrt::value v;
-    o = a;
+    interfaces::a_proxy a = (interfaces::a_proxy)jsrt::context::global().get_property(jsrt::property_id::create(L"a"));
+    interfaces::b_proxy b = (interfaces::b_proxy)a;
+    interfaces::c_proxy c = (interfaces::c_proxy)jsrt::context::global().get_property(jsrt::property_id::create(L"c"));
+    if (c.x() != 100.0)
+    {
+        return false;
+    }
+    if (c.abc() != L"def")
+    {
+        return false;
+    }
+    if (c.b()(10) != 20.0)
+    {
+        return false;
+    }
+    interfaces::d_proxy d = (interfaces::d_proxy)jsrt::context::global().get_property(jsrt::property_id::create(L"d"));
+    if (d(jsrt::context::undefined(), L"abc") != L"abcdef")
+    {
+        return false;
+    }
+    interfaces::e_proxy e = (interfaces::e_proxy)jsrt::context::global().get_property(jsrt::property_id::create(L"e"));
+    e.construct(L"abc");
+    interfaces::f_proxy f = (interfaces::f_proxy)d;
+    if (f(jsrt::context::undefined(), L"abc") != L"abcdef")
+    {
+        return false;
+    }
 
     return true;
 }

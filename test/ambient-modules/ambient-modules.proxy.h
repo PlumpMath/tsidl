@@ -9,12 +9,12 @@ namespace ambient_modules
     {
     public:
         a_proxy();
-        explicit a_proxy(jsrt::object object);
+        explicit a_proxy(jsrt::value value);
         class g_proxy: public jsrt::object
         {
         public:
             g_proxy();
-            explicit g_proxy(jsrt::object object);
+            explicit g_proxy(jsrt::value value);
         };
         jsrt::bound_function<a_proxy, a_proxy::g_proxy> g();
     };
@@ -23,17 +23,17 @@ namespace ambient_modules
     {
     public:
         b_proxy();
-        explicit b_proxy(jsrt::object object);
+        explicit b_proxy(jsrt::value value);
         class c_proxy: public jsrt::object
         {
         public:
             c_proxy();
-            explicit c_proxy(jsrt::object object);
+            explicit c_proxy(jsrt::value value);
             class d_proxy: public jsrt::object
             {
             public:
                 d_proxy();
-                explicit d_proxy(jsrt::object object);
+                explicit d_proxy(jsrt::value value);
                 double x();
                 void set_x(double value);
                 jsrt::bound_function<b_proxy::c_proxy::d_proxy, double> y();
@@ -42,14 +42,14 @@ namespace ambient_modules
                 {
                 public:
                     z_proxy();
-                    explicit z_proxy(jsrt::object object);
+                    explicit z_proxy(jsrt::value value);
                 };
                 jsrt::bound_function<b_proxy::c_proxy::d_proxy, b_proxy::c_proxy::d_proxy::z_proxy> z();
                 class a_proxy: public jsrt::object
                 {
                 public:
                     a_proxy();
-                    explicit a_proxy(jsrt::object object);
+                    explicit a_proxy(jsrt::value value);
                 };
                 enum b
                 {
@@ -58,12 +58,12 @@ namespace ambient_modules
                 {
                 public:
                     e_proxy();
-                    explicit e_proxy(jsrt::object object);
+                    explicit e_proxy(jsrt::value value);
                     class f_proxy: public jsrt::object
                     {
                     public:
                         f_proxy();
-                        explicit f_proxy(jsrt::object object);
+                        explicit f_proxy(jsrt::value value);
                     };
                     jsrt::bound_function<b_proxy::c_proxy::d_proxy::e_proxy, b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> f();
                 };

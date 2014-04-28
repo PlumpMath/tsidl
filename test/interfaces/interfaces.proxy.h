@@ -9,20 +9,19 @@ namespace interfaces
     {
     public:
         a_proxy();
-        explicit a_proxy(jsrt::object object);
+        explicit a_proxy(jsrt::value value);
     };
     class b_proxy: public a_proxy
     {
     public:
         b_proxy();
-        explicit b_proxy(jsrt::object object);
-        explicit b_proxy(a_proxy object);
+        explicit b_proxy(jsrt::value value);
     };
     class c_proxy: public jsrt::object
     {
     public:
         c_proxy();
-        explicit c_proxy(jsrt::object object);
+        explicit c_proxy(jsrt::value value);
         double x();
         void set_x(double value);
         jsrt::optional<double> y();
@@ -36,24 +35,21 @@ namespace interfaces
     {
     public:
         d_proxy();
-        explicit d_proxy(jsrt::object object);
-        explicit d_proxy(jsrt::function<std::wstring, std::wstring> object);
+        explicit d_proxy(jsrt::value value);
         static d_proxy create(Signature signature);
     };
     class e_proxy: public jsrt::function<jsrt::object, std::wstring>
     {
     public:
         e_proxy();
-        explicit e_proxy(jsrt::object object);
-        explicit e_proxy(jsrt::function<jsrt::object, std::wstring> object);
+        explicit e_proxy(jsrt::value value);
         static e_proxy create(Signature signature);
     };
     class f_proxy: public d_proxy
     {
     public:
         f_proxy();
-        explicit f_proxy(jsrt::object object);
-        explicit f_proxy(d_proxy object);
+        explicit f_proxy(jsrt::value value);
         static f_proxy create(Signature signature);
     };
 } // namespace interfaces

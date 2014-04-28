@@ -9,24 +9,24 @@ namespace types_self_reference
     {
     public:
         a_proxy();
-        explicit a_proxy(jsrt::object object);
+        explicit a_proxy(jsrt::value value);
     };
     jsrt::bound_function<jsrt::object, a_proxy> a();
     class c_proxy: public jsrt::object
     {
     public:
         c_proxy();
-        explicit c_proxy(jsrt::object object);
+        explicit c_proxy(jsrt::value value);
         class d_proxy: public jsrt::object
         {
         public:
             d_proxy();
-            explicit d_proxy(jsrt::object object);
+            explicit d_proxy(jsrt::value value);
             class e_proxy: public jsrt::object
             {
             public:
                 e_proxy();
-                explicit e_proxy(jsrt::object object);
+                explicit e_proxy(jsrt::value value);
             };
             jsrt::bound_function<c_proxy::d_proxy, c_proxy::d_proxy::e_proxy> e();
         };
