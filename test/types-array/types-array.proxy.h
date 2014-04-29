@@ -5,6 +5,13 @@
 
 namespace types_array
 {
+    class c_proxy: public jsrt::object
+    {
+    public:
+        c_proxy();
+        explicit c_proxy(jsrt::value value);
+    };
+    jsrt::bound_function<jsrt::object, c_proxy> c();
     jsrt::array<double> x();
     void set_x(jsrt::array<double> value);
     jsrt::array<bool> y();
@@ -15,11 +22,4 @@ namespace types_array
     void set_a(jsrt::array<jsrt::value> value);
     jsrt::array<c_proxy> b();
     void set_b(jsrt::array<c_proxy> value);
-    class c_proxy: public jsrt::object
-    {
-    public:
-        c_proxy();
-        explicit c_proxy(jsrt::value value);
-    };
-    jsrt::bound_function<jsrt::object, c_proxy> c();
 } // namespace types_array

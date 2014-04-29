@@ -4,6 +4,18 @@
 
 namespace types_array
 {
+    c_proxy::c_proxy() :
+        jsrt::object()
+    {
+    }
+    c_proxy::c_proxy(jsrt::value value) :
+        jsrt::object(value)
+    {
+    }
+    jsrt::bound_function<jsrt::object, c_proxy> c()
+    {
+        return jsrt::bound_function<jsrt::object, c_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c")));
+    }
     jsrt::array<double> x()
     {
         return jsrt::context::global().get_property<jsrt::array<double>>(jsrt::property_id::create(L"x"));
@@ -43,17 +55,5 @@ namespace types_array
     void set_b(jsrt::array<c_proxy> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
-    }
-    c_proxy::c_proxy() :
-        jsrt::object()
-    {
-    }
-    c_proxy::c_proxy(jsrt::value value) :
-        jsrt::object(value)
-    {
-    }
-    jsrt::bound_function<jsrt::object, c_proxy> c()
-    {
-        return jsrt::bound_function<jsrt::object, c_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c")));
     }
 } // namespace types_array
