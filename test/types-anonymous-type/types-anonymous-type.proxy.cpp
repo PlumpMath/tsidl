@@ -20,11 +20,11 @@ namespace types_anonymous_type
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"z"), value);
     }
-    jsrt::bound_function<jsrt::object, double> a()
+    jsrt::bound_function<jsrt::object, jsrt::object> a()
     {
-        return jsrt::bound_function<jsrt::object, double>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<double>>(jsrt::property_id::create(L"a")));
+        return jsrt::bound_function<jsrt::object, jsrt::object>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<jsrt::object>>(jsrt::property_id::create(L"a")));
     }
-    void set_a(jsrt::function<double> value)
+    void set_a(jsrt::function<jsrt::object> value)
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
     }
