@@ -3188,6 +3188,20 @@ namespace jsrt
         {
             return function<R, Parameters...>::create(signature);
         }
+
+        /// <summary>
+        ///     Creates a new JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="signature">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        template<class R>
+        static function<R> create(R(*signature)(const jsrt::call_info &info))
+        {
+            return function<R>::create(signature);
+        }
     };
 
     /// <summary>
