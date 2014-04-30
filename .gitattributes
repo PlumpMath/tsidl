@@ -62,5 +62,5 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 
-# .output files are always Windows, so force CRLF.
-*.output text=false
+# .output files are verbatim, so don't translate line endings
+*.output -text
