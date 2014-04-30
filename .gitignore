@@ -5,6 +5,7 @@ jakefile.js
 *.suo
 *.user
 built/
+src/*.js
 debug/
 release/
 node_modules/

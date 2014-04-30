@@ -21,7 +21,7 @@ var tsSource: string = libDirectory + "ts.js";
 var tsDeclSource: string = libDirectory + "ts.d.ts";
 
 var tsidlSource: string = srcDirectory + "tsidl.ts";
-var tsidlTarget: string = srcBuiltDirectory + "tsidl.js";
+var tsidlTarget: string = srcDirectory + "tsidl.js";
 var tsidlCliTarget: string = srcBuiltDirectory + "tsidl-cli.js";
 
 function compileOptions(): ts.BatchCompileOptions {
@@ -30,7 +30,6 @@ function compileOptions(): ts.BatchCompileOptions {
         options.generateSourceMap = true;
         options.mapRoot = "file:///" + path.resolve(srcBuiltDirectory);
     }
-    options.outputDirectory = srcBuiltDirectory;
 
     return options;
 }
@@ -56,7 +55,7 @@ task("emitSourceMaps", () =>
 
 ts.batchFiles("tsidl-batch", [srcBuiltDirectory, tsidlSource, tsDeclSource], compileOptions());
 
-file(tsidlCliTarget, [tsidlTarget, tsSource], () => {
+file(tsidlCliTarget, ["tsidl-batch", tsSource], () => {
     console.log("concatenate " + tsidlTarget + " and " + tsSource + "\n");
     if (fs.existsSync(tsidlCliTarget)) {
         fs.unlinkSync(tsidlCliTarget);
