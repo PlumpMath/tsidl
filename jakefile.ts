@@ -169,7 +169,7 @@ fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
 
         desc("Build " + test);
         task(outputBuildBuilt, dependencies, () => {
-            var buildCommand: string = "cd " + process.cwd() + " && msbuild " + test + " /p:Configuration=Release /p:Platform=x64 /verbosity:m 1> " + outputBuildBuilt + " 2>&1";
+            var buildCommand: string = "cd " + process.cwd() + " && msbuild " + test + " /p:Configuration=Release /p:Platform=x64 /verbosity:q 1> " + outputBuildBuilt + " 2>&1";
             var runCommand: string = "cd " + process.cwd() + " && " + switchToBackwardSlashes(singleTestBuiltDirectory) + "\\x64\\Release\\" + singleTestDirectoryBase + " " + testScript + " 1> " + outputRunBuilt + " 2>&1";
 
             jake.exec([buildCommand, runCommand], () => {
