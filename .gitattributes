@@ -63,4 +63,4 @@
 #*.RTF   diff=astextplain
 
 # .output files are always Windows, so force CRLF.
-*.output eol=crlf
+*.output text=false
