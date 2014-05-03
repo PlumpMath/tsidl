@@ -419,6 +419,29 @@ function writeTypeImplements(typeName: string, baseName: string, implementsList:
     }
 }
 
+function writeClass(fullyQualifiedName: string, typeName: string, baseName: string, outputWriter: OutputWriter): void {
+    outputWriter.writeLineHeader("class " + typeName + ": public " + baseName);
+    outputWriter.writeLineHeader("{");
+    outputWriter.writeLineHeader("public:");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader(typeName + "();");
+    outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::value value);");
+
+    outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "() :");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource("" + baseName + "()");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("{");
+    outputWriter.writeLineSource("}");
+
+    outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "(jsrt::value value) :");
+    outputWriter.indentSource();
+    outputWriter.writeLineSource(baseName + "(value)");
+    outputWriter.outdentSource();
+    outputWriter.writeLineSource("{");
+    outputWriter.writeLineSource("}");
+}
+
 function writeType(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
     var baseName: string;
     var emitCreate: boolean = false;
@@ -598,29 +621,6 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
             assert(false, "unexpected kind " + TypeScript.PullElementKind[member.kind]);
             break;
     }
-}
-
-function writeClass(fullyQualifiedName: string, typeName: string, baseName: string, outputWriter: OutputWriter): void {
-    outputWriter.writeLineHeader("class " + typeName + ": public " + baseName);
-    outputWriter.writeLineHeader("{");
-    outputWriter.writeLineHeader("public:");
-    outputWriter.indentHeader();
-    outputWriter.writeLineHeader(typeName + "();");
-    outputWriter.writeLineHeader("explicit " + typeName + "(jsrt::value value);");
-
-    outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "() :");
-    outputWriter.indentSource();
-    outputWriter.writeLineSource("" + baseName + "()");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("{");
-    outputWriter.writeLineSource("}");
-
-    outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "(jsrt::value value) :");
-    outputWriter.indentSource();
-    outputWriter.writeLineSource(baseName + "(value)");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("{");
-    outputWriter.writeLineSource("}");
 }
 
 function writeScript(script: TypeScript.PullDecl, outputWriter: OutputWriter): void {
