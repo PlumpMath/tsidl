@@ -50,6 +50,24 @@ namespace ambient_modules
                 public:
                     a_proxy();
                     explicit a_proxy(jsrt::value value);
+                private:
+                    template<typename T>
+                    class a_proxy_wrapper
+                    {
+                    public:
+                        static void CALLBACK wrap_finalize(void *data)
+                        {
+                            T * this_value = (T *) data;
+                            this_value->finalize();
+                        }
+                    };
+                public:
+                    template<typename T>
+                    static a_proxy wrap(T *value)
+                    {
+                        jsrt::object wrapper = jsrt::external_object::create(value, a_proxy_wrapper<T>::wrap_finalize);
+                        return (a_proxy) wrapper;
+                    }
                 };
                 enum b
                 {

@@ -21,6 +21,39 @@ namespace ambient_classes
     public:
         b_proxy();
         explicit b_proxy(jsrt::value value);
+    private:
+        template<typename T>
+        class b_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static double wrap_get_x(const jsrt::call_info &info)
+            {
+                T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                return this_value->get_x();
+            }
+            static void wrap_set_x(const jsrt::call_info &info, double value)
+            {
+                T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                this_value->set_x(value);
+            }
+        };
+    public:
+        template<typename T>
+        static b_proxy wrap(T *value)
+        {
+            jsrt::object wrapper = jsrt::external_object::create(value, b_proxy_wrapper<T>::wrap_finalize);
+            wrapper.define_property(
+                jsrt::property_id::create(L"x"),
+                jsrt::property_descriptor<double>::create(
+                    jsrt::function_base::create(b_proxy_wrapper<T>::wrap_get_x),
+                    jsrt::function_base::create(b_proxy_wrapper<T>::wrap_set_x)));
+            return (b_proxy) wrapper;
+        }
         double x();
         void set_x(double value);
     };

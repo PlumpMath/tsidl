@@ -10,7 +10,7 @@ JsErrorCode DefineGlobals()
 
 bool ProcessResult(JsValueRef result)
 {
-    ambient_enum::aValues x;
+    ambient_enum::aValues x = (ambient_enum::aValues)0;
     ambient_enum::bValues y = ambient_enum::bValues::a;
 
     return true;

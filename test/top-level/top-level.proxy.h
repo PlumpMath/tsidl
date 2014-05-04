@@ -16,6 +16,24 @@ namespace top_level
     public:
         z_proxy();
         explicit z_proxy(jsrt::value value);
+    private:
+        template<typename T>
+        class z_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+        };
+    public:
+        template<typename T>
+        static z_proxy wrap(T *value)
+        {
+            jsrt::object wrapper = jsrt::external_object::create(value, z_proxy_wrapper<T>::wrap_finalize);
+            return (z_proxy) wrapper;
+        }
     };
     class a_proxy: public jsrt::object
     {

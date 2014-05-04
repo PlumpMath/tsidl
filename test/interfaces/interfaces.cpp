@@ -3,6 +3,55 @@
 #include <jsrt.h>
 #include "interfaces.proxy.h"
 
+class c
+{
+private:
+    double _x;
+    jsrt::optional<double> _y;
+    std::wstring _abc;
+
+public:
+    c() :
+        _x(10.0),
+        _y(20.0),
+        _abc(L"abc")
+    {
+    }
+
+    double get_x()
+    {
+        return _x;
+    }
+    void set_x(double value)
+    {
+        _x = value;
+    }
+    jsrt::optional<double> get_y()
+    {
+        return _y;
+    }
+    void set_y(jsrt::optional<double> value)
+    {
+        _y = value;
+    }
+    std::wstring get_abc()
+    {
+        return _abc;
+    }
+    void set_abc(std::wstring value)
+    {
+        _abc = value;
+    }
+    double b(double x)
+    {
+        return x;
+    }
+    void finalize()
+    {
+        delete this;
+    }
+};
+
 double foo(const jsrt::call_info &info, double x)
 {
     return x;
@@ -26,12 +75,8 @@ JsErrorCode DefineGlobals()
     jsrt::context::global().set_property(jsrt::property_id::create(L"a"), a);
     interfaces::b_proxy b = interfaces::b_proxy(jsrt::object::create());
     jsrt::context::global().set_property(jsrt::property_id::create(L"b"), b);
-    interfaces::c_proxy c = interfaces::c_proxy(jsrt::object::create());
-    c.set_x(10);
-    c.set_y(20);
-    c.set_abc(L"abc");
-    c.set_b(jsrt::function_base::create(foo));
-    jsrt::context::global().set_property(jsrt::property_id::create(L"c"), c);
+    c *cValue = new c();
+    jsrt::context::global().set_property(jsrt::property_id::create(L"c"), interfaces::c_proxy::wrap(cValue));
     interfaces::d_proxy d = interfaces::d_proxy::create(bar);
     jsrt::context::global().set_property(jsrt::property_id::create(L"d"), d);
     interfaces::e_proxy e = interfaces::e_proxy::create(baz);

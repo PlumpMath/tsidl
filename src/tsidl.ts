@@ -442,6 +442,191 @@ function writeClass(fullyQualifiedName: string, typeName: string, baseName: stri
     outputWriter.writeLineSource("}");
 }
 
+function writeWrapperField(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter, readOnly: boolean = false, isOptional: boolean = false): void {
+    var fieldType: string = typeStringNative(container, type);
+    var signature: TypeScript.PullSignatureSymbol = null;
+
+    if (isOptional) {
+        fieldType = "jsrt::optional<" + fieldType + ">";
+    } else if (type.hasOwnCallSignatures()) {
+        signature = type.getCallSignatures()[0];
+    } else if (type.hasOwnConstructSignatures()) {
+        signature = type.getConstructSignatures()[0];
+    }
+
+    if (signature) {
+        var index: number;
+        var parameter: TypeScript.PullSymbol;
+
+        outputWriter.writeHeader("static " + typeStringNative(type, signature.returnType.type) + " wrap_call_" + name + "(const jsrt::call_info &info");
+        for (index = 0; index < signature.parameters.length; index++) {
+            outputWriter.writeHeader(", ");
+            parameter = signature.parameters[index];
+            outputWriter.writeHeader(typeStringNative(container, parameter.type, parameter.isOptional, parameter.isVarArg) + " p" + index.toString());
+        }
+        outputWriter.writeLineHeader(")");
+        outputWriter.writeLineHeader("{");
+        outputWriter.indentHeader();
+        outputWriter.writeLineHeader("T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();");
+        outputWriter.writeHeader("return this_value->" + name + "(");
+        for (index = 0; index < signature.parameters.length; index++) {
+            if (index !== 0) {
+                outputWriter.writeHeader(", ");
+            }
+            outputWriter.writeHeader("p" + index.toString());
+        }
+        outputWriter.writeLineHeader(");");
+        outputWriter.outdentHeader();
+        outputWriter.writeLineHeader("}");
+
+    } else {
+        outputWriter.writeLineHeader("static " + fieldType + " wrap_get_" + name + "(const jsrt::call_info &info)");
+        outputWriter.writeLineHeader("{");
+        outputWriter.indentHeader();
+        outputWriter.writeLineHeader("T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();");
+        outputWriter.writeLineHeader("return this_value->get_" + name + "();");
+        outputWriter.outdentHeader();
+        outputWriter.writeLineHeader("}");
+
+        if (!readOnly) {
+            outputWriter.writeLineHeader("static void wrap_set_" + name + "(const jsrt::call_info &info, " + fieldType + " value)");
+            outputWriter.writeLineHeader("{");
+            outputWriter.indentHeader();
+            outputWriter.writeLineHeader("T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();");
+            outputWriter.writeLineHeader("this_value->set_" + name + "(value);");
+            outputWriter.outdentHeader();
+            outputWriter.writeLineHeader("}");
+        }
+    }
+}
+
+function writeWrapperFieldCreate(container: TypeScript.PullTypeSymbol, typeName: string, name: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter, readOnly: boolean = false, isOptional: boolean = false): void {
+    var fieldType: string = typeStringNative(container, type);
+    var signature: TypeScript.PullSignatureSymbol = null;
+
+    if (isOptional) {
+        fieldType = "jsrt::optional<" + fieldType + ">";
+    } else if (type.hasOwnCallSignatures()) {
+        signature = type.getCallSignatures()[0];
+    } else if (type.hasOwnConstructSignatures()) {
+        signature = type.getConstructSignatures()[0];
+    }
+
+    if (signature) {
+        outputWriter.writeLineHeader("wrapper.set_property(");
+        outputWriter.indentHeader();
+        outputWriter.writeLineHeader("jsrt::property_id::create(L\"" + name + "\"),");
+        outputWriter.writeLineHeader("jsrt::function_base::create(" + typeName + "_wrapper<T>::wrap_call_" + name + "));");
+        outputWriter.outdentHeader();
+    } else {
+        outputWriter.writeLineHeader("wrapper.define_property(");
+        outputWriter.indentHeader();
+        outputWriter.writeLineHeader("jsrt::property_id::create(L\"" + name + "\"),");
+        outputWriter.writeLineHeader("jsrt::property_descriptor<" + fieldType + ">::create(");
+        outputWriter.indentHeader();
+        outputWriter.writeHeader("jsrt::function_base::create(" + typeName + "_wrapper<T>::wrap_get_" + name + ")");
+        if (!readOnly) {
+            outputWriter.writeLineHeader(",");
+            outputWriter.writeLineHeader("jsrt::function_base::create(" + typeName + "_wrapper<T>::wrap_set_" + name + ")));");
+        } else {
+            outputWriter.writeLineHeader("));");
+        }
+        outputWriter.outdentHeader();
+        outputWriter.outdentHeader();
+    }
+}
+
+function writeWrapper(typeName: string, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
+    var members: TypeScript.PullSymbol[] = type.getMembers();
+
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("private:");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader("template<typename T>");
+    outputWriter.writeLineHeader("class " + typeName + "_wrapper");
+    outputWriter.writeLineHeader("{");
+    outputWriter.writeLineHeader("public:");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader("static void CALLBACK wrap_finalize(void *data)");
+    outputWriter.writeLineHeader("{");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader("T * this_value = (T *) data;");
+    outputWriter.writeLineHeader("this_value->finalize();");
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("}");
+    if (members && members.length > 0) {
+        members.forEach((member: TypeScript.PullSymbol) => {
+            var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
+
+            if (skip) {
+                return;
+            }
+
+            switch (member.kind) {
+                case TypeScript.PullElementKind.Function:
+                case TypeScript.PullElementKind.Variable:
+                case TypeScript.PullElementKind.Property:
+                case TypeScript.PullElementKind.Method:
+                    writeWrapperField(type, member.name, member.type, outputWriter, false, member.isOptional);
+                    break;
+
+                case TypeScript.PullElementKind.Class:
+                    writeWrapperField(type, member.name, member.type.getConstructorMethod().type, outputWriter, true, member.isOptional);
+                    break;
+
+                case TypeScript.PullElementKind.Container:
+                    writeWrapperField(type, member.name, member.type, outputWriter, true, member.isOptional);
+                    break;
+
+                default:
+                    break;
+            }
+        });
+    }
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("};");
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("public:");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader("template<typename T>");
+    outputWriter.writeLineHeader("static " + typeName + " wrap(T *value)");
+    outputWriter.writeLineHeader("{");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader("jsrt::object wrapper = jsrt::external_object::create(value, " + typeName + "_wrapper<T>::wrap_finalize);");
+    if (members && members.length > 0) {
+        members.forEach((member: TypeScript.PullSymbol) => {
+            var skip: boolean = member.name === "" || (member.type.getAssociatedContainerType() !== null);
+
+            if (skip) {
+                return;
+            }
+
+            switch (member.kind) {
+                case TypeScript.PullElementKind.Function:
+                case TypeScript.PullElementKind.Variable:
+                case TypeScript.PullElementKind.Property:
+                case TypeScript.PullElementKind.Method:
+                    writeWrapperFieldCreate(type, typeName, member.name, member.type, outputWriter, false, member.isOptional);
+                    break;
+
+                case TypeScript.PullElementKind.Class:
+                    writeWrapperFieldCreate(type, typeName, member.name, member.type.getConstructorMethod().type, outputWriter, true, member.isOptional);
+                    break;
+
+                case TypeScript.PullElementKind.Container:
+                    writeWrapperFieldCreate(type, typeName, member.name, member.type, outputWriter, true, member.isOptional);
+                    break;
+
+                default:
+                    break;
+            }
+        });
+    }
+    outputWriter.writeLineHeader("return (" + typeName + ") wrapper;");
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("}");
+}
+
 function writeType(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTypeSymbol, outputWriter: OutputWriter): void {
     var baseName: string;
     var emitCreate: boolean = false;
@@ -466,6 +651,10 @@ function writeType(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTy
     }
 
     writeClass(fullyQualifiedName, typeName, baseName, outputWriter);
+
+    if (type.kind === TypeScript.PullElementKind.Interface) {
+        writeWrapper(typeName, type, outputWriter);
+    }
 
     if (emitCreate) {
         outputWriter.writeLineHeader("static " + typeName + " create(Signature signature);");
