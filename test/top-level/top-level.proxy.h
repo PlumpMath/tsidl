@@ -47,8 +47,27 @@ namespace top_level
     public:
         b_proxy();
         explicit b_proxy(jsrt::value value);
+    private:
+        template<typename T>
+        class b_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+        };
+    public:
+        template<typename T>
+        static b_proxy wrap(T *value)
+        {
+            jsrt::object wrapper = jsrt::external_object::create(value, b_proxy_wrapper<T>::wrap_finalize);
+            return (b_proxy) wrapper;
+        }
     };
     b_proxy b();
+    void set_b(b_proxy value);
     enum c
     {
     };

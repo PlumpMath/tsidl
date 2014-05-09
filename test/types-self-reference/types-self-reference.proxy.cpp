@@ -48,9 +48,17 @@ namespace types_self_reference
     {
         return get_property<c_proxy::d_proxy>(jsrt::property_id::create(L"d"));
     }
+    void c_proxy::set_d(c_proxy::d_proxy value)
+    {
+        set_property(jsrt::property_id::create(L"d"), value);
+    }
     c_proxy c()
     {
         return jsrt::context::global().get_property<c_proxy>(jsrt::property_id::create(L"c"));
+    }
+    void set_c(c_proxy value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
     }
     a_proxy b()
     {

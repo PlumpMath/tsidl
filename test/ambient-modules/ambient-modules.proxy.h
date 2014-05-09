@@ -17,8 +17,47 @@ namespace ambient_modules
             explicit g_proxy(jsrt::value value);
         };
         jsrt::bound_function<a_proxy, a_proxy::g_proxy> g();
+    private:
+        template<typename T>
+        class a_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static a_proxy::g_proxy wrap_construct_g(const jsrt::call_info &info)
+            {
+                if (!info.is_construct_call())
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as a regular function"));
+                    return a_proxy::g_proxy();
+                }
+                try
+                {
+                    return T::new_g((a_proxy::g_proxy)info.this_value());
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return a_proxy::g_proxy();
+                }
+            }
+        };
+    public:
+        template<typename T>
+        static a_proxy wrap(T *value)
+        {
+            jsrt::object wrapper = jsrt::external_object::create(value, a_proxy_wrapper<T>::wrap_finalize);
+            wrapper.set_property(
+                jsrt::property_id::create(L"g"),
+                jsrt::function_base::create(a_proxy_wrapper<T>::wrap_construct_g));
+            return (a_proxy) wrapper;
+        }
     };
     a_proxy a();
+    void set_a(a_proxy value);
     class b_proxy: public jsrt::object
     {
     public:
@@ -84,14 +123,271 @@ namespace ambient_modules
                         explicit f_proxy(jsrt::value value);
                     };
                     jsrt::bound_function<b_proxy::c_proxy::d_proxy::e_proxy, b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> f();
+                private:
+                    template<typename T>
+                    class e_proxy_wrapper
+                    {
+                    public:
+                        static void CALLBACK wrap_finalize(void *data)
+                        {
+                            T * this_value = (T *) data;
+                            this_value->finalize();
+                        }
+                        static b_proxy::c_proxy::d_proxy::e_proxy::f_proxy wrap_construct_f(const jsrt::call_info &info)
+                        {
+                            if (!info.is_construct_call())
+                            {
+                                jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as a regular function"));
+                                return b_proxy::c_proxy::d_proxy::e_proxy::f_proxy();
+                            }
+                            try
+                            {
+                                return T::new_f((b_proxy::c_proxy::d_proxy::e_proxy::f_proxy)info.this_value());
+                            }
+                            catch (...)
+                            {
+                                jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                                return b_proxy::c_proxy::d_proxy::e_proxy::f_proxy();
+                            }
+                        }
+                    };
+                public:
+                    template<typename T>
+                    static e_proxy wrap(T *value)
+                    {
+                        jsrt::object wrapper = jsrt::external_object::create(value, e_proxy_wrapper<T>::wrap_finalize);
+                        wrapper.set_property(
+                            jsrt::property_id::create(L"f"),
+                            jsrt::function_base::create(e_proxy_wrapper<T>::wrap_construct_f));
+                        return (e_proxy) wrapper;
+                    }
                 };
                 b_proxy::c_proxy::d_proxy::e_proxy e();
+                void set_e(b_proxy::c_proxy::d_proxy::e_proxy value);
+            private:
+                template<typename T>
+                class d_proxy_wrapper
+                {
+                public:
+                    static void CALLBACK wrap_finalize(void *data)
+                    {
+                        T * this_value = (T *) data;
+                        this_value->finalize();
+                    }
+                    static double wrap_get_x(const jsrt::call_info &info)
+                    {
+                        try
+                        {
+                            T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                            return this_value->get_x();
+                        }
+                        catch (...)
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                            return double();
+                        }
+                    }
+                    static void wrap_set_x(const jsrt::call_info &info, double value)
+                    {
+                        try
+                        {
+                            T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                            this_value->set_x(value);
+                        }
+                        catch (...)
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                        }
+                    }
+                    static double wrap_call_y(const jsrt::call_info &info)
+                    {
+                        if (info.is_construct_call())
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as constructor"));
+                            return double();
+                        }
+                        try
+                        {
+                            T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                            return this_value->y();
+                        }
+                        catch (...)
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                            return double();
+                        }
+                    }
+                    static b_proxy::c_proxy::d_proxy::z_proxy wrap_construct_z(const jsrt::call_info &info)
+                    {
+                        if (!info.is_construct_call())
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as a regular function"));
+                            return b_proxy::c_proxy::d_proxy::z_proxy();
+                        }
+                        try
+                        {
+                            return T::new_z((b_proxy::c_proxy::d_proxy::z_proxy)info.this_value());
+                        }
+                        catch (...)
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                            return b_proxy::c_proxy::d_proxy::z_proxy();
+                        }
+                    }
+                    static b_proxy::c_proxy::d_proxy::e_proxy wrap_get_e(const jsrt::call_info &info)
+                    {
+                        try
+                        {
+                            T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                            return this_value->get_e();
+                        }
+                        catch (...)
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                            return b_proxy::c_proxy::d_proxy::e_proxy();
+                        }
+                    }
+                    static void wrap_set_e(const jsrt::call_info &info, b_proxy::c_proxy::d_proxy::e_proxy value)
+                    {
+                        try
+                        {
+                            T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                            this_value->set_e(value);
+                        }
+                        catch (...)
+                        {
+                            jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                        }
+                    }
+                };
+            public:
+                template<typename T>
+                static d_proxy wrap(T *value)
+                {
+                    jsrt::object wrapper = jsrt::external_object::create(value, d_proxy_wrapper<T>::wrap_finalize);
+                    wrapper.define_property(
+                        jsrt::property_id::create(L"x"),
+                        jsrt::property_descriptor<double>::create(
+                            jsrt::function_base::create(d_proxy_wrapper<T>::wrap_get_x),
+                            jsrt::function_base::create(d_proxy_wrapper<T>::wrap_set_x)));
+                    wrapper.set_property(
+                        jsrt::property_id::create(L"y"),
+                        jsrt::function_base::create(d_proxy_wrapper<T>::wrap_call_y));
+                    wrapper.set_property(
+                        jsrt::property_id::create(L"z"),
+                        jsrt::function_base::create(d_proxy_wrapper<T>::wrap_construct_z));
+                    wrapper.define_property(
+                        jsrt::property_id::create(L"e"),
+                        jsrt::property_descriptor<b_proxy::c_proxy::d_proxy::e_proxy>::create(
+                            jsrt::function_base::create(d_proxy_wrapper<T>::wrap_get_e),
+                            jsrt::function_base::create(d_proxy_wrapper<T>::wrap_set_e)));
+                    return (d_proxy) wrapper;
+                }
             };
             b_proxy::c_proxy::d_proxy d();
+            void set_d(b_proxy::c_proxy::d_proxy value);
+        private:
+            template<typename T>
+            class c_proxy_wrapper
+            {
+            public:
+                static void CALLBACK wrap_finalize(void *data)
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                static b_proxy::c_proxy::d_proxy wrap_get_d(const jsrt::call_info &info)
+                {
+                    try
+                    {
+                        T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                        return this_value->get_d();
+                    }
+                    catch (...)
+                    {
+                        jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                        return b_proxy::c_proxy::d_proxy();
+                    }
+                }
+                static void wrap_set_d(const jsrt::call_info &info, b_proxy::c_proxy::d_proxy value)
+                {
+                    try
+                    {
+                        T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                        this_value->set_d(value);
+                    }
+                    catch (...)
+                    {
+                        jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    }
+                }
+            };
+        public:
+            template<typename T>
+            static c_proxy wrap(T *value)
+            {
+                jsrt::object wrapper = jsrt::external_object::create(value, c_proxy_wrapper<T>::wrap_finalize);
+                wrapper.define_property(
+                    jsrt::property_id::create(L"d"),
+                    jsrt::property_descriptor<b_proxy::c_proxy::d_proxy>::create(
+                        jsrt::function_base::create(c_proxy_wrapper<T>::wrap_get_d),
+                        jsrt::function_base::create(c_proxy_wrapper<T>::wrap_set_d)));
+                return (c_proxy) wrapper;
+            }
         };
         b_proxy::c_proxy c();
+        void set_c(b_proxy::c_proxy value);
+    private:
+        template<typename T>
+        class b_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static b_proxy::c_proxy wrap_get_c(const jsrt::call_info &info)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    return this_value->get_c();
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return b_proxy::c_proxy();
+                }
+            }
+            static void wrap_set_c(const jsrt::call_info &info, b_proxy::c_proxy value)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    this_value->set_c(value);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                }
+            }
+        };
+    public:
+        template<typename T>
+        static b_proxy wrap(T *value)
+        {
+            jsrt::object wrapper = jsrt::external_object::create(value, b_proxy_wrapper<T>::wrap_finalize);
+            wrapper.define_property(
+                jsrt::property_id::create(L"c"),
+                jsrt::property_descriptor<b_proxy::c_proxy>::create(
+                    jsrt::function_base::create(b_proxy_wrapper<T>::wrap_get_c),
+                    jsrt::function_base::create(b_proxy_wrapper<T>::wrap_set_c)));
+            return (b_proxy) wrapper;
+        }
     };
     b_proxy b();
+    void set_b(b_proxy value);
     b_proxy::c_proxy::d_proxy::e_proxy::f_proxy z();
     void set_z(b_proxy::c_proxy::d_proxy::e_proxy::f_proxy value);
 } // namespace ambient_modules

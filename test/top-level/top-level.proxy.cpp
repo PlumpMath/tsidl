@@ -60,6 +60,10 @@ namespace top_level
     {
         return jsrt::context::global().get_property<b_proxy>(jsrt::property_id::create(L"b"));
     }
+    void set_b(b_proxy value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
+    }
 }
 template<>
 JsErrorCode jsrt::value::to_native<top_level::c>(JsValueRef value, top_level::c *result)

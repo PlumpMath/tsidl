@@ -197,12 +197,11 @@ task("test-integration", integrationTests, () => {
 });
 
 desc("Updates the test baselines.");
-task("update-baselines", ["test"], () => {
+task("update-baselines", [], () => {
     fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
         var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
         var filename: string = singleTestDirectoryBase + ".d.ts";
         var test: string = singleTestDirectory + filename;
-        var solutionFilename: string = singleTestDirectoryBase + ".sln";
         var stats: fs.Stats = fs.statSync(singleTestDirectory);
 
         if (stats.isDirectory()) {
@@ -240,7 +239,7 @@ task("update-baselines", ["test"], () => {
 });
 
 desc("Updates the integration test baselines.");
-task("update-integration-baselines", ["test-integration"], () => {
+task("update-integration-baselines", [], () => {
     fs.readdirSync(testDirectory).forEach((singleTestDirectoryBase: string) => {
         var singleTestDirectory: string = testDirectory + singleTestDirectoryBase + "/";
         var solutionFilename: string = singleTestDirectoryBase + ".sln";

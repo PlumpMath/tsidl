@@ -21,6 +21,8 @@ namespace ambient_classes
     public:
         b_proxy();
         explicit b_proxy(jsrt::value value);
+        double x();
+        void set_x(double value);
     private:
         template<typename T>
         class b_proxy_wrapper
@@ -33,13 +35,28 @@ namespace ambient_classes
             }
             static double wrap_get_x(const jsrt::call_info &info)
             {
-                T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
-                return this_value->get_x();
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    return this_value->get_x();
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return double();
+                }
             }
             static void wrap_set_x(const jsrt::call_info &info, double value)
             {
-                T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
-                this_value->set_x(value);
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    this_value->set_x(value);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                }
             }
         };
     public:
@@ -54,8 +71,6 @@ namespace ambient_classes
                     jsrt::function_base::create(b_proxy_wrapper<T>::wrap_set_x)));
             return (b_proxy) wrapper;
         }
-        double x();
-        void set_x(double value);
     };
     class c_proxy: public jsrt::object
     {

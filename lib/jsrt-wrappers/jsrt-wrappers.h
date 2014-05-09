@@ -237,7 +237,7 @@ namespace jsrt
         ///     Translates a Chakra error code into a wrapper exception.
         /// </summary>
         /// <remarks>
-        ///     If the error code is not <c>JsNoError</c>, this will thrown the corresponding
+        ///     If the error code is not <c>JsNoError</c>, this will throw the corresponding
         ///     exception.
         /// </remarks>
         static void translate_error_code(JsErrorCode errorCode);

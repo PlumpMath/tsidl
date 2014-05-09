@@ -138,6 +138,7 @@ int _cdecl wmain(int argc, wchar_t *argv[])
             }
         }
 
+        IfFailError(JsCollectGarbage(runtime), L"failed to collect garbage.");
         IfFailError(JsSetCurrentContext(JS_INVALID_REFERENCE), L"failed to cleanup current context.");
         IfFailError(JsDisposeRuntime(runtime), L"failed to cleanup runtime.");
     }
