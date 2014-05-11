@@ -47,9 +47,7 @@ namespace types_array
         {
             jsrt::object wrapper = jsrt::object::create();
             jsrt::function<c_proxy> constructor = jsrt::function_base::create(c_proxy_wrapper<T>::wrap_construct_self);
-            constructor.set_property(
-                jsrt::property_id::create(L"prototype"),
-                wrapper);
+            constructor.set_constructor_prototype(wrapper);
             return constructor;
         }
     };

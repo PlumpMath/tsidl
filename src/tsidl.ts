@@ -705,11 +705,7 @@ function writeClassWrapFunction(container: TypeScript.PullTypeSymbol, typeName: 
         });
     }
     outputWriter.writeLineHeader(constructorType + " constructor = jsrt::function_base::create(" + typeName + "_wrapper<T>::wrap_construct_self);");
-    outputWriter.writeLineHeader("constructor.set_property(");
-    outputWriter.indentHeader();
-    outputWriter.writeLineHeader("jsrt::property_id::create(L\"prototype\"),");
-    outputWriter.writeLineHeader("wrapper);");
-    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("constructor.set_constructor_prototype(wrapper);");
     outputWriter.writeLineHeader("return constructor;");
     outputWriter.outdentHeader();
     outputWriter.writeLineHeader("}");

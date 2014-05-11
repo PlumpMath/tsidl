@@ -52,9 +52,7 @@ namespace ambient_modules
             {
                 jsrt::object wrapper = jsrt::object::create();
                 jsrt::function<a_proxy::g_proxy> constructor = jsrt::function_base::create(g_proxy_wrapper<T>::wrap_construct_self);
-                constructor.set_property(
-                    jsrt::property_id::create(L"prototype"),
-                    wrapper);
+                constructor.set_constructor_prototype(wrapper);
                 return constructor;
             }
         };
@@ -172,9 +170,7 @@ namespace ambient_modules
                     {
                         jsrt::object wrapper = jsrt::object::create();
                         jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> constructor = jsrt::function_base::create(z_proxy_wrapper<T>::wrap_construct_self);
-                        constructor.set_property(
-                            jsrt::property_id::create(L"prototype"),
-                            wrapper);
+                        constructor.set_constructor_prototype(wrapper);
                         return constructor;
                     }
                 };
@@ -254,9 +250,7 @@ namespace ambient_modules
                         {
                             jsrt::object wrapper = jsrt::object::create();
                             jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> constructor = jsrt::function_base::create(f_proxy_wrapper<T>::wrap_construct_self);
-                            constructor.set_property(
-                                jsrt::property_id::create(L"prototype"),
-                                wrapper);
+                            constructor.set_constructor_prototype(wrapper);
                             return constructor;
                         }
                     };

@@ -47,9 +47,7 @@ namespace types_self_reference
         {
             jsrt::object wrapper = jsrt::object::create();
             jsrt::function<a_proxy> constructor = jsrt::function_base::create(a_proxy_wrapper<T>::wrap_construct_self);
-            constructor.set_property(
-                jsrt::property_id::create(L"prototype"),
-                wrapper);
+            constructor.set_constructor_prototype(wrapper);
             return constructor;
         }
     };
@@ -107,9 +105,7 @@ namespace types_self_reference
                 {
                     jsrt::object wrapper = jsrt::object::create();
                     jsrt::function<c_proxy::d_proxy::e_proxy> constructor = jsrt::function_base::create(e_proxy_wrapper<T>::wrap_construct_self);
-                    constructor.set_property(
-                        jsrt::property_id::create(L"prototype"),
-                        wrapper);
+                    constructor.set_constructor_prototype(wrapper);
                     return constructor;
                 }
             };
