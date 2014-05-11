@@ -16,6 +16,10 @@ namespace types_array
     {
         return jsrt::bound_function<jsrt::object, c_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c")));
     }
+    void set_c(jsrt::function<c_proxy> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
+    }
     jsrt::array<double> x()
     {
         return jsrt::context::global().get_property<jsrt::array<double>>(jsrt::property_id::create(L"x"));

@@ -16,6 +16,10 @@ namespace ambient_variables
     {
         return jsrt::bound_function<jsrt::object, x_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<x_proxy>>(jsrt::property_id::create(L"x")));
     }
+    void set_x(jsrt::function<x_proxy> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"x"), value);
+    }
 }
 template<>
 JsErrorCode jsrt::value::to_native<ambient_variables::y>(JsValueRef value, ambient_variables::y *result)

@@ -40,8 +40,51 @@ namespace top_level
     public:
         a_proxy();
         explicit a_proxy(jsrt::value value);
+    private:
+        template<typename T>
+        class a_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static a_proxy wrap_construct_self(const jsrt::call_info &info)
+            {
+                if (!info.is_construct_call())
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as a regular function"));
+                    return a_proxy();
+                }
+                try
+                {
+                    T *instance = T::construct();
+                    jsrt::object wrapper = jsrt::external_object::create(instance, a_proxy_wrapper<T>::wrap_finalize);
+                    wrapper.set_prototype(((jsrt::object)info.this_value()).prototype());
+                    return (a_proxy) wrapper;
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return a_proxy();
+                }
+            }
+        };
+    public:
+        template<typename T>
+        static jsrt::function<a_proxy> wrap()
+        {
+            jsrt::object wrapper = jsrt::object::create();
+            jsrt::function<a_proxy> constructor = jsrt::function_base::create(a_proxy_wrapper<T>::wrap_construct_self);
+            constructor.set_property(
+                jsrt::property_id::create(L"prototype"),
+                wrapper);
+            return constructor;
+        }
     };
     jsrt::bound_function<jsrt::object, a_proxy> a();
+    void set_a(jsrt::function<a_proxy> value);
     class b_proxy: public jsrt::object
     {
     public:

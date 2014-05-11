@@ -48,6 +48,10 @@ namespace top_level
     {
         return jsrt::bound_function<jsrt::object, a_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<a_proxy>>(jsrt::property_id::create(L"a")));
     }
+    void set_a(jsrt::function<a_proxy> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
+    }
     b_proxy::b_proxy() :
         jsrt::object()
     {

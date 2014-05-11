@@ -3,8 +3,39 @@
 #include <jsrt.h>
 #include "ambient-classes.proxy.h"
 
+class A
+{
+private:
+    double _x;
+
+public:
+    void finalize()
+    {
+        delete this;
+    }
+    A(double x) : _x(x)
+    {
+    }
+    double get_x()
+    {
+        return _x;
+    }
+    void set_x(double x)
+    {
+        _x = x;
+    }
+    double y(double a)
+    {
+        return _x + a;
+    }
+    static A *construct(double a)
+    {
+        return new A(a);
+    }
+};
 JsErrorCode DefineGlobals()
 {
+    ambient_classes::set_a(ambient_classes::a_proxy::wrap<A>());
     return JsNoError;
 }
 

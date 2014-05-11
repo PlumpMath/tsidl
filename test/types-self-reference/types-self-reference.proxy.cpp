@@ -16,6 +16,10 @@ namespace types_self_reference
     {
         return jsrt::bound_function<jsrt::object, a_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<a_proxy>>(jsrt::property_id::create(L"a")));
     }
+    void set_a(jsrt::function<a_proxy> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
+    }
     c_proxy::c_proxy() :
         jsrt::object()
     {
@@ -43,6 +47,10 @@ namespace types_self_reference
     jsrt::bound_function<c_proxy::d_proxy, c_proxy::d_proxy::e_proxy> c_proxy::d_proxy::e()
     {
         return jsrt::bound_function<c_proxy::d_proxy, c_proxy::d_proxy::e_proxy>(*this, get_property<jsrt::function<c_proxy::d_proxy::e_proxy>>(jsrt::property_id::create(L"e")));
+    }
+    void c_proxy::d_proxy::set_e(jsrt::function<c_proxy::d_proxy::e_proxy> value)
+    {
+        set_property(jsrt::property_id::create(L"e"), value);
     }
     c_proxy::d_proxy c_proxy::d()
     {

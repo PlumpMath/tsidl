@@ -32,6 +32,10 @@ namespace ambient_classes
     {
         return jsrt::bound_function<jsrt::object, a_proxy, double>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<a_proxy, double>>(jsrt::property_id::create(L"a")));
     }
+    void set_a(jsrt::function<a_proxy, double> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"a"), value);
+    }
     b_proxy::b_proxy() :
         jsrt::object()
     {
@@ -76,6 +80,10 @@ namespace ambient_classes
     {
         return jsrt::bound_function<jsrt::object, c_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<c_proxy>>(jsrt::property_id::create(L"c")));
     }
+    void set_c(jsrt::function<c_proxy> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"c"), value);
+    }
     d_proxy::d_proxy() :
         c_proxy()
     {
@@ -87,5 +95,9 @@ namespace ambient_classes
     jsrt::bound_function<jsrt::object, d_proxy> d()
     {
         return jsrt::bound_function<jsrt::object, d_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<d_proxy>>(jsrt::property_id::create(L"d")));
+    }
+    void set_d(jsrt::function<d_proxy> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
     }
 } // namespace ambient_classes

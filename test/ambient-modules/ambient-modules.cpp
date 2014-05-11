@@ -5,14 +5,36 @@
 
 class A
 {
+private:
+    class G
+    {
+    public:
+        void finalize()
+        {
+            delete this;
+        }
+        static G *construct()
+        {
+            return new G();
+        }
+    };
+    jsrt::pinned<jsrt::function<ambient_modules::a_proxy::g_proxy>> g_constructor;
 public:
+    A()
+    {
+        g_constructor = ambient_modules::a_proxy::g_proxy::wrap<G>();
+    }
     void finalize()
     {
         delete this;
     }
-    static ambient_modules::a_proxy::g_proxy new_g(jsrt::object this_value)
+    jsrt::function<ambient_modules::a_proxy::g_proxy> get_g()
     {
-        return (ambient_modules::a_proxy::g_proxy)this_value;
+        return *g_constructor;
+    }
+    void set_g(jsrt::function<ambient_modules::a_proxy::g_proxy> value)
+    {
+        g_constructor = value;
     }
 };
 
@@ -27,17 +49,51 @@ private:
         private:
             class E
             {
+            private:
+                class F
+                {
+                public:
+                    void finalize()
+                    {
+                        delete this;
+                    }
+                    static F *construct()
+                    {
+                        return new F();
+                    }
+                };
+                jsrt::pinned<jsrt::function<ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy>> f_constructor;
+            public:
+                E()
+                {
+                    f_constructor = ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy::wrap<F>();
+                }
+                void finalize()
+                {
+                    delete this;
+                }
+                jsrt::function<ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> get_f()
+                {
+                    return *f_constructor;
+                }
+                void set_f(jsrt::function<ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> value)
+                {
+                    f_constructor = value;
+                }
+            };
+            class Z
+            {
             public:
                 void finalize()
                 {
                     delete this;
                 }
-                static ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy new_f(ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy this_value)
+                static Z *construct()
                 {
-                    return this_value;
+                    return new Z();
                 }
             };
-
+            jsrt::pinned<jsrt::function<ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy>> z_constructor;
             jsrt::pinned<ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy> e_proxy;
             double _x;
         public:
@@ -45,6 +101,7 @@ private:
             {
                 E *e = new E();
                 e_proxy = ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::wrap(e);
+                z_constructor = ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy::wrap<Z>();
                 _x = 10.0;
             }
             void finalize()
@@ -63,9 +120,13 @@ private:
             {
                 return 42.0;
             }
-            static ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy new_z(ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy this_value)
+            jsrt::function<ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy> get_z()
             {
-                return this_value;
+                return *z_constructor;
+            }
+            void set_z(jsrt::function<ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy> value)
+            {
+                z_constructor = value;
             }
             ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy get_e()
             {

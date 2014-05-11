@@ -10,8 +10,51 @@ namespace ambient_variables
     public:
         x_proxy();
         explicit x_proxy(jsrt::value value);
+    private:
+        template<typename T>
+        class x_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static x_proxy wrap_construct_self(const jsrt::call_info &info)
+            {
+                if (!info.is_construct_call())
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as a regular function"));
+                    return x_proxy();
+                }
+                try
+                {
+                    T *instance = T::construct();
+                    jsrt::object wrapper = jsrt::external_object::create(instance, x_proxy_wrapper<T>::wrap_finalize);
+                    wrapper.set_prototype(((jsrt::object)info.this_value()).prototype());
+                    return (x_proxy) wrapper;
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return x_proxy();
+                }
+            }
+        };
+    public:
+        template<typename T>
+        static jsrt::function<x_proxy> wrap()
+        {
+            jsrt::object wrapper = jsrt::object::create();
+            jsrt::function<x_proxy> constructor = jsrt::function_base::create(x_proxy_wrapper<T>::wrap_construct_self);
+            constructor.set_property(
+                jsrt::property_id::create(L"prototype"),
+                wrapper);
+            return constructor;
+        }
     };
     jsrt::bound_function<jsrt::object, x_proxy> x();
+    void set_x(jsrt::function<x_proxy> value);
     enum y
     {
         k,
