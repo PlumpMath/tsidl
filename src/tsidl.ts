@@ -340,7 +340,7 @@ function typeStringNative(container: TypeScript.PullTypeSymbol, type: TypeScript
         type.kind == TypeScript.PullElementKind.ConstructorType) {
         if (type.hasOwnCallSignatures()) {
             typeString = javaScriptFunctionType(container, type.getCallSignatures()[0], isBound);
-        } else if (type.hasOwnConstructSignatures()) {
+        } else if (type.hasOwnConstructSignatures() || type.isConstructor()) {
             typeString = javaScriptFunctionType(container, type.getConstructSignatures()[0], isBound);
         } else {
             typeString = "jsrt::object";
@@ -1038,7 +1038,7 @@ function checkTypeReference(document: TypeScript.Document, decl: TypeScript.Pull
         })) {
             return;
         } else {
-            reportError(errors, document, decl.getSpan().start(), ErrorCode.ExternalTypesNotAllowed);
+            reportError(errors, document, decl.ast().start(), ErrorCode.ExternalTypesNotAllowed);
             return;
         }
     }
@@ -1050,7 +1050,7 @@ function checkTypeReference(document: TypeScript.Document, decl: TypeScript.Pull
         return;
     }
 
-    reportError(errors, document, decl.getSpan().start(), ErrorCode.UnsupportedType, TypeScript.PullElementKind[type.kind]);
+    reportError(errors, document, decl.ast().start(), ErrorCode.UnsupportedType, TypeScript.PullElementKind[type.kind]);
 }
 
 function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
@@ -1067,11 +1067,11 @@ function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, 
             }
 
             if (!symbol.isExternallyVisible()) {
-                reportError(errors, document, decl.getSpan().start(), ErrorCode.PrivateMembersNotAllowed);
+                reportError(errors, document, decl.ast().start(), ErrorCode.PrivateMembersNotAllowed);
             }
 
             if (symbol.name[0] >= '0' && symbol.name[0] <= '9') {
-                reportError(errors, document, decl.getSpan().start(), ErrorCode.NumericIndexersNotAllowed);
+                reportError(errors, document, decl.ast().start(), ErrorCode.NumericIndexersNotAllowed);
             }
 
             var memberDecls: TypeScript.PullDecl[] = symbol.getDeclarations();
@@ -1092,22 +1092,22 @@ function checkCallSignatures(document: TypeScript.Document, decl: TypeScript.Pul
     logVerbose("Has call signatures.");
 
     if (callSignatures.length > 1) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.OverloadingNotAllowed);
         return;
     }
 
     if (type.getConstructSignatures() && type.getConstructSignatures().length > 0) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.CallAndConstructNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.CallAndConstructNotAllowed);
     }
 
     if (type.hasOwnCallSignatures() && type.getExtendedTypes().length > 0) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.ExtendsAndCallNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.ExtendsAndCallNotAllowed);
     }
 
     var callSignature: TypeScript.PullSignatureSymbol = callSignatures[0];
 
     if (callSignature.isGeneric()) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.GenericsNotAllowed);
         return;
     }
 
@@ -1131,18 +1131,18 @@ function checkConstructSignatures(document: TypeScript.Document, decl: TypeScrip
     logVerbose("Has construct signatures.");
 
     if (constructSignatures.length > 1) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.OverloadingNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.OverloadingNotAllowed);
         return;
     }
 
     if (type.hasOwnConstructSignatures() && type.getExtendedTypes().length > 0) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.ExtendsAndConstructNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.ExtendsAndConstructNotAllowed);
     }
 
     var constructSignature: TypeScript.PullSignatureSymbol = constructSignatures[0];
 
     if (constructSignature.isGeneric()) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.GenericsNotAllowed);
         return;
     }
 
@@ -1156,19 +1156,19 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
     logVerbose("Checking type '{0}', kind '{1}'.", [type.name, TypeScript.PullElementKind[type.kind]]);
 
     if (type.isGeneric()) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.GenericsNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.GenericsNotAllowed);
         return;
     }
 
     if (type.getIndexSignatures() && type.getIndexSignatures().length > 0) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.IndexersNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.IndexersNotAllowed);
     }
 
     checkCallSignatures(document, decl, type, errors);
     checkConstructSignatures(document, decl, type, errors);
 
     if (!type.getAssociatedContainerType() && type.name === "" && type.getMembers() && type.getMembers().length > 0) {
-        reportError(errors, document, decl.getSpan().start(), ErrorCode.NonFunctionAnonymousTypesNotAllowed);
+        reportError(errors, document, decl.ast().start(), ErrorCode.NonFunctionAnonymousTypesNotAllowed);
     }
 
     var constructorMethod: TypeScript.PullSymbol = type.getConstructorMethod();
@@ -1180,7 +1180,7 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
         if (prototypeMembers && prototypeMembers.length > 0) {
             prototypeMembers.forEach(m => {
                 if (m.name !== "prototype") {
-                    reportError(errors, document, decl.getSpan().start(), ErrorCode.StaticMembersNotAllowed);
+                    reportError(errors, document, decl.ast().start(), ErrorCode.StaticMembersNotAllowed);
                 }
             });
         }
@@ -1199,7 +1199,7 @@ function checkType(document: TypeScript.Document, decl: TypeScript.PullDecl, typ
 
     if (extendedTypes && extendedTypes.length > 0) {
         if (extendedTypes.length !== 1) {
-            reportError(errors, document, decl.getSpan().start(), ErrorCode.MultipleInheritanceNotAllowed);
+            reportError(errors, document, decl.ast().start(), ErrorCode.MultipleInheritanceNotAllowed);
         }
         checkTypeReference(document, decl, extendedTypes[0], errors);
     }
@@ -1240,7 +1240,7 @@ function checkContainerMember(document: TypeScript.Document, member: TypeScript.
 
         case TypeScript.PullElementKind.TypeAlias:
             assert(member.getDeclarations().length > 0);
-            reportError(errors, document, member.getDeclarations()[0].getSpan().start(), ErrorCode.ImportsNotAllowed);
+            reportError(errors, document, member.getDeclarations()[0].ast().start(), ErrorCode.ImportsNotAllowed);
             break;
 
         case TypeScript.PullElementKind.DynamicModule:
@@ -1249,7 +1249,7 @@ function checkContainerMember(document: TypeScript.Document, member: TypeScript.
 
         default:
             assert(member.getDeclarations().length > 0);
-            reportError(errors, document, member.getDeclarations()[0].getSpan().start(), ErrorCode.UnexpectedDeclaration, TypeScript.PullElementKind[member.kind]);
+            reportError(errors, document, member.getDeclarations()[0].ast().start(), ErrorCode.UnexpectedDeclaration, TypeScript.PullElementKind[member.kind]);
             break;
     }
 }
