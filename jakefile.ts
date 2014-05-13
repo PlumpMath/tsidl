@@ -16,7 +16,7 @@ var testBuiltDirectory: string = builtDirectory + testDirectory;
 var emitSourceMaps: boolean = false;
 
 var libSource: string = libDirectory + "lib.d.ts";
-var libTarget: string = path.join(srcBuiltDirectory, "lib.d.ts");
+var libTarget: string = srcBuiltDirectory + "lib.d.ts";
 var tsSource: string = libDirectory + "ts.js";
 var tsDeclSource: string = libDirectory + "ts.d.ts";
 
@@ -55,7 +55,7 @@ task("emitSourceMaps", () =>
 
 ts.batchFiles("tsidl-batch", [srcBuiltDirectory, tsidlSource, tsDeclSource], compileOptions());
 
-file(tsidlCliTarget, ["tsidl-batch", tsSource], () => {
+file(tsidlCliTarget, [tsidlTarget, tsSource], () => {
     console.log("concatenate " + tsidlTarget + " and " + tsSource + "\n");
     if (fs.existsSync(tsidlCliTarget)) {
         fs.unlinkSync(tsidlCliTarget);
