@@ -1077,7 +1077,7 @@ function checkMembers(document: TypeScript.Document, decl: TypeScript.PullDecl, 
             var memberDecls: TypeScript.PullDecl[] = symbol.getDeclarations();
 
             assert(memberDecls && memberDecls.length === 1);
-            checkType(document, memberDecls[0], symbol.type, errors);
+            checkTypeReference(document, memberDecls[0], symbol.type, errors);
         });
     }
 }

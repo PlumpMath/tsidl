@@ -60,4 +60,68 @@ namespace types_array
     {
         jsrt::context::global().set_property(jsrt::property_id::create(L"b"), value);
     }
+    d_proxy::d_proxy() :
+        jsrt::object()
+    {
+    }
+    d_proxy::d_proxy(jsrt::value value) :
+        jsrt::object(value)
+    {
+    }
+    jsrt::array<double> d_proxy::x()
+    {
+        return get_property<jsrt::array<double>>(jsrt::property_id::create(L"x"));
+    }
+    void d_proxy::set_x(jsrt::array<double> value)
+    {
+        set_property(jsrt::property_id::create(L"x"), value);
+    }
+    jsrt::bound_function<jsrt::object, d_proxy> d()
+    {
+        return jsrt::bound_function<jsrt::object, d_proxy>(jsrt::context::global(), jsrt::context::global().get_property<jsrt::function<d_proxy>>(jsrt::property_id::create(L"d")));
+    }
+    void set_d(jsrt::function<d_proxy> value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"d"), value);
+    }
+    e_proxy::e_proxy() :
+        jsrt::object()
+    {
+    }
+    e_proxy::e_proxy(jsrt::value value) :
+        jsrt::object(value)
+    {
+    }
+    jsrt::array<double> e_proxy::x()
+    {
+        return get_property<jsrt::array<double>>(jsrt::property_id::create(L"x"));
+    }
+    void e_proxy::set_x(jsrt::array<double> value)
+    {
+        set_property(jsrt::property_id::create(L"x"), value);
+    }
+    f_proxy::f_proxy() :
+        jsrt::object()
+    {
+    }
+    f_proxy::f_proxy(jsrt::value value) :
+        jsrt::object(value)
+    {
+    }
+    jsrt::array<double> f_proxy::g()
+    {
+        return get_property<jsrt::array<double>>(jsrt::property_id::create(L"g"));
+    }
+    void f_proxy::set_g(jsrt::array<double> value)
+    {
+        set_property(jsrt::property_id::create(L"g"), value);
+    }
+    f_proxy f()
+    {
+        return jsrt::context::global().get_property<f_proxy>(jsrt::property_id::create(L"f"));
+    }
+    void set_f(f_proxy value)
+    {
+        jsrt::context::global().set_property(jsrt::property_id::create(L"f"), value);
+    }
 } // namespace types_array

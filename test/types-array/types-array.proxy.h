@@ -63,4 +63,198 @@ namespace types_array
     void set_a(jsrt::array<jsrt::value> value);
     jsrt::array<c_proxy> b();
     void set_b(jsrt::array<c_proxy> value);
+    class d_proxy: public jsrt::object
+    {
+    public:
+        d_proxy();
+        explicit d_proxy(jsrt::value value);
+        jsrt::array<double> x();
+        void set_x(jsrt::array<double> value);
+    private:
+        template<typename T>
+        class d_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static jsrt::array<double> wrap_get_x(const jsrt::call_info &info)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    return this_value->get_x();
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return jsrt::array<double>();
+                }
+            }
+            static void wrap_set_x(const jsrt::call_info &info, jsrt::array<double> value)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    this_value->set_x(value);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                }
+            }
+            static d_proxy wrap_construct_self(const jsrt::call_info &info)
+            {
+                if (!info.is_construct_call())
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as a regular function"));
+                    return d_proxy();
+                }
+                try
+                {
+                    T *instance = T::construct();
+                    jsrt::object wrapper = jsrt::external_object::create(instance, d_proxy_wrapper<T>::wrap_finalize);
+                    wrapper.define_property(
+                        jsrt::property_id::create(L"x"),
+                        jsrt::property_descriptor<jsrt::array<double>>::create(
+                            jsrt::function_base::create(d_proxy_wrapper<T>::wrap_get_x),
+                            jsrt::function_base::create(d_proxy_wrapper<T>::wrap_set_x)));
+                    wrapper.set_prototype(((jsrt::object)info.this_value()).prototype());
+                    return (d_proxy) wrapper;
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return d_proxy();
+                }
+            }
+        };
+    public:
+        template<typename T>
+        static jsrt::function<d_proxy> wrap()
+        {
+            jsrt::object wrapper = jsrt::object::create();
+            jsrt::function<d_proxy> constructor = jsrt::function_base::create(d_proxy_wrapper<T>::wrap_construct_self);
+            constructor.set_constructor_prototype(wrapper);
+            return constructor;
+        }
+    };
+    jsrt::bound_function<jsrt::object, d_proxy> d();
+    void set_d(jsrt::function<d_proxy> value);
+    class e_proxy: public jsrt::object
+    {
+    public:
+        e_proxy();
+        explicit e_proxy(jsrt::value value);
+        jsrt::array<double> x();
+        void set_x(jsrt::array<double> value);
+    private:
+        template<typename T>
+        class e_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static jsrt::array<double> wrap_get_x(const jsrt::call_info &info)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    return this_value->get_x();
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return jsrt::array<double>();
+                }
+            }
+            static void wrap_set_x(const jsrt::call_info &info, jsrt::array<double> value)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    this_value->set_x(value);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                }
+            }
+        };
+    public:
+        template<typename T>
+        static e_proxy wrap(T *value)
+        {
+            jsrt::object wrapper = jsrt::external_object::create(value, e_proxy_wrapper<T>::wrap_finalize);
+            wrapper.define_property(
+                jsrt::property_id::create(L"x"),
+                jsrt::property_descriptor<jsrt::array<double>>::create(
+                    jsrt::function_base::create(e_proxy_wrapper<T>::wrap_get_x),
+                    jsrt::function_base::create(e_proxy_wrapper<T>::wrap_set_x)));
+            return (e_proxy) wrapper;
+        }
+    };
+    class f_proxy: public jsrt::object
+    {
+    public:
+        f_proxy();
+        explicit f_proxy(jsrt::value value);
+        jsrt::array<double> g();
+        void set_g(jsrt::array<double> value);
+    private:
+        template<typename T>
+        class f_proxy_wrapper
+        {
+        public:
+            static void CALLBACK wrap_finalize(void *data)
+            {
+                T * this_value = (T *) data;
+                this_value->finalize();
+            }
+            static jsrt::array<double> wrap_get_g(const jsrt::call_info &info)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    return this_value->get_g();
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return jsrt::array<double>();
+                }
+            }
+            static void wrap_set_g(const jsrt::call_info &info, jsrt::array<double> value)
+            {
+                try
+                {
+                    T *this_value = (T *) ((jsrt::external_object)info.this_value()).data();
+                    this_value->set_g(value);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                }
+            }
+        };
+    public:
+        template<typename T>
+        static f_proxy wrap(T *value)
+        {
+            jsrt::object wrapper = jsrt::external_object::create(value, f_proxy_wrapper<T>::wrap_finalize);
+            wrapper.define_property(
+                jsrt::property_id::create(L"g"),
+                jsrt::property_descriptor<jsrt::array<double>>::create(
+                    jsrt::function_base::create(f_proxy_wrapper<T>::wrap_get_g),
+                    jsrt::function_base::create(f_proxy_wrapper<T>::wrap_set_g)));
+            return (f_proxy) wrapper;
+        }
+    };
+    f_proxy f();
+    void set_f(f_proxy value);
 } // namespace types_array
