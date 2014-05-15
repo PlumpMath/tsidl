@@ -95,7 +95,7 @@ namespace ambient_classes
         };
     public:
         template<typename T>
-        static jsrt::function<a_proxy, double> wrap()
+        static jsrt::function<a_proxy, double> create()
         {
             jsrt::object wrapper = jsrt::object::create();
             wrapper.set_property(
@@ -153,7 +153,7 @@ namespace ambient_classes
         };
     public:
         template<typename T>
-        static b_proxy wrap(T *value)
+        static b_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, b_proxy_wrapper<T>::wrap_finalize);
             wrapper.define_property(
@@ -236,7 +236,7 @@ namespace ambient_classes
         };
     public:
         template<typename T>
-        static jsrt::function<c_proxy> wrap()
+        static jsrt::function<c_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
             jsrt::function<c_proxy> constructor = jsrt::function_base::create(c_proxy_wrapper<T>::wrap_construct_self);
@@ -284,7 +284,7 @@ namespace ambient_classes
         };
     public:
         template<typename T>
-        static jsrt::function<d_proxy> wrap()
+        static jsrt::function<d_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
             jsrt::function<d_proxy> constructor = jsrt::function_base::create(d_proxy_wrapper<T>::wrap_construct_self);

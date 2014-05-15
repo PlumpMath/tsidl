@@ -29,7 +29,7 @@ namespace top_level
         };
     public:
         template<typename T>
-        static z_proxy wrap(T *value)
+        static z_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, z_proxy_wrapper<T>::wrap_finalize);
             return (z_proxy) wrapper;
@@ -73,7 +73,7 @@ namespace top_level
         };
     public:
         template<typename T>
-        static jsrt::function<a_proxy> wrap()
+        static jsrt::function<a_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
             jsrt::function<a_proxy> constructor = jsrt::function_base::create(a_proxy_wrapper<T>::wrap_construct_self);
@@ -101,7 +101,7 @@ namespace top_level
         };
     public:
         template<typename T>
-        static b_proxy wrap(T *value)
+        static b_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, b_proxy_wrapper<T>::wrap_finalize);
             return (b_proxy) wrapper;

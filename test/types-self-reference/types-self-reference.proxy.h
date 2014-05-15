@@ -43,7 +43,7 @@ namespace types_self_reference
         };
     public:
         template<typename T>
-        static jsrt::function<a_proxy> wrap()
+        static jsrt::function<a_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
             jsrt::function<a_proxy> constructor = jsrt::function_base::create(a_proxy_wrapper<T>::wrap_construct_self);
@@ -101,7 +101,7 @@ namespace types_self_reference
                 };
             public:
                 template<typename T>
-                static jsrt::function<c_proxy::d_proxy::e_proxy> wrap()
+                static jsrt::function<c_proxy::d_proxy::e_proxy> create()
                 {
                     jsrt::object wrapper = jsrt::object::create();
                     jsrt::function<c_proxy::d_proxy::e_proxy> constructor = jsrt::function_base::create(e_proxy_wrapper<T>::wrap_construct_self);
@@ -149,7 +149,7 @@ namespace types_self_reference
             };
         public:
             template<typename T>
-            static d_proxy wrap(T *value)
+            static d_proxy create(T *value)
             {
                 jsrt::object wrapper = jsrt::external_object::create(value, d_proxy_wrapper<T>::wrap_finalize);
                 wrapper.define_property(
@@ -200,7 +200,7 @@ namespace types_self_reference
         };
     public:
         template<typename T>
-        static c_proxy wrap(T *value)
+        static c_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, c_proxy_wrapper<T>::wrap_finalize);
             wrapper.define_property(

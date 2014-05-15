@@ -35,7 +35,7 @@ public:
 };
 JsErrorCode DefineGlobals()
 {
-    ambient_classes::set_a(ambient_classes::a_proxy::wrap<A>());
+    ambient_classes::set_a(ambient_classes::a_proxy::create<A>());
     return JsNoError;
 }
 

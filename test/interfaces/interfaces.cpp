@@ -76,7 +76,7 @@ JsErrorCode DefineGlobals()
     interfaces::b_proxy b = interfaces::b_proxy(jsrt::object::create());
     jsrt::context::global().set_property(jsrt::property_id::create(L"b"), b);
     c *cValue = new c();
-    jsrt::context::global().set_property(jsrt::property_id::create(L"c"), interfaces::c_proxy::wrap(cValue));
+    jsrt::context::global().set_property(jsrt::property_id::create(L"c"), interfaces::c_proxy::create(cValue));
     interfaces::d_proxy d = interfaces::d_proxy::create(bar);
     jsrt::context::global().set_property(jsrt::property_id::create(L"d"), d);
     interfaces::e_proxy e = interfaces::e_proxy::create(baz);

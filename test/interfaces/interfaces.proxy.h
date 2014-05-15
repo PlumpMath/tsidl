@@ -23,7 +23,7 @@ namespace interfaces
         };
     public:
         template<typename T>
-        static a_proxy wrap(T *value)
+        static a_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, a_proxy_wrapper<T>::wrap_finalize);
             return (a_proxy) wrapper;
@@ -47,7 +47,7 @@ namespace interfaces
         };
     public:
         template<typename T>
-        static b_proxy wrap(T *value)
+        static b_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, b_proxy_wrapper<T>::wrap_finalize);
             return (b_proxy) wrapper;
@@ -172,7 +172,7 @@ namespace interfaces
         };
     public:
         template<typename T>
-        static c_proxy wrap(T *value)
+        static c_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, c_proxy_wrapper<T>::wrap_finalize);
             wrapper.define_property(
@@ -215,7 +215,7 @@ namespace interfaces
         };
     public:
         template<typename T>
-        static d_proxy wrap(T *value)
+        static d_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, d_proxy_wrapper<T>::wrap_finalize);
             return (d_proxy) wrapper;
@@ -240,7 +240,7 @@ namespace interfaces
         };
     public:
         template<typename T>
-        static e_proxy wrap(T *value)
+        static e_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, e_proxy_wrapper<T>::wrap_finalize);
             return (e_proxy) wrapper;
@@ -265,7 +265,7 @@ namespace interfaces
         };
     public:
         template<typename T>
-        static f_proxy wrap(T *value)
+        static f_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, f_proxy_wrapper<T>::wrap_finalize);
             return (f_proxy) wrapper;

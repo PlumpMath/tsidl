@@ -48,7 +48,7 @@ namespace ambient_modules
             };
         public:
             template<typename T>
-            static jsrt::function<a_proxy::g_proxy> wrap()
+            static jsrt::function<a_proxy::g_proxy> create()
             {
                 jsrt::object wrapper = jsrt::object::create();
                 jsrt::function<a_proxy::g_proxy> constructor = jsrt::function_base::create(g_proxy_wrapper<T>::wrap_construct_self);
@@ -96,7 +96,7 @@ namespace ambient_modules
         };
     public:
         template<typename T>
-        static a_proxy wrap(T *value)
+        static a_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, a_proxy_wrapper<T>::wrap_finalize);
             wrapper.define_property(
@@ -166,7 +166,7 @@ namespace ambient_modules
                     };
                 public:
                     template<typename T>
-                    static jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> wrap()
+                    static jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> create()
                     {
                         jsrt::object wrapper = jsrt::object::create();
                         jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> constructor = jsrt::function_base::create(z_proxy_wrapper<T>::wrap_construct_self);
@@ -194,7 +194,7 @@ namespace ambient_modules
                     };
                 public:
                     template<typename T>
-                    static a_proxy wrap(T *value)
+                    static a_proxy create(T *value)
                     {
                         jsrt::object wrapper = jsrt::external_object::create(value, a_proxy_wrapper<T>::wrap_finalize);
                         return (a_proxy) wrapper;
@@ -246,7 +246,7 @@ namespace ambient_modules
                         };
                     public:
                         template<typename T>
-                        static jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> wrap()
+                        static jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> create()
                         {
                             jsrt::object wrapper = jsrt::object::create();
                             jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> constructor = jsrt::function_base::create(f_proxy_wrapper<T>::wrap_construct_self);
@@ -294,7 +294,7 @@ namespace ambient_modules
                     };
                 public:
                     template<typename T>
-                    static e_proxy wrap(T *value)
+                    static e_proxy create(T *value)
                     {
                         jsrt::object wrapper = jsrt::external_object::create(value, e_proxy_wrapper<T>::wrap_finalize);
                         wrapper.define_property(
@@ -413,7 +413,7 @@ namespace ambient_modules
                 };
             public:
                 template<typename T>
-                static d_proxy wrap(T *value)
+                static d_proxy create(T *value)
                 {
                     jsrt::object wrapper = jsrt::external_object::create(value, d_proxy_wrapper<T>::wrap_finalize);
                     wrapper.define_property(
@@ -477,7 +477,7 @@ namespace ambient_modules
             };
         public:
             template<typename T>
-            static c_proxy wrap(T *value)
+            static c_proxy create(T *value)
             {
                 jsrt::object wrapper = jsrt::external_object::create(value, c_proxy_wrapper<T>::wrap_finalize);
                 wrapper.define_property(
@@ -528,7 +528,7 @@ namespace ambient_modules
         };
     public:
         template<typename T>
-        static b_proxy wrap(T *value)
+        static b_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, b_proxy_wrapper<T>::wrap_finalize);
             wrapper.define_property(

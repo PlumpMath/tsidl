@@ -43,7 +43,7 @@ namespace ambient_variables
         };
     public:
         template<typename T>
-        static jsrt::function<x_proxy> wrap()
+        static jsrt::function<x_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
             jsrt::function<x_proxy> constructor = jsrt::function_base::create(x_proxy_wrapper<T>::wrap_construct_self);
@@ -77,7 +77,7 @@ namespace ambient_variables
         };
     public:
         template<typename T>
-        static z_proxy wrap(T *value)
+        static z_proxy create(T *value)
         {
             jsrt::object wrapper = jsrt::external_object::create(value, z_proxy_wrapper<T>::wrap_finalize);
             return (z_proxy) wrapper;

@@ -639,7 +639,7 @@ function writeWrapperSelfConstructFunction(container: TypeScript.PullTypeSymbol,
 
 function writeNonClassWrapFunction(container: TypeScript.PullTypeSymbol, typeName: string, members: TypeScript.PullSymbol[], outputWriter: OutputWriter) : void {
     outputWriter.writeLineHeader("template<typename T>");
-    outputWriter.writeLineHeader("static " + typeName + " wrap(T *value)");
+    outputWriter.writeLineHeader("static " + typeName + " create(T *value)");
     outputWriter.writeLineHeader("{");
     outputWriter.indentHeader();
     outputWriter.writeLineHeader("jsrt::object wrapper = jsrt::external_object::create(value, " + typeName + "_wrapper<T>::wrap_finalize);");
@@ -681,7 +681,7 @@ function writeClassWrapFunction(container: TypeScript.PullTypeSymbol, typeName: 
     var constructorType: string = typeStringNative(container, container.getConstructorMethod().type);
 
     outputWriter.writeLineHeader("template<typename T>");
-    outputWriter.writeLineHeader("static " + constructorType + " wrap()");
+    outputWriter.writeLineHeader("static " + constructorType + " create()");
     outputWriter.writeLineHeader("{");
     outputWriter.indentHeader();
     outputWriter.writeLineHeader("jsrt::object wrapper = jsrt::object::create();");

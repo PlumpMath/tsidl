@@ -22,7 +22,7 @@ private:
 public:
     A()
     {
-        g_constructor = ambient_modules::a_proxy::g_proxy::wrap<G>();
+        g_constructor = ambient_modules::a_proxy::g_proxy::create<G>();
     }
     void finalize()
     {
@@ -66,7 +66,7 @@ private:
             public:
                 E()
                 {
-                    f_constructor = ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy::wrap<F>();
+                    f_constructor = ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::f_proxy::create<F>();
                 }
                 void finalize()
                 {
@@ -100,8 +100,8 @@ private:
             D()
             {
                 E *e = new E();
-                e_proxy = ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::wrap(e);
-                z_constructor = ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy::wrap<Z>();
+                e_proxy = ambient_modules::b_proxy::c_proxy::d_proxy::e_proxy::create(e);
+                z_constructor = ambient_modules::b_proxy::c_proxy::d_proxy::z_proxy::create<Z>();
                 _x = 10.0;
             }
             void finalize()
@@ -143,7 +143,7 @@ private:
         C()
         {
             D *d = new D();
-            d_proxy = ambient_modules::b_proxy::c_proxy::d_proxy::wrap(d);
+            d_proxy = ambient_modules::b_proxy::c_proxy::d_proxy::create(d);
         }
         void finalize()
         {
@@ -164,7 +164,7 @@ public:
     B()
     {
         C *c = new C();
-        c_proxy = ambient_modules::b_proxy::c_proxy::wrap(c);
+        c_proxy = ambient_modules::b_proxy::c_proxy::create(c);
     }
     void finalize()
     {
@@ -183,9 +183,9 @@ public:
 JsErrorCode DefineGlobals()
 {
     A *a = new A();
-    ambient_modules::set_a(ambient_modules::a_proxy::wrap(a));
+    ambient_modules::set_a(ambient_modules::a_proxy::create(a));
     B *b = new B();
-    ambient_modules::set_b(ambient_modules::b_proxy::wrap(b));
+    ambient_modules::set_b(ambient_modules::b_proxy::create(b));
     return JsNoError;
 }
 
