@@ -974,8 +974,10 @@ function writeDocument(document: TypeScript.Document, outputWriter: OutputWriter
     writeScript(document.topLevelDecl(), outputWriter);
 }
 
-function writePrologue(outputWriter: OutputWriter): void {
+function writePrologue(outputWriter: OutputWriter, stdafx: boolean): void {
     outputWriter.writeLineHeader("// This file contains automatically generated proxies for JavaScript.");
+    outputWriter.writeLineHeader();
+    outputWriter.writeLineHeader("#pragma once");
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("#include <jsrt.h>");
     outputWriter.writeLineHeader("#include \"jsrt-wrappers.h\"");
@@ -986,6 +988,9 @@ function writePrologue(outputWriter: OutputWriter): void {
 
     outputWriter.writeLineSource("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineSource();
+    if (stdafx) {
+        outputWriter.writeLineSource("#include \"stdafx.h\"");
+    }
     outputWriter.writeLineSource("#include \"" + outputWriter.baseName + ".proxy.h\"");
     outputWriter.writeLineSource();
     outputWriter.writeLineSource("namespace " + outputWriter.namespaceName);
@@ -1303,7 +1308,7 @@ function main(): void {
         .option("nologo",
         {
             flag: true,
-            help: "Suppress logo display",
+            help: "Suppress logo display.",
         })
         .option("header",
         {
@@ -1319,7 +1324,12 @@ function main(): void {
         {
             flag: true,
             abbrev: "v",
-            help: "Output verbose information"
+            help: "Output verbose information."
+        })
+        .option("stdafx",
+        {
+            flag: true,
+            help: "Emit an #include for standard headers."
         });
 
     // CONSIDER: Option to choose line endings? Choose endings based on platform?
@@ -1380,7 +1390,7 @@ function main(): void {
     var headerFileName: string = cmdLine.header || baseName + ".proxy.h";
     var sourceFileName: string = cmdLine.source || baseName + ".proxy.cpp";
 
-    writePrologue(outputWriter);
+    writePrologue(outputWriter, cmdLine.stdafx);
     writeDocument(document, outputWriter);
     writeEpilogue(outputWriter);
 
