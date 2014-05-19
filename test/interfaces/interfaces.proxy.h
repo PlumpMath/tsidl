@@ -19,8 +19,15 @@ namespace interfaces
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
         };
     public:
@@ -43,8 +50,15 @@ namespace interfaces
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
         };
     public:
@@ -75,8 +89,15 @@ namespace interfaces
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
             static double wrap_get_x(const jsrt::call_info &info)
             {
@@ -211,8 +232,15 @@ namespace interfaces
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
         };
     public:
@@ -236,8 +264,15 @@ namespace interfaces
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
         };
     public:
@@ -261,8 +296,15 @@ namespace interfaces
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
         };
     public:

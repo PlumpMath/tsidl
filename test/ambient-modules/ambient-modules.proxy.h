@@ -24,8 +24,15 @@ namespace ambient_modules
             public:
                 static void CALLBACK wrap_finalize(void *data)
                 {
-                    T * this_value = (T *) data;
-                    this_value->finalize();
+                    try
+                    {
+                        T * this_value = (T *) data;
+                        this_value->finalize();
+                    }
+                    catch (...)
+                    {
+                        // If finalize fails, since we're in the GC there's nothing that can be done...
+                    }
                 }
                 static g_proxy wrap_construct_self(const jsrt::call_info &info)
                 {
@@ -67,8 +74,15 @@ namespace ambient_modules
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
             static jsrt::function<a_proxy::g_proxy> wrap_get_g(const jsrt::call_info &info)
             {
@@ -142,8 +156,15 @@ namespace ambient_modules
                     public:
                         static void CALLBACK wrap_finalize(void *data)
                         {
-                            T * this_value = (T *) data;
-                            this_value->finalize();
+                            try
+                            {
+                                T * this_value = (T *) data;
+                                this_value->finalize();
+                            }
+                            catch (...)
+                            {
+                                // If finalize fails, since we're in the GC there's nothing that can be done...
+                            }
                         }
                         static z_proxy wrap_construct_self(const jsrt::call_info &info)
                         {
@@ -190,8 +211,15 @@ namespace ambient_modules
                     public:
                         static void CALLBACK wrap_finalize(void *data)
                         {
-                            T * this_value = (T *) data;
-                            this_value->finalize();
+                            try
+                            {
+                                T * this_value = (T *) data;
+                                this_value->finalize();
+                            }
+                            catch (...)
+                            {
+                                // If finalize fails, since we're in the GC there's nothing that can be done...
+                            }
                         }
                     };
                 public:
@@ -222,8 +250,15 @@ namespace ambient_modules
                         public:
                             static void CALLBACK wrap_finalize(void *data)
                             {
-                                T * this_value = (T *) data;
-                                this_value->finalize();
+                                try
+                                {
+                                    T * this_value = (T *) data;
+                                    this_value->finalize();
+                                }
+                                catch (...)
+                                {
+                                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                                }
                             }
                             static f_proxy wrap_construct_self(const jsrt::call_info &info)
                             {
@@ -265,8 +300,15 @@ namespace ambient_modules
                     public:
                         static void CALLBACK wrap_finalize(void *data)
                         {
-                            T * this_value = (T *) data;
-                            this_value->finalize();
+                            try
+                            {
+                                T * this_value = (T *) data;
+                                this_value->finalize();
+                            }
+                            catch (...)
+                            {
+                                // If finalize fails, since we're in the GC there's nothing that can be done...
+                            }
                         }
                         static jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> wrap_get_f(const jsrt::call_info &info)
                         {
@@ -316,8 +358,15 @@ namespace ambient_modules
                 public:
                     static void CALLBACK wrap_finalize(void *data)
                     {
-                        T * this_value = (T *) data;
-                        this_value->finalize();
+                        try
+                        {
+                            T * this_value = (T *) data;
+                            this_value->finalize();
+                        }
+                        catch (...)
+                        {
+                            // If finalize fails, since we're in the GC there's nothing that can be done...
+                        }
                     }
                     static double wrap_get_x(const jsrt::call_info &info)
                     {
@@ -448,8 +497,15 @@ namespace ambient_modules
             public:
                 static void CALLBACK wrap_finalize(void *data)
                 {
-                    T * this_value = (T *) data;
-                    this_value->finalize();
+                    try
+                    {
+                        T * this_value = (T *) data;
+                        this_value->finalize();
+                    }
+                    catch (...)
+                    {
+                        // If finalize fails, since we're in the GC there's nothing that can be done...
+                    }
                 }
                 static b_proxy::c_proxy::d_proxy wrap_get_d(const jsrt::call_info &info)
                 {
@@ -499,8 +555,15 @@ namespace ambient_modules
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
             static b_proxy::c_proxy wrap_get_c(const jsrt::call_info &info)
             {

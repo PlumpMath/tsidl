@@ -19,8 +19,15 @@ namespace ambient_variables
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
             static x_proxy wrap_construct_self(const jsrt::call_info &info)
             {
@@ -73,8 +80,15 @@ namespace ambient_variables
         public:
             static void CALLBACK wrap_finalize(void *data)
             {
-                T * this_value = (T *) data;
-                this_value->finalize();
+                try
+                {
+                    T * this_value = (T *) data;
+                    this_value->finalize();
+                }
+                catch (...)
+                {
+                    // If finalize fails, since we're in the GC there's nothing that can be done...
+                }
             }
         };
     public:

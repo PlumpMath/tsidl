@@ -540,8 +540,19 @@ function writeWrapperFinalizeFunction(outputWriter: OutputWriter): void {
     outputWriter.writeLineHeader("static void CALLBACK wrap_finalize(void *data)");
     outputWriter.writeLineHeader("{");
     outputWriter.indentHeader();
+    outputWriter.writeLineHeader("try");
+    outputWriter.writeLineHeader("{");
+    outputWriter.indentHeader();
     outputWriter.writeLineHeader("T * this_value = (T *) data;");
     outputWriter.writeLineHeader("this_value->finalize();");
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("}");
+    outputWriter.writeLineHeader("catch (...)");
+    outputWriter.writeLineHeader("{");
+    outputWriter.indentHeader();
+    outputWriter.writeLineHeader("// If finalize fails, since we're in the GC there's nothing that can be done...");
+    outputWriter.outdentHeader();
+    outputWriter.writeLineHeader("}");
     outputWriter.outdentHeader();
     outputWriter.writeLineHeader("}");
 }
