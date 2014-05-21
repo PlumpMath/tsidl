@@ -768,6 +768,8 @@ function writeWrapper(container: TypeScript.PullTypeSymbol, typeName: string, me
     outputWriter.indentHeader();
     if (container.getConstructorMethod()) {
         writeClassWrapFunction(container, typeName, members, outputWriter);
+    } else if (container.hasOwnCallSignatures() || container.hasOwnConstructSignatures()) {
+        // TODO
     } else {
         writeNonClassWrapFunction(container, typeName, members, outputWriter);
     }

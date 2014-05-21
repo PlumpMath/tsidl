@@ -244,12 +244,6 @@ namespace interfaces
             }
         };
     public:
-        template<typename T>
-        static d_proxy create(T *value)
-        {
-            jsrt::object wrapper = jsrt::external_object::create(value, d_proxy_wrapper<T>::wrap_finalize);
-            return (d_proxy) wrapper;
-        }
     };
     class e_proxy: public jsrt::function<jsrt::object, std::wstring>
     {
@@ -276,12 +270,6 @@ namespace interfaces
             }
         };
     public:
-        template<typename T>
-        static e_proxy create(T *value)
-        {
-            jsrt::object wrapper = jsrt::external_object::create(value, e_proxy_wrapper<T>::wrap_finalize);
-            return (e_proxy) wrapper;
-        }
     };
     class f_proxy: public d_proxy
     {
