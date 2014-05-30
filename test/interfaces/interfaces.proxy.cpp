@@ -72,6 +72,22 @@ namespace interfaces
     {
         return (d_proxy)jsrt::function<std::wstring, std::wstring>::create(signature);
     }
+    double d_proxy::x()
+    {
+        return get_property<double>(jsrt::property_id::create(L"x"));
+    }
+    void d_proxy::set_x(double value)
+    {
+        set_property(jsrt::property_id::create(L"x"), value);
+    }
+    jsrt::bound_function<d_proxy, double, double> d_proxy::y()
+    {
+        return jsrt::bound_function<d_proxy, double, double>(*this, get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"y")));
+    }
+    void d_proxy::set_y(jsrt::function<double, double> value)
+    {
+        set_property(jsrt::property_id::create(L"y"), value);
+    }
     e_proxy::e_proxy() :
         jsrt::function<jsrt::object, std::wstring>()
     {
@@ -83,6 +99,22 @@ namespace interfaces
     e_proxy e_proxy::create(Signature signature)
     {
         return (e_proxy)jsrt::function<jsrt::object, std::wstring>::create(signature);
+    }
+    double e_proxy::x()
+    {
+        return get_property<double>(jsrt::property_id::create(L"x"));
+    }
+    void e_proxy::set_x(double value)
+    {
+        set_property(jsrt::property_id::create(L"x"), value);
+    }
+    jsrt::bound_function<e_proxy, double, double> e_proxy::y()
+    {
+        return jsrt::bound_function<e_proxy, double, double>(*this, get_property<jsrt::function<double, double>>(jsrt::property_id::create(L"y")));
+    }
+    void e_proxy::set_y(jsrt::function<double, double> value)
+    {
+        set_property(jsrt::property_id::create(L"y"), value);
     }
     f_proxy::f_proxy() :
         d_proxy()

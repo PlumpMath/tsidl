@@ -574,7 +574,7 @@ function writeWrapperCallSelf(container: TypeScript.PullTypeSymbol, signature: T
     var index: number;
     var parameter: TypeScript.PullSymbol;
 
-    outputWriter.writeHeader("static jsrt::value wrap_call_self(const jsrt::call_info &info");
+    outputWriter.writeHeader("static " + typeStringNative(container, signature.returnType.type) + " wrap_call_self(const jsrt::call_info &info");
     for (index = 0; index < signature.parameters.length; index++) {
         outputWriter.writeHeader(", ");
         parameter = signature.parameters[index];

@@ -225,6 +225,10 @@ namespace interfaces
         d_proxy();
         explicit d_proxy(jsrt::value value);
         static d_proxy create(Signature signature);
+        double x();
+        void set_x(double value);
+        jsrt::bound_function<d_proxy, double, double> y();
+        void set_y(jsrt::function<double, double> value);
     private:
         template<typename T>
         class d_proxy_wrapper
@@ -242,7 +246,7 @@ namespace interfaces
                     // If finalize fails, since we're in the GC there's nothing that can be done...
                 }
             }
-            static jsrt::value wrap_call_self(const jsrt::call_info &info, std::wstring p0)
+            static std::wstring wrap_call_self(const jsrt::call_info &info, std::wstring p0)
             {
                 if (info.is_construct_call())
                 {
@@ -262,6 +266,55 @@ namespace interfaces
                     return jsrt::value();
                 }
             }
+            static double wrap_get_x(const jsrt::call_info &info)
+            {
+                try
+                {
+                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                        jsrt::property_id::create(L"__this__"));
+                    T *this_value = (T *) this_property.data();
+                    return this_value->get_x();
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return double();
+                }
+            }
+            static void wrap_set_x(const jsrt::call_info &info, double value)
+            {
+                try
+                {
+                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                        jsrt::property_id::create(L"__this__"));
+                    T *this_value = (T *) this_property.data();
+                    this_value->set_x(value);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                }
+            }
+            static double wrap_call_y(const jsrt::call_info &info, double p0)
+            {
+                if (info.is_construct_call())
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as constructor"));
+                    return double();
+                }
+                try
+                {
+                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                        jsrt::property_id::create(L"__this__"));
+                    T *this_value = (T *) this_property.data();
+                    return this_value->y(p0);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return double();
+                }
+            }
         };
     public:
         template<typename T>
@@ -272,6 +325,14 @@ namespace interfaces
             wrapper.set_property(
                 jsrt::property_id::create(L"__this__"),
                 this_wrapper);
+            wrapper.define_property(
+                jsrt::property_id::create(L"x"),
+                jsrt::property_descriptor<double>::create(
+                    jsrt::function_base::create(d_proxy_wrapper<T>::wrap_get_x),
+                    jsrt::function_base::create(d_proxy_wrapper<T>::wrap_set_x)));
+            wrapper.set_property(
+                jsrt::property_id::create(L"y"),
+                jsrt::function_base::create(d_proxy_wrapper<T>::wrap_call_y));
             return (d_proxy) wrapper;
         }
     };
@@ -281,6 +342,10 @@ namespace interfaces
         e_proxy();
         explicit e_proxy(jsrt::value value);
         static e_proxy create(Signature signature);
+        double x();
+        void set_x(double value);
+        jsrt::bound_function<e_proxy, double, double> y();
+        void set_y(jsrt::function<double, double> value);
     private:
         template<typename T>
         class e_proxy_wrapper
@@ -298,7 +363,7 @@ namespace interfaces
                     // If finalize fails, since we're in the GC there's nothing that can be done...
                 }
             }
-            static jsrt::value wrap_call_self(const jsrt::call_info &info, std::wstring p0)
+            static jsrt::object wrap_call_self(const jsrt::call_info &info, std::wstring p0)
             {
                 if (info.is_construct_call())
                 {
@@ -318,6 +383,55 @@ namespace interfaces
                     return jsrt::value();
                 }
             }
+            static double wrap_get_x(const jsrt::call_info &info)
+            {
+                try
+                {
+                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                        jsrt::property_id::create(L"__this__"));
+                    T *this_value = (T *) this_property.data();
+                    return this_value->get_x();
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return double();
+                }
+            }
+            static void wrap_set_x(const jsrt::call_info &info, double value)
+            {
+                try
+                {
+                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                        jsrt::property_id::create(L"__this__"));
+                    T *this_value = (T *) this_property.data();
+                    this_value->set_x(value);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                }
+            }
+            static double wrap_call_y(const jsrt::call_info &info, double p0)
+            {
+                if (info.is_construct_call())
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as constructor"));
+                    return double();
+                }
+                try
+                {
+                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                        jsrt::property_id::create(L"__this__"));
+                    T *this_value = (T *) this_property.data();
+                    return this_value->y(p0);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return double();
+                }
+            }
         };
     public:
         template<typename T>
@@ -328,6 +442,14 @@ namespace interfaces
             wrapper.set_property(
                 jsrt::property_id::create(L"__this__"),
                 this_wrapper);
+            wrapper.define_property(
+                jsrt::property_id::create(L"x"),
+                jsrt::property_descriptor<double>::create(
+                    jsrt::function_base::create(e_proxy_wrapper<T>::wrap_get_x),
+                    jsrt::function_base::create(e_proxy_wrapper<T>::wrap_set_x)));
+            wrapper.set_property(
+                jsrt::property_id::create(L"y"),
+                jsrt::function_base::create(e_proxy_wrapper<T>::wrap_call_y));
             return (e_proxy) wrapper;
         }
     };
