@@ -29,7 +29,7 @@ namespace ambient_variables
                     // If finalize fails, since we're in the GC there's nothing that can be done...
                 }
             }
-            static x_proxy wrap_construct_self(const jsrt::call_info &info)
+            static x_proxy wrap_construct(const jsrt::call_info &info)
             {
                 if (!info.is_construct_call())
                 {
@@ -55,7 +55,7 @@ namespace ambient_variables
         static jsrt::function<x_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
-            jsrt::function<x_proxy> constructor = jsrt::function_base::create(x_proxy_wrapper<T>::wrap_construct_self);
+            jsrt::function<x_proxy> constructor = jsrt::function_base::create(x_proxy_wrapper<T>::wrap_construct);
             constructor.set_constructor_prototype(wrapper);
             return constructor;
         }

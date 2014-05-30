@@ -52,22 +52,60 @@ public:
     }
 };
 
-double foo(const jsrt::call_info &info, double x)
+class d
 {
-    return x;
-}
+private:
+    double _x;
+public:
+    void finalize()
+    {
+        delete this;
+    }
+    std::wstring self(jsrt::value this_value, std::wstring p0)
+    {
+        return p0;
+    }
+    double get_x()
+    {
+        return _x;
+    }
+    void set_x(double value)
+    {
+        _x = value;
+    }
+    double y(double x)
+    {
+        return x + 10.0;
+    }
+};
 
-std::wstring bar(const jsrt::call_info &info, std::wstring x)
+class e
 {
-    return x;
-}
-
-jsrt::object baz(const jsrt::call_info &info, std::wstring x)
-{
-    jsrt::object o = jsrt::object::create();
-    o.set_property(jsrt::property_id::create(L"x"), x);
-    return o;
-}
+private:
+    double _x;
+public:
+    void finalize()
+    {
+        delete this;
+    }
+    jsrt::object self(jsrt::object this_value, std::wstring p0)
+    {
+        this_value.set_property(jsrt::property_id::create(L"x"), p0);
+        return this_value;
+    }
+    double get_x()
+    {
+        return _x;
+    }
+    void set_x(double value)
+    {
+        _x = value;
+    }
+    double y(double x)
+    {
+        return x + 10.0;
+    }
+};
 
 JsErrorCode DefineGlobals()
 {
@@ -77,11 +115,11 @@ JsErrorCode DefineGlobals()
     jsrt::context::global().set_property(jsrt::property_id::create(L"b"), b);
     c *cValue = new c();
     jsrt::context::global().set_property(jsrt::property_id::create(L"c"), interfaces::c_proxy::create(cValue));
-    interfaces::d_proxy d = interfaces::d_proxy::create(bar);
+    interfaces::d_proxy d = interfaces::d_proxy::create(new ::d());
     jsrt::context::global().set_property(jsrt::property_id::create(L"d"), d);
-    interfaces::e_proxy e = interfaces::e_proxy::create(baz);
+    interfaces::e_proxy e = interfaces::e_proxy::create(new ::e());
     jsrt::context::global().set_property(jsrt::property_id::create(L"e"), e);
-    interfaces::f_proxy f = interfaces::f_proxy::create(bar);
+    interfaces::f_proxy f = interfaces::f_proxy::create(new ::d());
     jsrt::context::global().set_property(jsrt::property_id::create(L"f"), f);
     return JsNoError;
 }

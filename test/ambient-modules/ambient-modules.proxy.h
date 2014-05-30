@@ -34,7 +34,7 @@ namespace ambient_modules
                         // If finalize fails, since we're in the GC there's nothing that can be done...
                     }
                 }
-                static g_proxy wrap_construct_self(const jsrt::call_info &info)
+                static g_proxy wrap_construct(const jsrt::call_info &info)
                 {
                     if (!info.is_construct_call())
                     {
@@ -60,7 +60,7 @@ namespace ambient_modules
             static jsrt::function<a_proxy::g_proxy> create()
             {
                 jsrt::object wrapper = jsrt::object::create();
-                jsrt::function<a_proxy::g_proxy> constructor = jsrt::function_base::create(g_proxy_wrapper<T>::wrap_construct_self);
+                jsrt::function<a_proxy::g_proxy> constructor = jsrt::function_base::create(g_proxy_wrapper<T>::wrap_construct);
                 constructor.set_constructor_prototype(wrapper);
                 return constructor;
             }
@@ -166,7 +166,7 @@ namespace ambient_modules
                                 // If finalize fails, since we're in the GC there's nothing that can be done...
                             }
                         }
-                        static z_proxy wrap_construct_self(const jsrt::call_info &info)
+                        static z_proxy wrap_construct(const jsrt::call_info &info)
                         {
                             if (!info.is_construct_call())
                             {
@@ -192,7 +192,7 @@ namespace ambient_modules
                     static jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> create()
                     {
                         jsrt::object wrapper = jsrt::object::create();
-                        jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> constructor = jsrt::function_base::create(z_proxy_wrapper<T>::wrap_construct_self);
+                        jsrt::function<b_proxy::c_proxy::d_proxy::z_proxy> constructor = jsrt::function_base::create(z_proxy_wrapper<T>::wrap_construct);
                         constructor.set_constructor_prototype(wrapper);
                         return constructor;
                     }
@@ -260,7 +260,7 @@ namespace ambient_modules
                                     // If finalize fails, since we're in the GC there's nothing that can be done...
                                 }
                             }
-                            static f_proxy wrap_construct_self(const jsrt::call_info &info)
+                            static f_proxy wrap_construct(const jsrt::call_info &info)
                             {
                                 if (!info.is_construct_call())
                                 {
@@ -286,7 +286,7 @@ namespace ambient_modules
                         static jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> create()
                         {
                             jsrt::object wrapper = jsrt::object::create();
-                            jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> constructor = jsrt::function_base::create(f_proxy_wrapper<T>::wrap_construct_self);
+                            jsrt::function<b_proxy::c_proxy::d_proxy::e_proxy::f_proxy> constructor = jsrt::function_base::create(f_proxy_wrapper<T>::wrap_construct);
                             constructor.set_constructor_prototype(wrapper);
                             return constructor;
                         }

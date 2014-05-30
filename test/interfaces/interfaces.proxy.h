@@ -246,24 +246,24 @@ namespace interfaces
                     // If finalize fails, since we're in the GC there's nothing that can be done...
                 }
             }
-            static std::wstring wrap_call_self(const jsrt::call_info &info, std::wstring p0)
+            static std::wstring wrap_self(const jsrt::call_info &info, std::wstring p0)
             {
                 if (info.is_construct_call())
                 {
                     jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as constructor"));
-                    return jsrt::value();
+                    return std::wstring();
                 }
                 try
                 {
-                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                    jsrt::external_object this_property = ((jsrt::object)info.callee()).get_property<jsrt::external_object>(
                         jsrt::property_id::create(L"__this__"));
                     T *this_value = (T *) this_property.data();
-                    return this_value->call_self(info.this_value(), p0);
+                    return this_value->self(info.this_value(), p0);
                 }
                 catch (...)
                 {
                     jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
-                    return jsrt::value();
+                    return std::wstring();
                 }
             }
             static double wrap_get_x(const jsrt::call_info &info)
@@ -321,7 +321,7 @@ namespace interfaces
         static d_proxy create(T *value)
         {
             jsrt::object this_wrapper = jsrt::external_object::create(value, d_proxy_wrapper<T>::wrap_finalize);
-            jsrt::function<std::wstring, std::wstring> wrapper = jsrt::function_base::create(d_proxy_wrapper<T>::wrap_call_self);
+            jsrt::function<std::wstring, std::wstring> wrapper = jsrt::function_base::create(d_proxy_wrapper<T>::wrap_self);
             wrapper.set_property(
                 jsrt::property_id::create(L"__this__"),
                 this_wrapper);
@@ -363,24 +363,24 @@ namespace interfaces
                     // If finalize fails, since we're in the GC there's nothing that can be done...
                 }
             }
-            static jsrt::object wrap_call_self(const jsrt::call_info &info, std::wstring p0)
+            static jsrt::object wrap_self(const jsrt::call_info &info, std::wstring p0)
             {
-                if (info.is_construct_call())
+                if (!info.is_construct_call())
                 {
-                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as constructor"));
-                    return jsrt::value();
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as a regular function"));
+                    return jsrt::object();
                 }
                 try
                 {
-                    jsrt::external_object this_property = ((jsrt::object)info.this_value()).get_property<jsrt::external_object>(
+                    jsrt::external_object this_property = ((jsrt::object)info.callee()).get_property<jsrt::external_object>(
                         jsrt::property_id::create(L"__this__"));
                     T *this_value = (T *) this_property.data();
-                    return this_value->call_self(info.this_value(), p0);
+                    return this_value->self((jsrt::object)info.this_value(), p0);
                 }
                 catch (...)
                 {
                     jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
-                    return jsrt::value();
+                    return jsrt::object();
                 }
             }
             static double wrap_get_x(const jsrt::call_info &info)
@@ -438,7 +438,7 @@ namespace interfaces
         static e_proxy create(T *value)
         {
             jsrt::object this_wrapper = jsrt::external_object::create(value, e_proxy_wrapper<T>::wrap_finalize);
-            jsrt::function<jsrt::object, std::wstring> wrapper = jsrt::function_base::create(e_proxy_wrapper<T>::wrap_call_self);
+            jsrt::function<jsrt::object, std::wstring> wrapper = jsrt::function_base::create(e_proxy_wrapper<T>::wrap_self);
             wrapper.set_property(
                 jsrt::property_id::create(L"__this__"),
                 this_wrapper);
@@ -476,12 +476,36 @@ namespace interfaces
                     // If finalize fails, since we're in the GC there's nothing that can be done...
                 }
             }
+            static std::wstring wrap_self(const jsrt::call_info &info, std::wstring p0)
+            {
+                if (info.is_construct_call())
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"function cannot be called as constructor"));
+                    return std::wstring();
+                }
+                try
+                {
+                    jsrt::external_object this_property = ((jsrt::object)info.callee()).get_property<jsrt::external_object>(
+                        jsrt::property_id::create(L"__this__"));
+                    T *this_value = (T *) this_property.data();
+                    return this_value->self(info.this_value(), p0);
+                }
+                catch (...)
+                {
+                    jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
+                    return std::wstring();
+                }
+            }
         };
     public:
         template<typename T>
         static f_proxy create(T *value)
         {
-            jsrt::object wrapper = jsrt::external_object::create(value, f_proxy_wrapper<T>::wrap_finalize);
+            jsrt::object this_wrapper = jsrt::external_object::create(value, f_proxy_wrapper<T>::wrap_finalize);
+            jsrt::function<std::wstring, std::wstring> wrapper = jsrt::function_base::create(f_proxy_wrapper<T>::wrap_self);
+            wrapper.set_property(
+                jsrt::property_id::create(L"__this__"),
+                this_wrapper);
             return (f_proxy) wrapper;
         }
     };

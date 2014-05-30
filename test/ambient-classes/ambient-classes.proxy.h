@@ -76,7 +76,7 @@ namespace ambient_classes
                     return double();
                 }
             }
-            static a_proxy wrap_construct_self(const jsrt::call_info &info, double p0)
+            static a_proxy wrap_construct(const jsrt::call_info &info, double p0)
             {
                 if (!info.is_construct_call())
                 {
@@ -110,7 +110,7 @@ namespace ambient_classes
             wrapper.set_property(
                 jsrt::property_id::create(L"y"),
                 jsrt::function_base::create(a_proxy_wrapper<T>::wrap_call_y));
-            jsrt::function<a_proxy, double> constructor = jsrt::function_base::create(a_proxy_wrapper<T>::wrap_construct_self);
+            jsrt::function<a_proxy, double> constructor = jsrt::function_base::create(a_proxy_wrapper<T>::wrap_construct);
             constructor.set_constructor_prototype(wrapper);
             return constructor;
         }
@@ -231,7 +231,7 @@ namespace ambient_classes
                     jsrt::context::set_exception(jsrt::error::create(L"internal exception"));
                 }
             }
-            static c_proxy wrap_construct_self(const jsrt::call_info &info)
+            static c_proxy wrap_construct(const jsrt::call_info &info)
             {
                 if (!info.is_construct_call())
                 {
@@ -262,7 +262,7 @@ namespace ambient_classes
         static jsrt::function<c_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
-            jsrt::function<c_proxy> constructor = jsrt::function_base::create(c_proxy_wrapper<T>::wrap_construct_self);
+            jsrt::function<c_proxy> constructor = jsrt::function_base::create(c_proxy_wrapper<T>::wrap_construct);
             constructor.set_constructor_prototype(wrapper);
             return constructor;
         }
@@ -291,7 +291,7 @@ namespace ambient_classes
                     // If finalize fails, since we're in the GC there's nothing that can be done...
                 }
             }
-            static d_proxy wrap_construct_self(const jsrt::call_info &info)
+            static d_proxy wrap_construct(const jsrt::call_info &info)
             {
                 if (!info.is_construct_call())
                 {
@@ -317,7 +317,7 @@ namespace ambient_classes
         static jsrt::function<d_proxy> create()
         {
             jsrt::object wrapper = jsrt::object::create();
-            jsrt::function<d_proxy> constructor = jsrt::function_base::create(d_proxy_wrapper<T>::wrap_construct_self);
+            jsrt::function<d_proxy> constructor = jsrt::function_base::create(d_proxy_wrapper<T>::wrap_construct);
             constructor.set_constructor_prototype(wrapper);
             return constructor;
         }
