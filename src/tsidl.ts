@@ -295,6 +295,14 @@ class OutputWriter {
     }
 }
 
+function removeQuotes(s: string): string {
+    if (s[0] === '"') {
+        return s.substr(1, s.length - 2);
+    }
+
+    return s;
+}
+
 function javaScriptFunctionType(container: TypeScript.PullTypeSymbol, signature: TypeScript.PullSignatureSymbol, isBound: boolean = false): string {
     var result: string;
 
@@ -320,7 +328,7 @@ function getFullyQualifiedName(symbol: TypeScript.PullSymbol, qualify: boolean =
     var name: string = "";
 
     while (symbol) {
-        name = symbol.name + (symbol.kind !== TypeScript.PullElementKind.Enum ? "_proxy" : "") + (qualify ? "::" : "") + name;
+        name = removeQuotes(symbol.name) + (symbol.kind !== TypeScript.PullElementKind.Enum ? "_proxy" : "") + (qualify ? "::" : "") + name;
         qualify = true;
         symbol = symbol.getContainer();
     }
@@ -997,7 +1005,7 @@ function writeEnum(outerContainer: TypeScript.PullTypeSymbol, enumDecl: TypeScri
 
 function writeModule(outerContainer: TypeScript.PullTypeSymbol, moduleDecl: TypeScript.PullDecl, outputWriter: OutputWriter): void {
     var containerSymbol: TypeScript.PullSymbol = moduleDecl.getSymbol();
-    var typeName: string = moduleDecl.name + "_proxy";
+    var typeName: string = removeQuotes(moduleDecl.name) + "_proxy";
     var fullyQualifiedName: string = getFullyQualifiedName(containerSymbol);
     var childDecls: TypeScript.PullDecl[] = moduleDecl.getChildDecls();
     var children: TypeScript.PullSymbol[] = [];
@@ -1051,9 +1059,13 @@ function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.Pu
             writeField(container, member.name, member.type.getConstructorMethod().type, member.isOptional, outputWriter);
             break;
 
+        case TypeScript.PullElementKind.DynamicModule:
+            writeModule(container, member.getDeclarations()[0], outputWriter);
+            break;
+
         case TypeScript.PullElementKind.Container:
             writeModule(container, member.getDeclarations()[0], outputWriter);
-            writeField(container, member.name, member.type, member.isOptional, outputWriter);
+            writeField(container, removeQuotes(member.name), member.type, member.isOptional, outputWriter);
             break;
 
         case TypeScript.PullElementKind.EnumMember:
@@ -1345,6 +1357,7 @@ function checkContainerMember(document: TypeScript.Document, member: TypeScript.
 
         case TypeScript.PullElementKind.Enum:
         case TypeScript.PullElementKind.Container:
+        case TypeScript.PullElementKind.DynamicModule:
             assert(member.getDeclarations().length === 1);
             checkContainer(document, member.getDeclarations()[0], errors);
             break;
@@ -1355,10 +1368,6 @@ function checkContainerMember(document: TypeScript.Document, member: TypeScript.
         case TypeScript.PullElementKind.TypeAlias:
             assert(member.getDeclarations().length > 0);
             reportError(errors, document, member.getDeclarations()[0].ast().start(), ErrorCode.ImportsNotAllowed);
-            break;
-
-        case TypeScript.PullElementKind.DynamicModule:
-            reportError(errors, document, -1, ErrorCode.ExternalModulesNotAllowed);
             break;
 
         default:
