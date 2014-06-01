@@ -238,6 +238,16 @@ class OutputWriter {
         }
     }
 
+    public startBlockHeader(): void {
+        this.writeLineHeader("{");
+        this.indentHeader();
+    }
+
+    public endBlockHeader(additional? : string): void {
+        this.outdentHeader();
+        this.writeLineHeader("}" + (additional ? additional : ""));
+    }
+
     private checkSourceIndent(): void {
         if (this._sourceAtLineStart) {
             for (var index: number = 0; index < this._sourceIndent; index++) {
@@ -272,6 +282,16 @@ class OutputWriter {
         if (this._sourceIndent < 0) {
             throw new Error("unbalanced indent");
         }
+    }
+
+    public startBlockSource(): void {
+        this.writeLineSource("{");
+        this.indentSource();
+    }
+
+    public endBlockSource(additional? : string): void {
+        this.outdentSource();
+        this.writeLineSource("}" + (additional ? additional : ""));
     }
 }
 
@@ -374,22 +394,18 @@ function writeField(container: TypeScript.PullTypeSymbol, name: string, type: Ty
     outputWriter.writeLineHeader("void set_" + name + "(" + fieldType + " value);");
 
     outputWriter.writeLineSource(boundFieldType + " " + classQualifier + name + "()");
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
+    outputWriter.startBlockSource();
     if (fieldType !== boundFieldType) {
         outputWriter.writeLineSource("return " + boundFieldType + "(" + (global ? "jsrt::context::global()" : "*this") + ", " + global + "get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\")));");
     } else {
         outputWriter.writeLineSource("return " + global + "get_property<" + fieldType + ">(jsrt::property_id::create(L\"" + name + "\"));");
     }
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
+    outputWriter.endBlockSource();
 
     outputWriter.writeLineSource("void " + classQualifier + "set_" + name + "(" + fieldType + " value)");
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
+    outputWriter.startBlockSource();
     outputWriter.writeLineSource(global + "set_property(jsrt::property_id::create(L\"" + name + "\"), value);");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
+    outputWriter.endBlockSource();
 }
 
 function writeTypeImplements(typeName: string, baseName: string, implementsList: TypeScript.PullTypeSymbol[], outputWriter: OutputWriter): void {
@@ -404,14 +420,12 @@ function writeTypeImplements(typeName: string, baseName: string, implementsList:
         outputWriter.indentSource();
         outputWriter.writeLineSource("" + baseName + "(value)");
         outputWriter.outdentSource();
-        outputWriter.writeLineSource("{");
-        outputWriter.writeLineSource("}");
+        outputWriter.startBlockSource();
+        outputWriter.endBlockSource();
         outputWriter.writeLineSource(typeName + "::" + "operator " + implementedTypeName + "()");
-        outputWriter.writeLineSource("{");
-        outputWriter.indentSource();
+        outputWriter.startBlockSource();
         outputWriter.writeLineSource("return " + implementedTypeName + "(*this);");
-        outputWriter.outdentSource();
-        outputWriter.writeLineSource("}");
+        outputWriter.endBlockSource();
     }
 }
 
@@ -427,15 +441,15 @@ function writeClass(fullyQualifiedName: string, typeName: string, baseName: stri
     outputWriter.indentSource();
     outputWriter.writeLineSource("" + baseName + "()");
     outputWriter.outdentSource();
-    outputWriter.writeLineSource("{");
-    outputWriter.writeLineSource("}");
+    outputWriter.startBlockSource();
+    outputWriter.endBlockSource();
 
     outputWriter.writeLineSource(fullyQualifiedName + "::" + typeName + "(jsrt::value value) :");
     outputWriter.indentSource();
     outputWriter.writeLineSource(baseName + "(value)");
     outputWriter.outdentSource();
-    outputWriter.writeLineSource("{");
-    outputWriter.writeLineSource("}");
+    outputWriter.startBlockSource();
+    outputWriter.endBlockSource();
 }
 
 function writeWrapperLoadThis(isFunction: boolean, outputWriter: OutputWriter): void {
@@ -460,18 +474,14 @@ function writeWrapperCallFunction(container: TypeScript.PullTypeSymbol, name: st
         outputWriter.writeHeader(typeStringNative(container, parameter.type, parameter.isOptional, parameter.isVarArg) + " p" + index.toString());
     }
     outputWriter.writeLineHeader(")");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("if (info.is_construct_call())");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"function cannot be called as constructor\"));");
     outputWriter.writeLineHeader("return " + typeStringNative(type, signature.returnType.type) + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("try");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     writeWrapperLoadThis(isFunction, outputWriter);
     outputWriter.writeHeader("return this_value->" + name + "(");
     for (index = 0; index < signature.parameters.length; index++) {
@@ -481,17 +491,13 @@ function writeWrapperCallFunction(container: TypeScript.PullTypeSymbol, name: st
         outputWriter.writeHeader("p" + index.toString());
     }
     outputWriter.writeLineHeader(");");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("catch (...)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"internal exception\"));");
     outputWriter.writeLineHeader("return " + typeStringNative(type, signature.returnType.type) + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
+    outputWriter.endBlockHeader();
 }
 
 function writeWrapperGetSetFunctions(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, isOptional: boolean, isFunction: boolean, outputWriter: OutputWriter): void {
@@ -502,43 +508,31 @@ function writeWrapperGetSetFunctions(container: TypeScript.PullTypeSymbol, name:
     }
 
     outputWriter.writeLineHeader("static " + fieldType + " wrap_get_" + name + "(const jsrt::call_info &info)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("try");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     writeWrapperLoadThis(isFunction, outputWriter);
     outputWriter.writeLineHeader("return this_value->get_" + name + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("catch (...)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"internal exception\"));");
     outputWriter.writeLineHeader("return " + fieldType + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
+    outputWriter.endBlockHeader();
 
     outputWriter.writeLineHeader("static void wrap_set_" + name + "(const jsrt::call_info &info, " + fieldType + " value)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("try");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     writeWrapperLoadThis(isFunction, outputWriter);
     outputWriter.writeLineHeader("this_value->set_" + name + "(value);");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("catch (...)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"internal exception\"));");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
+    outputWriter.endBlockHeader();
 }
 
 function writeWrapperFunction(container: TypeScript.PullTypeSymbol, name: string, type: TypeScript.PullTypeSymbol, isOptional: boolean, isFunction: boolean, outputWriter: OutputWriter): void {
@@ -551,23 +545,17 @@ function writeWrapperFunction(container: TypeScript.PullTypeSymbol, name: string
 
 function writeWrapperFinalizeFunction(outputWriter: OutputWriter): void {
     outputWriter.writeLineHeader("static void CALLBACK wrap_finalize(void *data)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("try");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("T * this_value = (T *) data;");
     outputWriter.writeLineHeader("this_value->finalize();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("catch (...)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("// If finalize fails, since we're in the GC there's nothing that can be done...");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
+    outputWriter.endBlockHeader();
 }
 
 function writeWrapperConstructSelf(container: TypeScript.PullTypeSymbol, signature: TypeScript.PullSignatureSymbol, outputWriter: OutputWriter): void {
@@ -581,18 +569,14 @@ function writeWrapperConstructSelf(container: TypeScript.PullTypeSymbol, signatu
         outputWriter.writeHeader(typeStringNative(container, parameter.type, parameter.isOptional, parameter.isVarArg) + " p" + index.toString());
     }
     outputWriter.writeLineHeader(")");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("if (!info.is_construct_call())");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"function cannot be called as a regular function\"));");
     outputWriter.writeLineHeader("return " + typeStringNative(container, signature.returnType.type) + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("try");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::external_object this_property = ((jsrt::object)info.callee()).get_property<jsrt::external_object>(");
     outputWriter.indentHeader();
     outputWriter.writeLineHeader("jsrt::property_id::create(L\"__this__\"));");
@@ -603,17 +587,13 @@ function writeWrapperConstructSelf(container: TypeScript.PullTypeSymbol, signatu
         outputWriter.writeHeader(", p" + index.toString());
     }
     outputWriter.writeLineHeader(");");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("catch (...)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"internal exception\"));");
     outputWriter.writeLineHeader("return jsrt::object();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
+    outputWriter.endBlockHeader();
 }
 
 function writeWrapperCallSelf(container: TypeScript.PullTypeSymbol, signature: TypeScript.PullSignatureSymbol, outputWriter: OutputWriter): void {
@@ -627,18 +607,14 @@ function writeWrapperCallSelf(container: TypeScript.PullTypeSymbol, signature: T
         outputWriter.writeHeader(typeStringNative(container, parameter.type, parameter.isOptional, parameter.isVarArg) + " p" + index.toString());
     }
     outputWriter.writeLineHeader(")");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("if (info.is_construct_call())");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"function cannot be called as constructor\"));");
     outputWriter.writeLineHeader("return " + typeStringNative(container, signature.returnType.type) + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("try");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::external_object this_property = ((jsrt::object)info.callee()).get_property<jsrt::external_object>(");
     outputWriter.indentHeader();
     outputWriter.writeLineHeader("jsrt::property_id::create(L\"__this__\"));");
@@ -649,17 +625,13 @@ function writeWrapperCallSelf(container: TypeScript.PullTypeSymbol, signature: T
         outputWriter.writeHeader(", p" + index.toString());
     }
     outputWriter.writeLineHeader(");");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("catch (...)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"internal exception\"));");
     outputWriter.writeLineHeader("return " + typeStringNative(container, signature.returnType.type) + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
+    outputWriter.endBlockHeader();
 }
 
 function writeWrapperFieldCreate(container: TypeScript.PullTypeSymbol, typeName: string, name: string, type: TypeScript.PullTypeSymbol, isOptional: boolean, outputWriter: OutputWriter): void {
@@ -698,18 +670,14 @@ function writeWrapperConstructor(container: TypeScript.PullTypeSymbol, typeName:
         outputWriter.writeHeader(typeStringNative(container, parameter.type, parameter.isOptional, parameter.isVarArg) + " p" + index.toString());
     }
     outputWriter.writeLineHeader(")");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("if (!info.is_construct_call())");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"function cannot be called as a regular function\"));");
     outputWriter.writeLineHeader("return " + typeName + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("try");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeHeader("T *instance = T::construct(");
     for (index = 0; index < signature.parameters.length; index++) {
         if (index !== 0) {
@@ -740,17 +708,13 @@ function writeWrapperConstructor(container: TypeScript.PullTypeSymbol, typeName:
     }
     outputWriter.writeLineHeader("wrapper.set_prototype(((jsrt::object)info.this_value()).prototype());")
     outputWriter.writeLineHeader("return (" + typeName + ") wrapper;");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
     outputWriter.writeLineHeader("catch (...)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::context::set_exception(jsrt::error::create(L\"internal exception\"));");
     outputWriter.writeLineHeader("return " + typeName + "();");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
+    outputWriter.endBlockHeader();
 }
 
 function writeFunctionWrapFunction(container: TypeScript.PullTypeSymbol, signature: TypeScript.PullSignatureSymbol, typeName: string, members: TypeScript.PullSymbol[], outputWriter: OutputWriter): void {
@@ -758,8 +722,7 @@ function writeFunctionWrapFunction(container: TypeScript.PullTypeSymbol, signatu
 
     outputWriter.writeLineHeader("template<typename T>");
     outputWriter.writeLineHeader("static " + typeName + " create(T *value)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::object this_wrapper = jsrt::external_object::create(value, " + typeName + "_wrapper<T>::wrap_finalize);");
     outputWriter.writeLineHeader(baseName + " wrapper = jsrt::function_base::create(" + typeName + "_wrapper<T>::wrap_self);");
     outputWriter.writeLineHeader("wrapper.set_property(");
@@ -794,15 +757,13 @@ function writeFunctionWrapFunction(container: TypeScript.PullTypeSymbol, signatu
         });
     }
     outputWriter.writeLineHeader("return (" + typeName + ") wrapper;");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
 }
 
 function writeNonClassWrapFunction(container: TypeScript.PullTypeSymbol, typeName: string, members: TypeScript.PullSymbol[], outputWriter: OutputWriter) : void {
     outputWriter.writeLineHeader("template<typename T>");
     outputWriter.writeLineHeader("static " + typeName + " create(T *value)");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::object wrapper = jsrt::external_object::create(value, " + typeName + "_wrapper<T>::wrap_finalize);");
     if (members && members.length > 0) {
         members.forEach((member: TypeScript.PullSymbol) => {
@@ -831,8 +792,7 @@ function writeNonClassWrapFunction(container: TypeScript.PullTypeSymbol, typeNam
         });
     }
     outputWriter.writeLineHeader("return (" + typeName + ") wrapper;");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
 }
 
 function writeClassWrapFunction(container: TypeScript.PullTypeSymbol, typeName: string, members: TypeScript.PullSymbol[], outputWriter: OutputWriter): void {
@@ -840,8 +800,7 @@ function writeClassWrapFunction(container: TypeScript.PullTypeSymbol, typeName: 
 
     outputWriter.writeLineHeader("template<typename T>");
     outputWriter.writeLineHeader("static " + constructorType + " create()");
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
     outputWriter.writeLineHeader("jsrt::object wrapper = jsrt::object::create();");
     if (members && members.length > 0) {
         members.forEach((member: TypeScript.PullSymbol) => {
@@ -865,8 +824,7 @@ function writeClassWrapFunction(container: TypeScript.PullTypeSymbol, typeName: 
     outputWriter.writeLineHeader(constructorType + " constructor = jsrt::function_base::create(" + typeName + "_wrapper<T>::wrap_construct);");
     outputWriter.writeLineHeader("constructor.set_constructor_prototype(wrapper);");
     outputWriter.writeLineHeader("return constructor;");
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("}");
+    outputWriter.endBlockHeader();
 }
 
 function writeWrapper(container: TypeScript.PullTypeSymbol, typeName: string, members: TypeScript.PullSymbol[], outputWriter: OutputWriter): void {
@@ -917,8 +875,7 @@ function writeWrapper(container: TypeScript.PullTypeSymbol, typeName: string, me
     if (container.getConstructorMethod()) {
         writeWrapperConstructor(container, typeName, members, outputWriter);
     }
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("};");
+    outputWriter.endBlockHeader(";");
     outputWriter.outdentHeader();
     outputWriter.writeLineHeader("public:");
     outputWriter.indentHeader();
@@ -960,11 +917,9 @@ function writeType(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTy
         outputWriter.writeLineHeader("static " + typeName + " create(Signature signature);");
 
         outputWriter.writeLineSource(typeName + " " + fullyQualifiedName + "::create(Signature signature)");
-        outputWriter.writeLineSource("{");
-        outputWriter.indentSource();
+        outputWriter.startBlockSource();
         outputWriter.writeLineSource("return (" + typeName + ")" + baseName + "::create(signature);");
-        outputWriter.outdentSource();
-        outputWriter.writeLineSource("}");
+        outputWriter.endBlockSource();
     }
 
     var implementedTypes: TypeScript.PullTypeSymbol[] = type.getImplementedTypes();
@@ -985,8 +940,7 @@ function writeType(container: TypeScript.PullTypeSymbol, type: TypeScript.PullTy
         writeWrapper(type, typeName, type.getMembers(), outputWriter);
     }
 
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("};");
+    outputWriter.endBlockHeader(";");
 }
 
 function writeEnumMember(member: TypeScript.PullEnumElementDecl, outputWriter: OutputWriter): void {
@@ -1002,8 +956,7 @@ function writeEnum(outerContainer: TypeScript.PullTypeSymbol, enumDecl: TypeScri
     var namespaceFullyQualifiedName: string = outputWriter.namespaceName + "::" + getFullyQualifiedName(containerSymbol);
 
     outputWriter.writeLineHeader("enum " + enumDecl.name);
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
 
     var childDecls: TypeScript.PullDecl[] = enumDecl.getChildDecls();
 
@@ -1019,34 +972,27 @@ function writeEnum(outerContainer: TypeScript.PullTypeSymbol, enumDecl: TypeScri
         });
     }
 
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("};");
+    outputWriter.endBlockHeader(";");
 
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
+    outputWriter.endBlockSource();
 
     outputWriter.writeLineSource("template<>");
     outputWriter.writeLineSource("JsErrorCode jsrt::value::to_native<" + namespaceFullyQualifiedName + ">(JsValueRef value, " + namespaceFullyQualifiedName + " *result)");
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
+    outputWriter.startBlockSource();
     outputWriter.writeLineSource("double doubleResult = 0;");
     outputWriter.writeLineSource("JsErrorCode code = JsNumberToDouble(value, &doubleResult);");
     outputWriter.writeLineSource("*result = (" + namespaceFullyQualifiedName + ")(int) doubleResult;");
     outputWriter.writeLineSource("return code;");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
+    outputWriter.endBlockSource();
 
     outputWriter.writeLineSource("template<>");
     outputWriter.writeLineSource("JsErrorCode jsrt::value::from_native(" + namespaceFullyQualifiedName + " value, JsValueRef *result)");
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
+    outputWriter.startBlockSource();
     outputWriter.writeLineSource("return JsIntToNumber(value, result);");
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("}");
+    outputWriter.endBlockSource();
 
     outputWriter.writeLineSource("namespace " + outputWriter.namespaceName);
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
+    outputWriter.startBlockSource();
 }
 
 function writeModule(outerContainer: TypeScript.PullTypeSymbol, moduleDecl: TypeScript.PullDecl, outputWriter: OutputWriter): void {
@@ -1074,8 +1020,7 @@ function writeModule(outerContainer: TypeScript.PullTypeSymbol, moduleDecl: Type
 
     writeWrapper(containerSymbol ? containerSymbol.type : null, typeName, children, outputWriter);
 
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("};");
+    outputWriter.endBlockHeader(";");
 }
 
 function writeMember(container: TypeScript.PullTypeSymbol, member: TypeScript.PullSymbol, outputWriter: OutputWriter): void {
@@ -1152,8 +1097,7 @@ function writePrologue(outputWriter: OutputWriter, stdafx: boolean): void {
     outputWriter.writeLineHeader("#include \"jsrt-wrappers.h\"");
     outputWriter.writeLineHeader();
     outputWriter.writeLineHeader("namespace " + outputWriter.namespaceName);
-    outputWriter.writeLineHeader("{");
-    outputWriter.indentHeader();
+    outputWriter.startBlockHeader();
 
     outputWriter.writeLineSource("// This file contains automatically generated proxies for JavaScript.");
     outputWriter.writeLineSource();
@@ -1163,16 +1107,12 @@ function writePrologue(outputWriter: OutputWriter, stdafx: boolean): void {
     outputWriter.writeLineSource("#include \"" + outputWriter.baseName + ".proxy.h\"");
     outputWriter.writeLineSource();
     outputWriter.writeLineSource("namespace " + outputWriter.namespaceName);
-    outputWriter.writeLineSource("{");
-    outputWriter.indentSource();
+    outputWriter.startBlockSource();
 }
 
 function writeEpilogue(outputWriter: OutputWriter): void {
-    outputWriter.outdentHeader();
-    outputWriter.writeLineHeader("} // namespace " + outputWriter.namespaceName);
-
-    outputWriter.outdentSource();
-    outputWriter.writeLineSource("} // namespace " + outputWriter.namespaceName);
+    outputWriter.endBlockHeader(" // namespace " + outputWriter.namespaceName);
+    outputWriter.endBlockSource(" // namespace " + outputWriter.namespaceName);
 }
 
 function checkTypeReference(document: TypeScript.Document, decl: TypeScript.PullDecl, type: TypeScript.PullTypeSymbol, errors: string[]): void {
