@@ -969,13 +969,13 @@ function writeEnum(outerContainer: TypeScript.PullTypeSymbol, enumDecl: TypeScri
     var childDecls: TypeScript.PullDecl[] = enumDecl.getChildDecls();
 
     if (childDecls) {
-        var seen: any = {};
+        var seen: Map<TypeScript.PullSymbol, boolean> = new Map<TypeScript.PullSymbol, boolean>();
 
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
-            if (s && !seen[s]) {
+            if (s && !seen.get(s)) {
                 writeMember(containerSymbol ? containerSymbol.type : null, s, outputWriter);
-                seen[s] = true;
+                seen.set(s, true);
             }
         });
     }
@@ -1011,13 +1011,13 @@ function writeModule(outerContainer: TypeScript.PullTypeSymbol, moduleDecl: Type
     var children: TypeScript.PullSymbol[] = [];
 
     if (childDecls) {
-        var seen: any = {};
+        var seen: Map<TypeScript.PullSymbol, boolean> = new Map<TypeScript.PullSymbol, boolean>();
 
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
-            if (s && !seen[s]) {
+            if (s && !seen.get(s)) {
                 children.push(s);
-                seen[s] = true;
+                seen.set(s, true);
             }
         });
     }
@@ -1084,13 +1084,13 @@ function writeScript(script: TypeScript.PullDecl, outputWriter: OutputWriter): v
     var childDecls: TypeScript.PullDecl[] = script.getChildDecls();
 
     if (childDecls) {
-        var seen: any = {};
+        var seen: Map<TypeScript.PullSymbol, boolean> = new Map<TypeScript.PullSymbol, boolean>();
 
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
-            if (s && !seen[s]) {
+            if (s && !seen.get(s)) {
                 writeMember(null, s, outputWriter);
-                seen[s] = true;
+                seen.set(s, true);
             }
         });
     }
@@ -1383,16 +1383,16 @@ function checkContainer(document: TypeScript.Document, decl: TypeScript.PullDecl
     var childDecls: TypeScript.PullDecl[] = decl.getChildDecls();
 
     if (childDecls) {
-        var seen: any = {};
+        var seen: Map<TypeScript.PullSymbol, boolean> = new Map<TypeScript.PullSymbol, boolean>();
 
         childDecls.forEach(childDecl => {
             var s: TypeScript.PullSymbol = childDecl.getSymbol();
             if (!s) {
                 logVerbose("Skipping container member decl kind '{0}'.", [TypeScript.PullElementKind[decl.kind]]);
             }
-            else if (!seen[s]) {
+            else if (!seen.get(s)) {
                 checkContainerMember(document, s, errors);
-                seen[s] = true;
+                seen.set(s, true);
             }
         });
     }
