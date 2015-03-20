@@ -233,6 +233,13 @@ namespace ambient_modules
                 enum b
                 {
                 };
+            }
+            template<>
+            JsErrorCode jsrt::value::to_native<ambient_modules::b_proxy::c_proxy::d_proxy::b>(JsValueRef value, ambient_modules::b_proxy::c_proxy::d_proxy::b *result);
+            template<>
+            JsErrorCode jsrt::value::from_native(ambient_modules::b_proxy::c_proxy::d_proxy::b value, JsValueRef *result);
+            namespace ambient_modules
+            {
                 class e_proxy: public jsrt::object
                 {
                 public:

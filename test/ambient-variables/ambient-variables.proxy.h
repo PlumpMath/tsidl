@@ -68,6 +68,13 @@ namespace ambient_variables
         l,
         m,
     };
+}
+template<>
+JsErrorCode jsrt::value::to_native<ambient_variables::y>(JsValueRef value, ambient_variables::y *result);
+template<>
+JsErrorCode jsrt::value::from_native(ambient_variables::y value, JsValueRef *result);
+namespace ambient_variables
+{
     class z_proxy: public jsrt::object
     {
     public:

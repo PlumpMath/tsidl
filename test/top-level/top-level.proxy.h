@@ -135,4 +135,11 @@ namespace top_level
     enum c
     {
     };
+}
+template<>
+JsErrorCode jsrt::value::to_native<top_level::c>(JsValueRef value, top_level::c *result);
+template<>
+JsErrorCode jsrt::value::from_native(top_level::c value, JsValueRef *result);
+namespace top_level
+{
 } // namespace top_level

@@ -981,6 +981,15 @@ function writeEnum(outerContainer: TypeScript.PullTypeSymbol, enumDecl: TypeScri
     }
 
     outputWriter.endBlockHeader(";");
+    outputWriter.endBlockHeader();
+
+    outputWriter.writeLineHeader("template<>");
+    outputWriter.writeLineHeader("JsErrorCode jsrt::value::to_native<" + namespaceFullyQualifiedName + ">(JsValueRef value, " + namespaceFullyQualifiedName + " *result);");
+    outputWriter.writeLineHeader("template<>");
+    outputWriter.writeLineHeader("JsErrorCode jsrt::value::from_native(" + namespaceFullyQualifiedName + " value, JsValueRef *result);");
+
+    outputWriter.writeLineHeader("namespace " + outputWriter.namespaceName);
+    outputWriter.startBlockHeader();
 
     outputWriter.endBlockSource();
 
